@@ -744,6 +744,161 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Device:C"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0.254)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "C"
+				(at 0.635 2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "C"
+				(at 0.635 -2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" ""
+				(at 0.9652 -3.81 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Unpolarized capacitor"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "cap capacitor"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "C_*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "C_0_1"
+				(polyline
+					(pts
+						(xy -2.032 0.762) (xy 2.032 0.762)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -2.032 -0.762) (xy 2.032 -0.762)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "C_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 2.794)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 2.794)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:LED"
 			(pin_numbers
 				(hide yes)
@@ -3461,6 +3616,18 @@
 		(uuid "58e8317f-ec6f-4b8a-b7c7-dcbeda805f57")
 	)
 	(junction
+		(at 100.33 38.1)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "623cd939-2d1f-40b1-a2e9-226dd0b9993f")
+	)
+	(junction
+		(at 59.69 64.77)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "74b5a71a-3d53-4c15-a6f4-cb6aea46eff7")
+	)
+	(junction
 		(at 170.18 116.84)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3507,6 +3674,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "d0ef52e5-8744-472d-9e7c-74a01e3454dd")
+	)
+	(junction
+		(at 102.87 41.91)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "d73d4b25-187d-44f6-9277-33a32b0e0256")
 	)
 	(junction
 		(at 102.87 157.48)
@@ -3633,6 +3806,16 @@
 			(type default)
 		)
 		(uuid "4a9647f2-8d36-45c0-8db3-50d3265f62b2")
+	)
+	(wire
+		(pts
+			(xy 68.58 64.77) (xy 59.69 64.77)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4f560b71-1c9b-4688-8bb0-2931d0a8cbdf")
 	)
 	(wire
 		(pts
@@ -3763,6 +3946,16 @@
 			(type default)
 		)
 		(uuid "787ebd69-7e73-4a64-9434-c1df3686dc21")
+	)
+	(wire
+		(pts
+			(xy 100.33 38.1) (xy 100.33 41.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8064b18a-fe51-4131-90c4-33f068a1ba7d")
 	)
 	(wire
 		(pts
@@ -3976,6 +4169,16 @@
 	)
 	(wire
 		(pts
+			(xy 100.33 31.75) (xy 100.33 38.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d4f91ae9-ec08-4738-8ae6-94b94ef9656d")
+	)
+	(wire
+		(pts
 			(xy 134.62 64.77) (xy 138.43 64.77)
 		)
 		(stroke
@@ -4066,6 +4269,16 @@
 	)
 	(wire
 		(pts
+			(xy 59.69 64.77) (xy 54.61 64.77)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fb8ec556-36e3-4b98-aa1a-8f67f208e604")
+	)
+	(wire
+		(pts
 			(xy 195.58 144.78) (xy 201.93 144.78)
 		)
 		(stroke
@@ -4114,7 +4327,7 @@
 		)
 		(uuid "08cf83a7-e6cf-40bf-92b1-6746cc7b0c07")
 	)
-	(label "8"
+	(label "2"
 		(at 223.52 43.18 0)
 		(effects
 			(font
@@ -4194,7 +4407,7 @@
 		)
 		(uuid "29ec73cc-747f-4b84-beab-49b5ce277a0c")
 	)
-	(label "11"
+	(label "10"
 		(at 139.7 38.1 0)
 		(effects
 			(font
@@ -4224,7 +4437,7 @@
 		)
 		(uuid "30d34b2a-5f22-4e98-a60b-5e97e90e682b")
 	)
-	(label "9"
+	(label "8"
 		(at 223.52 80.01 0)
 		(effects
 			(font
@@ -4324,7 +4537,7 @@
 		)
 		(uuid "704ceaa7-b81a-42fa-a320-ceba66a41f74")
 	)
-	(label "7"
+	(label "11"
 		(at 102.87 137.16 0)
 		(effects
 			(font
@@ -4364,7 +4577,7 @@
 		)
 		(uuid "957eef6d-fd5c-4a41-8b5c-52ed64d94ffd")
 	)
-	(label "24"
+	(label "23"
 		(at 91.44 137.16 0)
 		(effects
 			(font
@@ -4424,7 +4637,7 @@
 		)
 		(uuid "a78c4c7b-e6b1-479a-b8c8-e1a78568619f")
 	)
-	(label "23"
+	(label "24"
 		(at 223.52 62.23 0)
 		(effects
 			(font
@@ -4484,7 +4697,7 @@
 		)
 		(uuid "c394765d-44ee-4623-89c2-2726bba4ed5f")
 	)
-	(label "10"
+	(label "9"
 		(at 144.78 25.4 0)
 		(effects
 			(font
@@ -4544,7 +4757,7 @@
 		)
 		(uuid "d499abc2-ebdf-4a10-b938-7bab66f7b446")
 	)
-	(label "2"
+	(label "7"
 		(at 128.27 137.16 0)
 		(effects
 			(font
@@ -4744,7 +4957,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 54.61 64.77 270)
+		(at 68.58 64.77 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4755,7 +4968,7 @@
 		(fields_autoplaced yes)
 		(uuid "09584125-6826-4a53-a239-04992fb7d3e0")
 		(property "Reference" "#PWR011"
-			(at 50.8 64.77 0)
+			(at 64.77 64.77 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4766,7 +4979,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 58.42 64.7699 90)
+			(at 72.39 64.7699 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4777,7 +4990,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 54.61 64.77 0)
+			(at 68.58 64.77 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4788,7 +5001,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 54.61 64.77 0)
+			(at 68.58 64.77 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4799,7 +5012,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 54.61 64.77 0)
+			(at 68.58 64.77 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7477,7 +7690,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 100.33 41.91 0)
+		(at 100.33 31.75 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7488,7 +7701,7 @@
 		(fields_autoplaced yes)
 		(uuid "644e279e-7dd3-41ca-9a36-2a68456e1c20")
 		(property "Reference" "#PWR04"
-			(at 100.33 45.72 0)
+			(at 100.33 35.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7499,7 +7712,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 100.33 36.83 0)
+			(at 100.33 26.67 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7509,7 +7722,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 100.33 41.91 0)
+			(at 100.33 31.75 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7520,7 +7733,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 100.33 41.91 0)
+			(at 100.33 31.75 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7531,7 +7744,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 100.33 41.91 0)
+			(at 100.33 31.75 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7754,6 +7967,165 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:C")
+		(at 106.68 41.91 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "7c3ec21e-9d20-4667-af53-06e6d7eea3c5")
+		(property "Reference" "C1"
+			(at 106.68 34.29 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "100nf"
+			(at 106.68 36.83 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder"
+			(at 110.49 40.9448 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 106.68 41.91 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 106.68 41.91 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "84f5003d-81d2-4538-9380-4107a319bcc8")
+		)
+		(pin "2"
+			(uuid "3c8e5a05-002a-440a-abbd-4ff45eb6bf80")
+		)
+		(instances
+			(project "blackjack-keychain"
+				(path "/220c105b-ffeb-4ea2-849c-0d17b2a16051"
+					(reference "C1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 110.49 41.91 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "7d82c274-307f-407a-b1aa-81389dc5d41f")
+		(property "Reference" "#PWR020"
+			(at 116.84 41.91 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 114.3 41.9099 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 110.49 41.91 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 110.49 41.91 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 110.49 41.91 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "5be9a64e-e3f7-4197-8512-848585b318e4")
+		)
+		(instances
+			(project "blackjack-keychain"
+				(path "/220c105b-ffeb-4ea2-849c-0d17b2a16051"
+					(reference "#PWR020")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 212.09 147.32 90)
 		(unit 1)
@@ -7922,6 +8294,86 @@
 			(project "blackjack-keychain"
 				(path "/220c105b-ffeb-4ea2-849c-0d17b2a16051"
 					(reference "J1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 81.28 49.53 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "86ea04f6-592d-4e07-9e90-fdd241c27d48")
+		(property "Reference" "C3"
+			(at 81.28 41.91 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "100nf"
+			(at 81.28 44.45 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder"
+			(at 77.47 50.4952 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 81.28 49.53 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 81.28 49.53 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "96059d87-b65a-448d-9588-ef555ebaa2a3")
+		)
+		(pin "2"
+			(uuid "8cb77cef-65b1-4d37-8156-084d325c1dd1")
+		)
+		(instances
+			(project "blackjack-keychain"
+				(path "/220c105b-ffeb-4ea2-849c-0d17b2a16051"
+					(reference "C3")
 					(unit 1)
 				)
 			)
@@ -8291,6 +8743,167 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:C")
+		(at 59.69 60.96 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "9a906700-39e9-4adf-91a8-73c8fb23fffb")
+		(property "Reference" "C4"
+			(at 63.5 59.6899 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "10uf"
+			(at 63.5 62.2299 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder"
+			(at 58.7248 57.15 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 59.69 60.96 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 59.69 60.96 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "cda73fed-a192-4d07-bb5a-69ccf4c267c4")
+		)
+		(pin "2"
+			(uuid "24d5266d-ba42-4173-a425-50819c55c7c6")
+		)
+		(instances
+			(project "blackjack-keychain"
+				(path "/220c105b-ffeb-4ea2-849c-0d17b2a16051"
+					(reference "C4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 59.69 57.15 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "9aa757ae-a329-4184-ad57-bf381ae79346")
+		(property "Reference" "#PWR023"
+			(at 59.69 50.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 59.6901 53.34 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 59.69 57.15 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 59.69 57.15 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 59.69 57.15 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "e32beeb7-38ea-411d-b174-a465c76b965c")
+		)
+		(instances
+			(project "blackjack-keychain"
+				(path "/220c105b-ffeb-4ea2-849c-0d17b2a16051"
+					(reference "#PWR023")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 78.74 140.97 0)
 		(unit 1)
@@ -8367,6 +8980,85 @@
 			(project "blackjack-keychain"
 				(path "/220c105b-ffeb-4ea2-849c-0d17b2a16051"
 					(reference "RPAIR1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 92.71 38.1 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "9d8ab080-e55f-49fa-8517-429b43fb8e29")
+		(property "Reference" "#PWR021"
+			(at 86.36 38.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 88.9 38.0999 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 92.71 38.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 92.71 38.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 92.71 38.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "74fdc969-b2ff-494f-a251-b8922ac09385")
+		)
+		(instances
+			(project "blackjack-keychain"
+				(path "/220c105b-ffeb-4ea2-849c-0d17b2a16051"
+					(reference "#PWR021")
 					(unit 1)
 				)
 			)
@@ -8738,6 +9430,85 @@
 			(project "blackjack-keychain"
 				(path "/220c105b-ffeb-4ea2-849c-0d17b2a16051"
 					(reference "D3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 77.47 49.53 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a85e74f1-5f64-48ab-9158-9bb174f20ed2")
+		(property "Reference" "#PWR022"
+			(at 71.12 49.53 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 73.66 49.5299 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 77.47 49.53 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 77.47 49.53 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 77.47 49.53 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "9493b247-6eff-415b-a6aa-11d1f2cf81d6")
+		)
+		(instances
+			(project "blackjack-keychain"
+				(path "/220c105b-ffeb-4ea2-849c-0d17b2a16051"
+					(reference "#PWR022")
 					(unit 1)
 				)
 			)
@@ -9792,6 +10563,86 @@
 			(project "blackjack-keychain"
 				(path "/220c105b-ffeb-4ea2-849c-0d17b2a16051"
 					(reference "RLOSE1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 96.52 38.1 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e4527839-b2a0-40c4-84a9-623cf5e80a6e")
+		(property "Reference" "C2"
+			(at 96.52 30.48 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "100nf"
+			(at 96.52 33.02 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder"
+			(at 92.71 39.0652 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 96.52 38.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 96.52 38.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "9a56cf15-cbc5-42e3-ad2e-d45950212d9d")
+		)
+		(pin "2"
+			(uuid "e38b4d93-d6b1-4e69-9e88-35cf7b1bad63")
+		)
+		(instances
+			(project "blackjack-keychain"
+				(path "/220c105b-ffeb-4ea2-849c-0d17b2a16051"
+					(reference "C2")
 					(unit 1)
 				)
 			)
