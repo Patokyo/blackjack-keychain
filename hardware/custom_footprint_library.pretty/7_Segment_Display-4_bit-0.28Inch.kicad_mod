@@ -175,4 +175,15 @@
 		(uuid "e5ced671-d3c7-4989-a9e1-8dcde6039793")
 	)
 	(embedded_fonts no)
+	(model "${KIPRJMOD}/3dmodels/7seg_4digit_028in.step"
+		(offset
+			(xyz -16 -3.71 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
 )

@@ -7,3 +7,6 @@ _autosave-*
 # OS files
 .DS_Store
 Thumbs.db
+
+# KiCad local history (has its own nested git repo)
+hardware/.history/
