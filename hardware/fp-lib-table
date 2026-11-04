@@ -1,0 +1,4 @@
+(fp_lib_table
+	(version 7)
+	(lib (name "custom_footprint_library") (type "KiCad") (uri "${KIPRJMOD}/custom_footprint_library.pretty") (options "") (descr "Project-specific footprints: CC56-12EWA display and ISP pads"))
+)

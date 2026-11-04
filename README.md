@@ -13,11 +13,13 @@ yet.
 
 ```
 hardware/
-  blackjack-keychain.kicad_pro    KiCad 10 project
-  blackjack-keychain.kicad_sch    schematic, single sheet
-  blackjack-keychain.kicad_pcb    board, 2 layer
-  blackjack-keychain.net          netlist exported from the schematic
-  fabrication/                    gerbers, drills, job file, fab zip
+  blackjack-keychain.kicad_pro      KiCad 10 project
+  blackjack-keychain.kicad_sch      schematic, single sheet
+  blackjack-keychain.kicad_pcb      board, 2 layer
+  blackjack-keychain.net            netlist exported from the schematic
+  fp-lib-table                      project footprint library table
+  custom_footprint_library.pretty   project footprints (display, ISP pads)
+  fabrication/                      gerbers, drills, job file, fab zip
 firmware/
   blackjack-keychain/
     blackjack-keychain.ino        the sketch
@@ -89,9 +91,10 @@ the board. The bank button is wired but has no game action yet.
 
 The schematic and board reference one project-specific footprint
 library, `custom_footprint_library`, which provides the 7 segment
-display and the ISP pads. It is not in this repository yet, so a fresh
-clone will show those two footprints as missing until it is added or
-re-pointed.
+display and the ISP pads. Both footprints are committed in
+`hardware/custom_footprint_library.pretty/`, and `hardware/fp-lib-table`
+maps the nickname onto that folder with `${KIPRJMOD}`, so the project
+resolves them straight from a clone without any library setup.
 
 To regenerate the outputs in `hardware/fabrication/`, plot from KiCad
 with the same layer set currently committed: F.Cu, B.Cu, F.Paste,
