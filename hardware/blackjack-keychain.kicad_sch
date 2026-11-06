@@ -4466,7 +4466,7 @@
 		)
 		(uuid "3ad4b3db-d6a8-4a58-a701-b2adb5aaff76")
 	)
-	(label "12"
+	(label "11"
 		(at 137.16 27.94 0)
 		(effects
 			(font
@@ -4516,7 +4516,7 @@
 		)
 		(uuid "704ceaa7-b81a-42fa-a320-ceba66a41f74")
 	)
-	(label "11"
+	(label "12"
 		(at 102.87 137.16 0)
 		(effects
 			(font
