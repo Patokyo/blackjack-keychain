@@ -1,12 +1,12 @@
-%TF.GenerationSoftware,KiCad,Pcbnew,10.0.7-1.fc44*%
-%TF.CreationDate,2026-11-06T15:38:33+11:00*%
+%TF.GenerationSoftware,KiCad,Pcbnew,10.0.6-1.fc44app2*%
+%TF.CreationDate,2026-11-06T15:52:22+11:00*%
 %TF.ProjectId,blackjack-keychain,626c6163-6b6a-4616-936b-2d6b65796368,rev?*%
 %TF.SameCoordinates,Original*%
 %TF.FileFunction,Paste,Top*%
 %TF.FilePolarity,Positive*%
 %FSLAX46Y46*%
 G04 Gerber Fmt 4.6, Leading zero omitted, Abs format (unit mm)*
-G04 Created by KiCad (PCBNEW 10.0.7-1.fc44) date 2026-11-06 15:38:33*
+G04 Created by KiCad (PCBNEW 10.0.6-1.fc44app2) date 2026-11-06 15:52:22*
 %MOMM*%
 %LPD*%
 G01*
