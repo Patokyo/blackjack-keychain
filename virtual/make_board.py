@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Render the front of the keychain board, one file per mask colour.
 
-The silkscreen, pads and board outline are plotted straight from the
-gerbers in hardware/fabrication, and the part outlines come from the
+The copper, silkscreen, pads and board outline are plotted straight from
+the gerbers in hardware/fabrication, and the part outlines come from the
 board file, so the virtual mode shows the same board as the fabrication
 output. Re-run it after re-plotting:
 
@@ -30,6 +30,13 @@ EDGE = "#0a0f13"
 MASKS = {
     "blue": ("#20588c", "#15406a", "#0b2743"),
     "red": ("#a22a2e", "#7a1c21", "#480f13"),
+}
+
+# copper under the mask: shadow along the edge of the bump, the copper
+# itself, then the highlight where the mask rides over the trace
+TRACES = {
+    "blue": ("#0d3352", "#2a6191", "#639bc7"),
+    "red": ("#5b1316", "#a93b3e", "#cf6f70"),
 }
 
 LED_COLORS = {
@@ -467,6 +474,7 @@ def build(finish):
     edge = Gerber(FAB / "blackjack-keychain-Edge_Cuts.gbr")
     silk = Gerber(FAB / "blackjack-keychain-F_Silkscreen.gbr")
     mask = Gerber(FAB / "blackjack-keychain-F_Mask.gbr")
+    copper = Gerber(FAB / "blackjack-keychain-F_Cu.gbr")
 
     outline = _path(edge.strokes, close=True)
     xs = [x for run, _w in edge.strokes for x, _y in run]
@@ -486,6 +494,27 @@ def build(finish):
     for contour in silk.regions:
         d = "M" + " L".join(f"{mm(x)} {mm(-y)}" for x, y in contour) + " Z"
         silk_paths.append(f'<path d="{d}" fill="{SILK}"/>')
+
+    # copper pours nothing over the mask, but the traces still show through
+    # it as slightly raised, lighter lines. Three passes per width: a dark
+    # gutter, the copper, and a thin highlight along the top of the bump.
+    gutter, body, sheen = TRACES[finish]
+    trace_paths = []
+    cu_widths = {}
+    for points, w in copper.strokes:
+        cu_widths.setdefault(round(w, 3), []).append((points, w))
+    for w in sorted(cu_widths):
+        d = _path(cu_widths[w])
+        trace_paths.append(
+            f'<path d="{d}" fill="none" stroke="{gutter}" stroke-width="{mm(w + 0.16)}" '
+            f'stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>')
+        trace_paths.append(
+            f'<path d="{d}" fill="none" stroke="{body}" stroke-width="{mm(w)}" '
+            f'stroke-linecap="round" stroke-linejoin="round"/>')
+        trace_paths.append(
+            f'<path d="{d}" fill="none" stroke="{sheen}" stroke-width="{mm(w * 0.36)}" '
+            f'stroke-linecap="round" stroke-linejoin="round" opacity="0.28" '
+            f'transform="translate(0 -0.05)"/>')
 
     # mask openings are the exposed pads
     codes = sorted({code for _x, _y, code in mask.flashes if code})
@@ -519,6 +548,7 @@ def build(finish):
 </defs>
 <path d="{outline}" fill="url(#board)" fill-rule="evenodd"/>
 <g clip-path="url(#board-clip)">
+{''.join(trace_paths)}
 {pad_uses}
 {holes}
 {''.join(silk_paths)}
