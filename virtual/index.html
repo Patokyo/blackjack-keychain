@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blackjack Keychain — Virtual</title>
+<style>
+  :root {
+    --board: #143021;
+    --silk: #ece4cd;
+    --silk-dim: #8d9c8f;
+    --seg-on: #ff3b2f;
+    --seg-off: #3a1512;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    min-height: 100vh;
+    background: radial-gradient(circle at 50% 0%, #17251c, #070a08 70%);
+    color: var(--silk);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .device {
+    width: min(640px, 100%);
+    background-color: var(--board);
+    background-image:
+      linear-gradient(#ffffff08 1px, transparent 1px),
+      linear-gradient(90deg, #ffffff08 1px, transparent 1px);
+    background-size: 24px 24px;
+    border: 1px solid #27503a;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 24px 60px #000a, inset 0 1px 0 #ffffff12;
+  }
+
+  /* ---------- silkscreen ---------- */
+
+  .brand {
+    margin-bottom: 14px;
+  }
+
+  .brand h1 {
+    margin: 0;
+    font-size: 13px;
+    letter-spacing: 0.28em;
+    font-weight: 700;
+  }
+
+  /* ---------- display ---------- */
+
+  .screen {
+    background: #061009;
+    border: 1px solid #0a1a10;
+    border-radius: 10px;
+    padding: 18px 16px 12px;
+    box-shadow: inset 0 6px 18px #000b;
+  }
+
+  .digits {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 7px;
+  }
+
+  .side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .tag {
+    font-size: 9px;
+    letter-spacing: 0.24em;
+    color: var(--silk-dim);
+    height: 12px;
+  }
+
+  .digit-pair {
+    display: flex;
+    gap: 7px;
+  }
+
+  .digit {
+    width: 58px;
+    height: 99px;
+    overflow: visible;
+  }
+
+  .digit line {
+    stroke: var(--seg-off);
+    stroke-width: 8;
+    stroke-linecap: round;
+  }
+
+  .digit line.on {
+    stroke: var(--seg-on);
+    filter: drop-shadow(0 0 7px #ff3b2faa);
+  }
+
+  /* ---------- LEDs ---------- */
+
+  .leds {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 18px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed #ffffff14;
+  }
+
+  .led {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    color: var(--silk-dim);
+    transition: color 0.12s;
+  }
+
+  .led .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #16281c;
+    box-shadow: inset 0 0 0 1px #00000055;
+    transition: background 0.12s, box-shadow 0.12s;
+  }
+
+  .led.on { color: var(--silk); }
+
+  .led.on .dot {
+    background: var(--c);
+    box-shadow: 0 0 10px var(--c), 0 0 3px var(--c);
+  }
+
+  .led.pair    { --c: #ffc247; }
+  .led.soft    { --c: #4fd6ff; }
+  .led.win     { --c: #5ce07a; }
+  .led.push    { --c: #ffd166; }
+  .led.lose    { --c: #ff5a4d; }
+  .led.correct { --c: #5ce07a; }
+  .led.wrong   { --c: #ff5a4d; }
+
+  /* ---------- controls ---------- */
+
+  .controls {
+    margin-top: 16px;
+  }
+
+  .buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 9px;
+  }
+
+  .key {
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 6px 13px;
+    border-radius: 6px;
+    background: linear-gradient(#f4eedd, #d5cbb2);
+    color: #101a0d;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    box-shadow: 0 3px 0 #7f7a64, 0 6px 12px #0006;
+    transition: transform 0.05s, box-shadow 0.05s, filter 0.15s, opacity 0.15s;
+  }
+
+  .key:hover:not(:disabled) { filter: brightness(1.04); }
+
+  .key:active:not(:disabled) {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 #7f7a64, 0 2px 4px #0006;
+  }
+
+  .key:disabled {
+    opacity: 0.28;
+    cursor: not-allowed;
+    box-shadow: 0 2px 0 #4a4738;
+  }
+
+  .bottom-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .key.bank {
+    flex: 1;
+    background: linear-gradient(#cfe0c1, #a7bb9b);
+    font-size: 11px;
+  }
+
+  /* ---------- play / train switch ---------- */
+
+  .switch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .sw-label {
+    font-size: 8px;
+    letter-spacing: 0.16em;
+    color: var(--silk-dim);
+    line-height: 1;
+  }
+
+  .slide {
+    position: relative;
+    width: 34px;
+    height: 50px;
+    padding: 0;
+    border: 1px solid #3a5942;
+    border-radius: 4px;
+    background: #07150d;
+    box-shadow: inset 0 2px 6px #000a;
+    cursor: pointer;
+    appearance: none;
+  }
+
+  .slide .knob {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 24px;
+    height: 20px;
+    border-radius: 3px;
+    background: linear-gradient(#f0ead9, #bdb49c);
+    box-shadow: 0 1px 2px #0008;
+    transition: transform 0.12s ease;
+  }
+
+  .slide[aria-checked="false"] .knob { transform: translateY(20px); }
+
+  .slide:focus-visible {
+    outline: 2px solid #d8b56a;
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 480px) {
+    .device { padding: 14px; }
+    .digit { width: 46px; height: 78px; }
+    .digits { gap: 6px; }
+    .digit-pair { gap: 6px; }
+    .key { font-size: 11px; padding: 12px 4px; }
+    .leds { gap: 8px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<main class="device">
+
+  <header class="brand">
+    <h1>BLACKJACK</h1>
+  </header>
+
+  <section class="screen" aria-label="Display">
+
+    <div class="digits">
+      <div class="side">
+        <span class="tag">player</span>
+        <div class="digit-pair" id="playerDigits"></div>
+      </div>
+
+      <div class="side">
+        <span class="tag">dealer</span>
+        <div class="digit-pair" id="dealerDigits"></div>
+      </div>
+    </div>
+
+    <div class="leds">
+      <div class="led pair" id="ledPair"><span class="dot"></span>PAIR</div>
+      <div class="led soft" id="ledSoft"><span class="dot"></span>SOFT</div>
+      <div class="led win" id="ledWin"><span class="dot"></span>WIN</div>
+      <div class="led push" id="ledPush"><span class="dot"></span>PUSH</div>
+      <div class="led lose" id="ledLose"><span class="dot"></span>LOSE</div>
+      <div class="led correct" id="ledCorrect"><span class="dot"></span>CORRECT</div>
+      <div class="led wrong" id="ledWrong"><span class="dot"></span>WRONG</div>
+    </div>
+
+  </section>
+
+  <section class="controls">
+
+    <div class="buttons">
+      <button class="key" data-action="H">hit</button>
+      <button class="key" data-action="S">stand</button>
+      <button class="key" data-action="D">double</button>
+      <button class="key" data-action="P">split</button>
+    </div>
+
+    <div class="bottom-row">
+      <button class="key bank" data-action="B">bank</button>
+
+      <div class="switch">
+        <span class="sw-label">train</span>
+        <button class="slide" id="modeSwitch" role="switch" aria-checked="true"
+                aria-label="play / train switch"><span class="knob"></span></button>
+        <span class="sw-label">play</span>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<script src="game.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>
