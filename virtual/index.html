@@ -39,6 +39,13 @@
     width: min(420px, 92vw);
     aspect-ratio: 50 / 70;
     filter: drop-shadow(0 26px 34px #000c) drop-shadow(0 2px 3px #0008);
+    /* a long press on the board should press the keys, not start a
+       text selection or the image copy callout */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
   }
 
   .art {
@@ -47,6 +54,8 @@
     width: 100%;
     height: 100%;
     display: block;
+    pointer-events: none;
+    -webkit-user-drag: none;
   }
 
   /* soldermask choice: one plotted board per colour */
@@ -125,19 +134,26 @@
 
   .led {
     position: absolute;
-    width: 8%;
-    height: 5.714%;
+    width: 11%;
+    height: 7.857%;
     transform: translate(-50%, -50%);
     border-radius: 50%;
     pointer-events: none;
     opacity: 0;
+    /* white hot centre, coloured body, then two stacked shadows for the
+       glow. plus-lighter adds the light to the board underneath instead
+       of painting a pale disc over it, so a lit LED still reads on a
+       bright phone screen (screen is the fallback for older Safari). */
     background: radial-gradient(circle at 50% 45%,
-                #fff 0%, var(--c) 24%, #0000 70%);
-    filter: drop-shadow(0 0 3px var(--c));
+                #fff 0%, #fff 9%, var(--c) 32%, #0000 70%);
+    mix-blend-mode: screen;
+    mix-blend-mode: plus-lighter;
+    filter: drop-shadow(0 0 3px var(--c))
+            drop-shadow(0 0 10px var(--c));
     transition: opacity 0.1s linear;
   }
 
-  .led.on { opacity: 0.95; }
+  .led.on { opacity: 1; }
 
   .led.pair    { --c: #ffc247; }
   .led.soft    { --c: #4fd6ff; }
@@ -162,6 +178,7 @@
       0 2px 3px #00000070;
     cursor: pointer;
     touch-action: manipulation;
+    -webkit-touch-callout: none;
     transition: transform 60ms ease, filter 90ms ease, box-shadow 60ms ease;
   }
 
@@ -242,9 +259,9 @@
   <div class="board" data-finish="blue">
 
     <img class="art art-blue" src="board-blue.svg" width="500" height="700"
-         alt="Front of the blackjack keychain board: a 50 by 70 millimetre PCB with a blue solder mask, four digit display, seven indicator LEDs, five tactile buttons, a slide switch and a USB-C socket.">
+         draggable="false" alt="Front of the blackjack keychain board: a 50 by 70 millimetre PCB with a blue solder mask, four digit display, seven indicator LEDs, five tactile buttons, a slide switch and a USB-C socket.">
     <img class="art art-red" src="board-red.svg" width="500" height="700"
-         alt="Front of the blackjack keychain board: a 50 by 70 millimetre PCB with a red solder mask, four digit display, seven indicator LEDs, five tactile buttons, a slide switch and a USB-C socket.">
+         draggable="false" alt="Front of the blackjack keychain board: a 50 by 70 millimetre PCB with a red solder mask, four digit display, seven indicator LEDs, five tactile buttons, a slide switch and a USB-C socket.">
 
     <!-- U2, four digit display -->
     <div class="display" aria-hidden="true">
@@ -297,6 +314,12 @@
 
     const board = document.querySelector('.board');
     const swatches = document.querySelectorAll('.swatch');
+
+    // Android opens the image menu on a long press; the board is a control,
+    // not something to save or copy.
+    board.addEventListener('contextmenu', function (event) {
+      event.preventDefault();
+    });
 
     swatches.forEach(function (swatch) {
 
