@@ -23,13 +23,21 @@ hardware/
 firmware/
   blackjack-keychain/
     blackjack-keychain.ino        the sketch
+virtual/
+  index.html                        the board in a browser
+  game.js, ui.js                    game engine, display and controls
+  board-blue.svg, board-red.svg     front of the PCB, generated per mask colour
+  make_board.py                     plots those from hardware/fabrication
 ```
 
 The KiCad project, its netlist and its outputs stay together under
 `hardware/` so the project opens with everything it needs in one
 place. `hardware/fabrication/` holds the last set of outputs sent to
 a board house; regenerating them means re-plotting from KiCad, not
-editing them by hand.
+editing them by hand. The virtual board is drawn from the same files:
+`python3 virtual/make_board.py` re-plots `virtual/board-blue.svg` and
+`virtual/board-red.svg` after a re-plot, so the browser keeps matching
+the board.
 
 ## Hardware
 

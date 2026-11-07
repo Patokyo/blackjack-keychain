@@ -6,93 +6,107 @@
 <title>Blackjack Keychain — Virtual</title>
 <style>
   :root {
-    --board: #143021;
-    --silk: #ece4cd;
-    --silk-dim: #8d9c8f;
     --seg-on: #ff3b2f;
-    --seg-off: #3a1512;
+    --seg-off: #0c0706;
   }
 
   * { box-sizing: border-box; }
 
   body {
     margin: 0;
-    padding: 24px 16px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
     min-height: 100vh;
-    background: radial-gradient(circle at 50% 0%, #17251c, #070a08 70%);
-    color: var(--silk);
+    display: grid;
+    place-items: center;
+    padding: 40px 24px;
+    background: radial-gradient(circle at 50% 0%, #171d21, #060809 70%);
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .device {
-    width: min(640px, 100%);
-    background-color: var(--board);
-    background-image:
-      linear-gradient(#ffffff08 1px, transparent 1px),
-      linear-gradient(90deg, #ffffff08 1px, transparent 1px);
-    background-size: 24px 24px;
-    border: 1px solid #27503a;
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 24px 60px #000a, inset 0 1px 0 #ffffff12;
-  }
-
-  /* ---------- silkscreen ---------- */
-
-  .brand {
-    margin-bottom: 14px;
-  }
-
-  .brand h1 {
-    margin: 0;
-    font-size: 13px;
-    letter-spacing: 0.28em;
-    font-weight: 700;
-  }
-
-  /* ---------- display ---------- */
-
-  .screen {
-    background: #061009;
-    border: 1px solid #0a1a10;
-    border-radius: 10px;
-    padding: 18px 16px 12px;
-    box-shadow: inset 0 6px 18px #000b;
-  }
-
-  .digits {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 7px;
-  }
-
-  .side {
+  main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 7px;
+    gap: 22px;
   }
 
-  .tag {
-    font-size: 9px;
-    letter-spacing: 0.24em;
-    color: var(--silk-dim);
-    height: 12px;
+  /* The board is 50 x 70 mm. Everything placed on it is positioned as a
+     percentage of that box, measured from the board origin (131.5, 54). */
+
+  .board {
+    position: relative;
+    width: min(420px, 92vw);
+    aspect-ratio: 50 / 70;
+    filter: drop-shadow(0 26px 34px #000c) drop-shadow(0 2px 3px #0008);
+  }
+
+  .art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* soldermask choice: one plotted board per colour */
+
+  .board[data-finish="blue"] .art-red,
+  .board[data-finish="red"] .art-blue {
+    display: none;
+  }
+
+  .finish {
+    display: flex;
+    gap: 12px;
+  }
+
+  .swatch {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 1px solid #0009;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 #ffffff59;
+  }
+
+  .swatch[data-finish="blue"] { background: linear-gradient(#20588c, #0b2743); }
+  .swatch[data-finish="red"]  { background: linear-gradient(#8e2a2c, #3f1013); }
+
+  .swatch[aria-checked="true"] {
+    outline: 1px solid #c9a25d;
+    outline-offset: 2px;
+  }
+
+  .swatch:focus-visible {
+    outline: 2px solid #c9a25d;
+    outline-offset: 3px;
+  }
+
+  /* ---------- display, U2 at 157.26, 68.21 ---------- */
+
+  .display {
+    position: absolute;
+    left: 29%;
+    top: 12.607%;
+    width: 42%;
+    height: 11.786%;
+    display: flex;
+    gap: 2.6%;
+    pointer-events: none;
   }
 
   .digit-pair {
     display: flex;
-    gap: 7px;
+    flex: 1 1 0;
+    gap: 5.4%;
   }
 
   .digit {
-    width: 58px;
-    height: 99px;
+    flex: 1 1 0;
+    width: 100%;
+    height: 100%;
     overflow: visible;
   }
 
@@ -104,47 +118,26 @@
 
   .digit line.on {
     stroke: var(--seg-on);
-    filter: drop-shadow(0 0 7px #ff3b2faa);
+    filter: drop-shadow(0 0 3px #ff3b2fbb);
   }
 
-  /* ---------- LEDs ---------- */
-
-  .leds {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px 18px;
-    margin-top: 16px;
-    padding-top: 14px;
-    border-top: 1px dashed #ffffff14;
-  }
+  /* ---------- LEDs, D1-D7 ---------- */
 
   .led {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    font-size: 8px;
-    letter-spacing: 0.14em;
-    color: var(--silk-dim);
-    transition: color 0.12s;
-  }
-
-  .led .dot {
-    width: 10px;
-    height: 10px;
+    position: absolute;
+    width: 8%;
+    height: 5.714%;
+    transform: translate(-50%, -50%);
     border-radius: 50%;
-    background: #16281c;
-    box-shadow: inset 0 0 0 1px #00000055;
-    transition: background 0.12s, box-shadow 0.12s;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(circle at 50% 45%,
+                #fff 0%, var(--c) 24%, #0000 70%);
+    filter: drop-shadow(0 0 3px var(--c));
+    transition: opacity 0.1s linear;
   }
 
-  .led.on { color: var(--silk); }
-
-  .led.on .dot {
-    background: var(--c);
-    box-shadow: 0 0 10px var(--c), 0 0 3px var(--c);
-  }
+  .led.on { opacity: 0.95; }
 
   .led.pair    { --c: #ffc247; }
   .led.soft    { --c: #4fd6ff; }
@@ -154,180 +147,172 @@
   .led.correct { --c: #5ce07a; }
   .led.wrong   { --c: #ff5a4d; }
 
-  /* ---------- controls ---------- */
-
-  .controls {
-    margin-top: 16px;
-  }
-
-  .buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 9px;
-  }
+  /* ---------- buttons, SW1-SW5 ---------- */
 
   .key {
-    appearance: none;
+    position: absolute;
+    margin: 0;
+    padding: 0;
     border: 0;
+    border-radius: 22% / 34%;
+    background: linear-gradient(#f2ede0 0%, #d9d2bf 46%, #b4ac95 100%);
+    box-shadow:
+      inset 0 1px 0 #ffffffb0,
+      inset 0 -1px 0 #00000026,
+      0 2px 3px #00000070;
     cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 14px 6px 13px;
-    border-radius: 6px;
-    background: linear-gradient(#f4eedd, #d5cbb2);
-    color: #101a0d;
-    font: inherit;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    box-shadow: 0 3px 0 #7f7a64, 0 6px 12px #0006;
-    transition: transform 0.05s, box-shadow 0.05s, filter 0.15s, opacity 0.15s;
+    touch-action: manipulation;
+    transition: transform 60ms ease, filter 90ms ease, box-shadow 60ms ease;
+  }
+
+  .key::after {
+    content: "";
+    position: absolute;
+    inset: 24% 18%;
+    border-radius: 16% / 40%;
+    background: linear-gradient(#ded7c5, #c0b7a0);
+    box-shadow: inset 0 0 0 1px #0000001f;
   }
 
   .key:hover:not(:disabled) { filter: brightness(1.04); }
 
   .key:active:not(:disabled) {
-    transform: translateY(3px);
-    box-shadow: 0 0 0 #7f7a64, 0 2px 4px #0006;
+    transform: translateY(3%);
+    filter: brightness(0.9);
+    box-shadow: inset 0 0 2px #00000066, 0 0 1px #00000066;
   }
 
   .key:disabled {
-    opacity: 0.28;
-    cursor: not-allowed;
-    box-shadow: 0 2px 0 #4a4738;
+    cursor: default;
+    opacity: 0.8;
+    filter: saturate(0.5) brightness(0.84);
   }
 
-  .bottom-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 10px;
-  }
-
-  .key.bank {
-    flex: 1;
-    background: linear-gradient(#cfe0c1, #a7bb9b);
-    font-size: 11px;
-  }
-
-  /* ---------- play / train switch ---------- */
-
-  .switch {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .sw-label {
-    font-size: 8px;
-    letter-spacing: 0.16em;
-    color: var(--silk-dim);
-    line-height: 1;
-  }
-
-  .slide {
-    position: relative;
-    width: 34px;
-    height: 50px;
-    padding: 0;
-    border: 1px solid #3a5942;
-    border-radius: 4px;
-    background: #07150d;
-    box-shadow: inset 0 2px 6px #000a;
-    cursor: pointer;
-    appearance: none;
-  }
-
-  .slide .knob {
-    position: absolute;
-    left: 4px;
-    top: 4px;
-    width: 24px;
-    height: 20px;
-    border-radius: 3px;
-    background: linear-gradient(#f0ead9, #bdb49c);
-    box-shadow: 0 1px 2px #0008;
-    transition: transform 0.12s ease;
-  }
-
-  .slide[aria-checked="false"] .knob { transform: translateY(20px); }
-
-  .slide:focus-visible {
-    outline: 2px solid #d8b56a;
+  .key:focus-visible,
+  .switch:focus-visible {
+    outline: 2px solid #e0bd72;
     outline-offset: 2px;
   }
 
-  @media (max-width: 480px) {
-    .device { padding: 14px; }
-    .digit { width: 46px; height: 78px; }
-    .digits { gap: 6px; }
-    .digit-pair { gap: 6px; }
-    .key { font-size: 11px; padding: 12px 4px; }
-    .leds { gap: 8px 12px; }
+  /* ---------- play / train switch, SW6 at 179.7, 106.5 ---------- */
+
+  .switch {
+    position: absolute;
+    left: 94.2%;
+    top: 71.857%;
+    width: 5.6%;
+    height: 7%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .knob {
+    position: absolute;
+    left: 21.4%;
+    top: 12.24%;
+    width: 64.3%;
+    height: 34.7%;
+    border-radius: 26%;
+    background: linear-gradient(#fdfaf1 0%, #dcd7c9 55%, #9c978b 100%);
+    box-shadow: 0 2px 3px #000c, inset 0 1px 0 #fff;
+    transition: transform 0.12s ease;
+  }
+
+  .switch[aria-checked="false"] .knob { transform: translateY(123.5%); }
+
+  .switch:hover .knob { filter: brightness(1.06); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .key, .knob { transition: none; }
   }
 </style>
 </head>
 <body>
 
-<main class="device">
+<main>
 
-  <header class="brand">
-    <h1>BLACKJACK</h1>
-  </header>
+  <!-- board.svg is generated by virtual/make_board.py from the gerbers in
+       hardware/fabrication, so the silk, pads and part outlines here match
+       the real board. The overlays sit on the parts the game drives. -->
 
-  <section class="screen" aria-label="Display">
+  <div class="board" data-finish="blue">
 
-    <div class="digits">
-      <div class="side">
-        <span class="tag">player</span>
-        <div class="digit-pair" id="playerDigits"></div>
-      </div>
+    <img class="art art-blue" src="board-blue.svg" width="500" height="700"
+         alt="Front of the blackjack keychain board: a 50 by 70 millimetre PCB with a blue solder mask, four digit display, seven indicator LEDs, five tactile buttons, a slide switch and a USB-C socket.">
+    <img class="art art-red" src="board-red.svg" width="500" height="700"
+         alt="Front of the blackjack keychain board: a 50 by 70 millimetre PCB with a red solder mask, four digit display, seven indicator LEDs, five tactile buttons, a slide switch and a USB-C socket.">
 
-      <div class="side">
-        <span class="tag">dealer</span>
-        <div class="digit-pair" id="dealerDigits"></div>
-      </div>
+    <!-- U2, four digit display -->
+    <div class="display" aria-hidden="true">
+      <div class="digit-pair" id="playerDigits"></div>
+      <div class="digit-pair" id="dealerDigits"></div>
     </div>
 
-    <div class="leds">
-      <div class="led pair" id="ledPair"><span class="dot"></span>PAIR</div>
-      <div class="led soft" id="ledSoft"><span class="dot"></span>SOFT</div>
-      <div class="led win" id="ledWin"><span class="dot"></span>WIN</div>
-      <div class="led push" id="ledPush"><span class="dot"></span>PUSH</div>
-      <div class="led lose" id="ledLose"><span class="dot"></span>LOSE</div>
-      <div class="led correct" id="ledCorrect"><span class="dot"></span>CORRECT</div>
-      <div class="led wrong" id="ledWrong"><span class="dot"></span>WRONG</div>
-    </div>
+    <!-- D1-D7, at the LED positions on the board -->
+    <span class="led pair"    id="ledPair"    style="left: 15.684%; top: 43.644%"></span>
+    <span class="led soft"    id="ledSoft"    style="left: 29.684%; top: 43.644%"></span>
+    <span class="led win"     id="ledWin"     style="left: 51.716%; top: 43.644%"></span>
+    <span class="led push"    id="ledPush"    style="left: 68.466%; top: 43.644%"></span>
+    <span class="led lose"    id="ledLose"    style="left: 85.741%; top: 43.644%"></span>
+    <span class="led correct" id="ledCorrect" style="left: 58.016%; top: 59.144%"></span>
+    <span class="led wrong"   id="ledWrong"   style="left: 78.536%; top: 59.214%"></span>
 
-  </section>
+    <!-- SW1-SW5, the tactile buttons -->
+    <button class="key" data-action="H" aria-label="hit"
+            style="left: 6%; top: 86.071%; width: 12%; height: 5%"></button>
+    <button class="key" data-action="S" aria-label="stand"
+            style="left: 31.333%; top: 86.19%; width: 12%; height: 5%"></button>
+    <button class="key" data-action="D" aria-label="double"
+            style="left: 56.667%; top: 86.071%; width: 12%; height: 5%"></button>
+    <button class="key" data-action="P" aria-label="split"
+            style="left: 82%; top: 86.071%; width: 12%; height: 5%"></button>
+    <button class="key" data-action="B" aria-label="bank"
+            style="left: 44%; top: 72.811%; width: 12%; height: 5%"></button>
 
-  <section class="controls">
+    <!-- SW6, the play / train switch -->
+    <button class="switch" id="modeSwitch" role="switch" aria-checked="true"
+            aria-label="play / train switch"><span class="knob"></span></button>
 
-    <div class="buttons">
-      <button class="key" data-action="H">hit</button>
-      <button class="key" data-action="S">stand</button>
-      <button class="key" data-action="D">double</button>
-      <button class="key" data-action="P">split</button>
-    </div>
+  </div>
 
-    <div class="bottom-row">
-      <button class="key bank" data-action="B">bank</button>
-
-      <div class="switch">
-        <span class="sw-label">train</span>
-        <button class="slide" id="modeSwitch" role="switch" aria-checked="true"
-                aria-label="play / train switch"><span class="knob"></span></button>
-        <span class="sw-label">play</span>
-      </div>
-    </div>
-
-  </section>
+  <div class="finish" role="radiogroup" aria-label="Solder mask colour">
+    <button class="swatch" data-finish="blue" role="radio" aria-checked="true"
+            aria-label="blue solder mask"></button>
+    <button class="swatch" data-finish="red" role="radio" aria-checked="false"
+            aria-label="red solder mask"></button>
+  </div>
 
 </main>
 
 <script src="game.js"></script>
 <script src="ui.js"></script>
+<script>
+  (function () {
+
+    'use strict';
+
+    const board = document.querySelector('.board');
+    const swatches = document.querySelectorAll('.swatch');
+
+    swatches.forEach(function (swatch) {
+
+      swatch.addEventListener('click', function () {
+
+        board.dataset.finish = swatch.dataset.finish;
+        swatch.blur();
+
+        swatches.forEach(function (other) {
+          other.setAttribute('aria-checked', String(other === swatch));
+        });
+      });
+    });
+
+  })();
+</script>
+
 </body>
 </html>
