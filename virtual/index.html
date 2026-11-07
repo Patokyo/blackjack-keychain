@@ -130,6 +130,16 @@
     filter: drop-shadow(0 0 3px #ff3b2fbb);
   }
 
+  /* the decimal point has a pin of its own on the board */
+  .digit .dp {
+    fill: var(--seg-off);
+  }
+
+  .digit .dp.on {
+    fill: var(--seg-on);
+    filter: drop-shadow(0 0 3px #ff3b2fbb);
+  }
+
   /* ---------- LEDs, D1-D7 ---------- */
 
   .led {
@@ -191,18 +201,12 @@
     box-shadow: inset 0 0 0 1px #0000001f;
   }
 
-  .key:hover:not(:disabled) { filter: brightness(1.04); }
+  .key:hover { filter: brightness(1.04); }
 
-  .key:active:not(:disabled) {
+  .key:active {
     transform: translateY(3%);
     filter: brightness(0.9);
     box-shadow: inset 0 0 2px #00000066, 0 0 1px #00000066;
-  }
-
-  .key:disabled {
-    cursor: default;
-    opacity: 0.8;
-    filter: saturate(0.5) brightness(0.84);
   }
 
   .key:focus-visible,

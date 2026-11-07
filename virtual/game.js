@@ -1,31 +1,30 @@
 /*
-  BLACKJACK STRATEGY TRAINER - browser engine
+  BLACKJACK STRATEGY TRAINER - rules, shoe and money
 
-  A port of firmware/blackjack-keychain/blackjack-keychain.ino. The rules,
-  the six deck shoe, the split/double restrictions and the basic strategy
-  table are copied from the sketch, so this plays exactly the same game:
+  A port of firmware/blackjack-keychain/blackjack-keychain.ino. The shoe,
+  the hand maths, the split and double restrictions, the basic strategy
+  table and the betting all follow the sketch line for line, so this plays
+  exactly the same game:
 
     - 6 deck shoe, reshuffled between hands when it runs low
     - dealer stands on soft 17
     - double on any first two cards, double after split allowed
     - up to 4 hands by splitting (no resplitting aces, split aces get
       one card only)
-    - a two card 21 is a natural and is not asked to act
+    - a two card 21 is a natural, and not after a split
     - a natural beats any 21 made with three or more cards
-    - two naturals push, two ordinary 21s push as normal
-    - $100 to start, a flat $10 a hand, a split or a double costs $10 more
-    - wins pay even money, pushes return the bet
-    - the game ends when $10 can no longer be covered
+    - two naturals, or two ordinary 21s, push
+    - $100 to start, a fixed $10 on every hand
+    - a split hand costs another $10, a double costs another $10
+    - money is counted in cents, a natural pays 3:2, and the half dollar
+      it can pay on a short bet is kept (the display drops it)
+    - a bank under $10 goes on the next hand whole, and only an empty
+      bank stops the game
+    - the bank stops at $9999, which is the jackpot
+    - the bankroll and the best bank are kept between sessions
 
-  The play/train switch (SW6 on the board) picks what the session keeps.
-  Train marks every choice against basic strategy, keeps that accuracy
-  tally and wagers nothing, so a session runs until it is restarted.
-  Play keeps no tally, wagers the $100 bankroll at a flat $10, and stops
-  when a bet can no longer be covered.
-
-  Everything is exposed through createGame(): startRound(), act(),
-  playDealer(), canAct(), restart() and getState(). Every step calls the
-  onEvent listener so the display can follow along.
+  Everything here is state without a clock: ui.js runs the round, because
+  the sketch's pauses and its display refresh are the same thing.
 */
 
 (function (root, factory) {
@@ -41,34 +40,48 @@
   'use strict';
 
   const DECK_COUNT = 6;
-  const SHOE_SIZE = DECK_COUNT * 52;
+  const SHOE_SIZE = DECK_COUNT * 52;      // 312
   const RESHUFFLE_AT = 40;
   const MAX_HANDS = 4;
-  const STARTING_BANKROLL = 100;
-  const BET = 10;
 
-  const ACTION_NAMES = { H: 'HIT', S: 'STAND', D: 'DOUBLE', P: 'SPLIT' };
+  // Money is counted in cents, so a 3:2 natural on an odd bet is carried
+  // exactly rather than rounded away
+  const STARTING_BANKROLL = 10000;        // $100.00
+  const BET = 1000;                       // $10.00
+  const MAX_BANK = 999900;                // $9999.00, the most four digits show
+
+  // Bumped whenever the stored meaning changes. This one counts cents and
+  // pays 3:2, so a balance left by an older build is ignored.
+  const BANKROLL_VERSION = 2;
+
+  const BANK_KEY = 'blackjack-keychain.bankroll';
+  const HIGH_KEY = 'blackjack-keychain.highscore';
 
 
   // --------------------------------------------------
   // HAND CALCULATIONS
-  // Cards are kept as values: 1 = Ace, 2-9 as themselves, 10 for
-  // 10/J/Q/K. The card list is kept as well, but only so the screen
-  // can show ranks; the totals never look at it.
+  // A hand is kept as "every ace counts as 1" plus how many aces it
+  // holds, so no list of cards has to be stored.
   // --------------------------------------------------
+
+  function clearHand(hand) {
+
+    hand.hard = 0;          // total with aces counted as 1
+    hand.aces = 0;          // number of aces in the hand
+    hand.count = 0;         // number of cards in the hand
+    hand.first = 0;         // value of the first card
+    hand.wager = 0;         // money riding on the hand, 0 for the dealer
+    hand.pairValue = 0;     // matching value if the hand is a pair, else 0
+    hand.aceSplit = false;  // came from splitting aces: one card only
+    hand.fromSplit = false; // came off a split, so 21 is not a natural
+
+    return hand;
+  }
+
 
   function emptyHand() {
 
-    return {
-      hard: 0,        // total with every ace counted as 1
-      aces: 0,
-      count: 0,
-      first: 0,
-      wager: 0,
-      pairValue: 0,
-      aceSplit: false,
-      cards: []
-    };
+    return clearHand({});
   }
 
 
@@ -85,10 +98,10 @@
     }
 
     hand.count++;
-    hand.cards.push(card);
 
     if (hand.count === 2) {
 
+      // A pair only exists on the first two cards
       hand.pairValue = (card === hand.first) ? card : 0;
 
     } else if (hand.count > 2) {
@@ -98,6 +111,7 @@
   }
 
 
+  // Best total: count one ace as 11 where that does not bust
   function handTotal(hand) {
 
     let total = hand.hard;
@@ -110,6 +124,7 @@
   }
 
 
+  // True when an ace is currently being played as 11
   function handIsSoft(hand) {
 
     return hand.aces > 0 && hand.hard + 10 <= 21;
@@ -122,9 +137,18 @@
   }
 
 
+  // A natural is an ace plus a ten value card in the first two cards.
+  // 21 on three or more cards, or 21 after a split, is not a natural.
   function handIsNatural(hand) {
 
-    return hand.count === 2 && !hand.aceSplit && handTotal(hand) === 21;
+    return hand.count === 2 && !hand.fromSplit && handTotal(hand) === 21;
+  }
+
+
+  // An ace at the top of the dealer's hand reads as 11
+  function cardValue(card) {
+
+    return (card === 1) ? 11 : card;
   }
 
 
@@ -147,8 +171,8 @@
 
   function shouldSplit(pair, up) {
 
-    if (pair === 1 || pair === 8) return true;   // always split aces and 8s
-    if (pair === 5 || pair === 10) return false; // never split 5s or 10s
+    if (pair === 1 || pair === 8) return true;    // always split aces and 8s
+    if (pair === 5 || pair === 10) return false;  // never split 5s or 10s
 
     if (pair === 4) return (up === 5 || up === 6);
 
@@ -166,7 +190,7 @@
   function bestAction(hand, dealerUp, handCount) {
 
     // An ace up is worth 11
-    const up = (dealerUp === 1) ? 11 : dealerUp;
+    const up = cardValue(dealerUp);
 
     if (canSplit(hand, handCount) && shouldSplit(hand.pairValue, up)) {
       return 'P';
@@ -231,6 +255,74 @@
 
 
   // --------------------------------------------------
+  // STORAGE
+  // The bankroll is stored with its complement behind a format tag, the
+  // way the sketch keeps it in EEPROM. A write cut short can only damage
+  // one value, so a damaged save reads back as a mismatch instead of a
+  // wrong balance.
+  // --------------------------------------------------
+
+  function readStore(key) {
+
+    try {
+      return (typeof localStorage !== 'undefined') ? localStorage.getItem(key) : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+
+  function writeStore(key, value) {
+
+    try {
+      if (typeof localStorage !== 'undefined') localStorage.setItem(key, value);
+    } catch (error) {
+      // Private mode or a full store: the run just does not survive a reload
+    }
+  }
+
+
+  function loadStoredBank() {
+
+    const raw = readStore(BANK_KEY);
+
+    if (!raw) return -1;
+
+    let saved;
+
+    try {
+      saved = JSON.parse(raw);
+    } catch (error) {
+      return -1;
+    }
+
+    if (!saved || saved.version !== BANKROLL_VERSION) return -1;
+    if (saved.check !== ~saved.bankroll) return -1;
+
+    return saved.bankroll;
+  }
+
+
+  function saveStoredBank(bankroll) {
+
+    writeStore(BANK_KEY, JSON.stringify({
+      version: BANKROLL_VERSION,
+      bankroll: bankroll,
+      check: ~bankroll
+    }));
+  }
+
+
+  function loadStoredHighscore() {
+
+    const raw = readStore(HIGH_KEY);
+    const value = raw === null ? NaN : Number(raw);
+
+    return (Number.isFinite(value) && value >= 0) ? Math.floor(value) : -1;
+  }
+
+
+  // --------------------------------------------------
   // GAME
   // --------------------------------------------------
 
@@ -239,45 +331,33 @@
     options = options || {};
 
     const rng = (typeof options.rng === 'function') ? options.rng : Math.random;
-    const listener = (typeof options.onEvent === 'function') ? options.onEvent : null;
 
-    const state = {
-      shoe: new Uint8Array(SHOE_SIZE),
-      shoePosition: 0,
-      bankroll: STARTING_BANKROLL,
-      gameOver: false,
-      phase: 'idle',        // idle | player | dealer | results | gameover
-      mode: 'train',        // SW6: train grades, play does not
-      hands: [],
-      current: 0,
-      dealer: null,
-      dealerUp: 0,
-      dealerHole: 0,
-      correctDecisions: 0,
-      totalDecisions: 0,
-      lastGrade: null,
-      results: []
-    };
+    const shoe = new Uint8Array(SHOE_SIZE);
+    let shoePosition = 0;
 
+    let bankroll = STARTING_BANKROLL;
+    let highscore = 0;
 
-    function notify(event) {
+    // What is already stored, so a hand that changed nothing costs no
+    // write at all
+    let savedBankroll = STARTING_BANKROLL;
 
-      if (listener) {
-        listener(event);
-      }
-    }
+    // Latched by ui.js at the start of each hand
+    let mode = 'train';
 
+    // Train mode score, one count per decision. Not stored anywhere and
+    // reset every time a train session starts.
+    let correctDecisions = 0;
+    let totalDecisions = 0;
 
-    function log(text, cls) {
+    // The four hands of a round, as in the sketch: slots, not a growing
+    // list, so a split shifts the later hands along
+    const hands = [emptyHand(), emptyHand(), emptyHand(), emptyHand()];
 
-      notify({ type: 'log', text: text, cls: cls || '' });
-    }
+    const dealer = emptyHand();
 
-
-    function cardName(card) {
-
-      return card === 1 ? 'A' : String(card);
-    }
+    let dealerUp = 0;
+    let dealerHole = 0;
 
 
     // ------------------------------------------------
@@ -294,13 +374,13 @@
         for (let value = 1; value <= 9; value++) {
 
           for (let i = 0; i < 4; i++) {
-            state.shoe[index++] = value;
+            shoe[index++] = value;
           }
         }
 
         // Sixteen 10-value cards per deck
         for (let i = 0; i < 16; i++) {
-          state.shoe[index++] = 10;
+          shoe[index++] = 10;
         }
       }
 
@@ -309,57 +389,62 @@
 
         const j = Math.floor(rng() * (i + 1));
 
-        const temp = state.shoe[i];
-        state.shoe[i] = state.shoe[j];
-        state.shoe[j] = temp;
+        const temp = shoe[i];
+        shoe[i] = shoe[j];
+        shoe[j] = temp;
       }
 
-      state.shoePosition = 0;
+      shoePosition = 0;
     }
 
 
     function shoeIsLow() {
 
-      return (SHOE_SIZE - state.shoePosition) < RESHUFFLE_AT;
+      return (SHOE_SIZE - shoePosition) < RESHUFFLE_AT;
     }
 
 
+    // Draw a card from the shoe, removing it permanently
     function drawCard() {
 
-      if (state.shoePosition >= SHOE_SIZE) {
+      if (shoePosition >= SHOE_SIZE) {
         initialiseShoe();
       }
 
-      return state.shoe[state.shoePosition++];
+      return shoe[shoePosition++];
     }
 
 
     // ------------------------------------------------
-    // LOG HELPERS, mirroring the serial output
+    // BETTING
     // ------------------------------------------------
 
-    function logHandLabel(index) {
+    // What one bet costs this round. The bank can fall below a full bet,
+    // and then the whole of it goes on the table: $5 staked is better
+    // than $5 sat out. Train mode has no bank, so it always plays full
+    // bets.
+    function betSize() {
 
-      return state.hands.length > 1 ? 'Hand ' + (index + 1) + ': ' : 'Player: ';
+      if (mode === 'train') {
+        return BET;
+      }
+
+      return (bankroll < BET) ? bankroll : BET;
     }
 
 
-    function logPlayerHand(index) {
+    // Money not already riding on the table this round. A double or a
+    // split needs another bet out of this, which is what stops the
+    // bankroll from running below 0.
+    function moneyLeft(handCount) {
 
-      const hand = state.hands[index];
-      let text = logHandLabel(index) + handTotal(hand);
+      let committed = 0;
 
-      if (hand.pairValue !== 0) text += ' Pair';
-      if (handIsSoft(hand)) text += ' Soft';
+      for (let i = 0; i < handCount; i++) {
+        committed += hands[i].wager;
+      }
 
-      log(text);
-    }
-
-
-    function logDraw(card, index) {
-
-      const prefix = state.hands.length > 1 ? 'Hand ' + (index + 1) + ' draws: ' : 'Card: ';
-      log(prefix + cardName(card));
+      return bankroll - committed;
     }
 
 
@@ -367,511 +452,339 @@
     // SPLITTING
     // ------------------------------------------------
 
-    function splitHand(index) {
+    // The second card of the pair becomes its own one card hand. Returns
+    // the new number of hands in the round.
+    function splitHand(index, handCount, wager) {
 
-      const hand = state.hands[index];
+      const hand = hands[index];
       const pair = hand.pairValue;
-      const secondCard = hand.cards[1];
 
-      // The second card of the pair becomes its own one card hand
       const newHand = emptyHand();
-      addCard(newHand, secondCard);
-      newHand.wager = BET;
+      addCard(newHand, pair);
+      newHand.wager = wager;
 
       // Take that card back off the original hand
       hand.hard -= pair;
       hand.count = 1;
-      hand.cards = [hand.cards[0]];
       hand.pairValue = 0;
       hand.first = pair;
 
       // One ace went to the new hand
       hand.aces = (pair === 1) ? 1 : 0;
 
-      state.hands.splice(index + 1, 0, newHand);
+      // Make room for the new hand
+      for (let i = handCount; i > index + 1; i--) {
+        hands[i] = hands[i - 1];
+      }
+
+      hands[index + 1] = newHand;
+
+      // Neither half of a split can make a natural
+      hands[index].fromSplit = true;
+      hands[index + 1].fromSplit = true;
 
       if (pair === 1) {
 
         // Split aces get one card each and nothing more
-        state.hands[index].aceSplit = true;
-        state.hands[index + 1].aceSplit = true;
+        hands[index].aceSplit = true;
+        hands[index + 1].aceSplit = true;
       }
+
+      return handCount + 1;
     }
 
 
     // ------------------------------------------------
-    // PLAYER PHASE
+    // MONEY
     // ------------------------------------------------
 
-    // Walk forward until a hand needs a decision, then wait for input.
-    function advance() {
+    function setMode(next) {
 
-      while (state.current < state.hands.length) {
-
-        const hand = state.hands[state.current];
-
-        // A freshly split hand holds one card and needs a second
-        if (hand.count === 1) {
-
-          const card = drawCard();
-          addCard(hand, card);
-
-          logDraw(card, state.current);
-
-          if (hand.aceSplit) {
-
-            // Split aces are played with that single card
-            state.current++;
-            continue;
-          }
-        }
-
-        logPlayerHand(state.current);
-
-        // A natural blackjack has nothing to decide
-        if (handIsNatural(hand)) {
-
-          log('Blackjack!', 'win');
-          state.current++;
-          continue;
-        }
-
-        state.phase = 'player';
-        notify({ type: 'prompt' });
-        notify({ type: 'update' });
-        return;
-      }
-
-      state.phase = 'dealer';
-      notify({ type: 'dealerReady' });
-      notify({ type: 'update' });
+      mode = (next === 'play') ? 'play' : 'train';
     }
 
 
-    function startRound() {
+    function saveBankroll() {
 
-      if (state.gameOver) return false;
-      if (state.phase === 'player' || state.phase === 'dealer') return false;
-
-      if (shoeIsLow()) {
-
-        log('');
-        log('--- Shuffling a fresh shoe ---', 'dim');
-        initialiseShoe();
-      }
-
-      state.hands = [emptyHand()];
-      state.results = [];
-      state.lastGrade = null;
-      state.current = 0;
-
-      state.dealerUp = drawCard();
-      state.dealerHole = drawCard();
-
-      addCard(state.hands[0], drawCard());
-      addCard(state.hands[0], drawCard());
-
-      state.hands[0].wager = BET;
-
-      // Dealer's visible card only, the hole card is added at the end
-      state.dealer = emptyHand();
-      addCard(state.dealer, state.dealerUp);
-
-      log('');
-      log('==============================', 'sep');
-      log('Bankroll: $' + state.bankroll + '  Bet: $' + BET);
-      log('Dealer: ' + (state.dealerUp === 1 ? 11 : state.dealerUp));
-
-      notify({ type: 'roundStart' });
-      advance();
-
-      return true;
+      saveStoredBank(bankroll);
+      savedBankroll = bankroll;
     }
 
 
-    function act(action) {
+    function saveHighscore() {
 
-      if (state.phase !== 'player') return false;
-
-      const hand = state.hands[state.current];
-      if (!hand) return false;
-
-      // Reject actions this hand cannot make, without grading them
-      if (action === 'D' && !canDouble(hand)) {
-
-        log('Cannot double after hitting. Choose again.', 'dim');
-        notify({ type: 'update' });
-        return false;
-      }
-
-      if (action === 'P' && !canSplit(hand, state.hands.length)) {
-
-        log('Cannot split this hand. Choose again.', 'dim');
-        notify({ type: 'update' });
-        return false;
-      }
-
-      log(ACTION_NAMES[action], 'action');
-
-      // Only the train position of the switch marks the decision
-      if (state.mode === 'train') {
-
-        const best = bestAction(hand, state.dealerUp, state.hands.length);
-        const correct = (action === best);
-
-        state.totalDecisions++;
-
-        if (correct) {
-          state.correctDecisions++;
-        }
-
-        state.lastGrade = { correct: correct, chosen: action, best: best };
-
-        if (correct) {
-
-          log('CORRECT', 'correct');
-
-        } else {
-
-          log('INCORRECT', 'wrong');
-          log('Correct action: ' + ACTION_NAMES[best], 'wrong');
-        }
-
-        notify({ type: 'grade', correct: correct, chosen: action, best: best });
-      }
-
-      if (action === 'S') {
-
-        state.current++;
-        advance();
-        return true;
-      }
-
-      if (action === 'P') {
-
-        splitHand(state.current);
-        advance();
-        return true;
-      }
-
-      // Doubling puts another bet on the hand
-      if (action === 'D') {
-        hand.wager += BET;
-      }
-
-      // Hit or double both draw one card
-      const card = drawCard();
-      addCard(hand, card);
-
-      logDraw(card, state.current);
-
-      if (handIsBust(hand)) {
-
-        log('Bust!', 'wrong');
-        state.current++;
-        advance();
-        return true;
-      }
-
-      if (handTotal(hand) === 21) {
-
-        log('21, standing.');
-        state.current++;
-        advance();
-        return true;
-      }
-
-      if (action === 'D') {
-
-        state.current++;
-        advance();
-        return true;
-      }
-
-      // Otherwise this hand is asked again
-      notify({ type: 'prompt' });
-      notify({ type: 'update' });
-
-      return true;
+      writeStore(HIGH_KEY, String(highscore));
     }
 
 
-    // ------------------------------------------------
-    // DEALER'S TURN AND RESULT
-    // ------------------------------------------------
+    // -1 when nothing trustworthy is stored, which is what a blank store,
+    // a half written pair and an older build's balance all look like
+    function loadBankroll() {
 
-    function playDealer() {
+      const stored = loadStoredBank();
 
-      if (state.phase !== 'dealer') return false;
+      highscore = loadStoredHighscore();
 
-      state.phase = 'dealer-playing';
-
-      addCard(state.dealer, state.dealerHole);
-
-      log('Dealer hole card: ' + cardName(state.dealerHole) +
-          ' (dealer total ' + handTotal(state.dealer) + ')');
-
-      if (handIsNatural(state.dealer)) {
-        log('Dealer has blackjack.', 'wrong');
+      // A blank store, a damaged save or a balance from an older build
+      // means whatever high score is left behind is in the old units too,
+      // so it goes with it
+      if (stored < 0) {
+        highscore = 0;
+        saveHighscore();
       }
 
-      // Dealer stands on all 17s, including soft 17
-      while (handTotal(state.dealer) < 17) {
-
-        const card = drawCard();
-        addCard(state.dealer, card);
-
-        log('Dealer draws: ' + cardName(card) +
-            ' (dealer total ' + handTotal(state.dealer) + ')');
-
-        notify({ type: 'update' });
+      if (highscore < 0) {
+        highscore = 0;
       }
 
-      settle();
-      return true;
-    }
+      // Pick up the run where it was left. A run that finished wiped out,
+      // or on the 9999 jackpot, starts over at 100.
+      if (stored < 0 || stored === 0 || stored >= MAX_BANK) {
 
-
-    function settle() {
-
-      const dealerTotal = handTotal(state.dealer);
-      const dealerNatural = handIsNatural(state.dealer);
-      const handCount = state.hands.length;
-      const results = [];
-
-      // Train keeps the accuracy tally, play keeps the bankroll
-      const move = function (delta) {
-        if (state.mode === 'play') state.bankroll += delta;
-      };
-
-      log('');
-
-      state.hands.forEach(function (hand, i) {
-
-        const playerTotal = handTotal(hand);
-        const playerNatural = handIsNatural(hand);
-        const wager = hand.wager;
-
-        const prefix = handCount > 1 ? 'Hand ' + (i + 1) + ': ' : '';
-
-        let outcome;
-        let text;
-
-        if (playerTotal > 21) {
-
-          outcome = 'lose';
-          text = 'Player busts. Dealer wins.';
-          move(-wager);
-
-        } else if (playerNatural && dealerNatural) {
-
-          outcome = 'push';
-          text = 'Both blackjack. Push.';
-
-        } else if (dealerNatural) {
-
-          // A natural beats any 21 made with three or more cards
-          outcome = 'lose';
-          text = 'Dealer blackjack. Dealer wins.';
-          move(-wager);
-
-        } else if (playerNatural) {
-
-          // A natural beats a dealer 21 made with three or more cards
-          outcome = 'win';
-          text = 'Player blackjack. Player wins.';
-          move(wager);
-
-        } else if (dealerTotal > 21) {
-
-          outcome = 'win';
-          text = 'Dealer busts. Player wins.';
-          move(wager);
-
-        } else if (playerTotal > dealerTotal) {
-
-          outcome = 'win';
-          text = 'Player wins.';
-          move(wager);
-
-        } else if (playerTotal < dealerTotal) {
-
-          outcome = 'lose';
-          text = 'Dealer wins.';
-          move(-wager);
-
-        } else {
-
-          outcome = 'push';
-          text = 'Push.';
-        }
-
-        results.push({
-          index: i,
-          outcome: outcome,
-          total: playerTotal,
-          wager: wager,
-          text: prefix + text
-        });
-
-        log(prefix + text, outcome);
-      });
-
-      state.results = results;
-
-      log('');
-      log('Bankroll: $' + state.bankroll);
-      log('');
-
-      log('Decisions: ' + state.correctDecisions + '/' + state.totalDecisions);
-
-      // A blackjack round asks nothing, so guard the percentage
-      if (state.totalDecisions > 0) {
-
-        log('Accuracy: ' +
-            Math.floor((state.correctDecisions * 100) / state.totalDecisions) + '%');
-      }
-
-      log('Cards remaining: ' + (SHOE_SIZE - state.shoePosition));
-
-      // Only the play position wagers, so only play can go broke
-      if (state.mode === 'play' && state.bankroll < BET) {
-
-        log('');
-        log('Out of money. Game over.', 'wrong');
-        state.gameOver = true;
-        state.phase = 'gameover';
+        bankroll = STARTING_BANKROLL;
+        saveBankroll();
 
       } else {
 
-        state.phase = 'results';
+        bankroll = stored;
+        savedBankroll = bankroll;
+      }
+    }
+
+
+    // The change one hand makes to the bank. Train mode plays for accuracy,
+    // not money.
+    function outcomeFor(hand, dealerHand) {
+
+      const playerTotal = handTotal(hand);
+      const dealerTotal = handTotal(dealerHand);
+      const playerNatural = handIsNatural(hand);
+      const dealerNatural = handIsNatural(dealerHand);
+
+      const wager = hand.wager;
+
+      let outcome = 'push';
+      let change = 0;
+
+      if (playerTotal > 21) {
+
+        outcome = 'lose';
+        change = -wager;
+
+      } else if (playerNatural && dealerNatural) {
+
+        outcome = 'push';
+
+      } else if (dealerNatural) {
+
+        // A natural beats any 21 made with three or more cards
+        outcome = 'lose';
+        change = -wager;
+
+      } else if (playerNatural) {
+
+        // A natural beats a dealer 21 made with three or more cards, and
+        // pays 3:2. Rounding is down to the cent, which only ever costs
+        // half a cent on an odd wager.
+        outcome = 'win';
+        change = wager + Math.floor(wager / 2);
+
+      } else if (dealerTotal > 21) {
+
+        outcome = 'win';
+        change = wager;
+
+      } else if (playerTotal > dealerTotal) {
+
+        outcome = 'win';
+        change = wager;
+
+      } else if (playerTotal < dealerTotal) {
+
+        outcome = 'lose';
+        change = -wager;
       }
 
-      notify({ type: 'settle', results: results });
-      notify({ type: 'update' });
+      if (mode === 'play') {
+        bankroll += change;
+      }
+
+      return outcome;
+    }
+
+
+    // Run after the last hand is paid: keep the bank sane, remember the
+    // best one and carry the balance over to the next session
+    function finishRound() {
+
+      if (mode !== 'play') return;
+
+      if (bankroll < 0) {
+        bankroll = 0;
+      }
+
+      // Four digits is all the display has, and 9999 is where the egg
+      // lives, so the bank stops there
+      if (bankroll > MAX_BANK) {
+        bankroll = MAX_BANK;
+      }
+
+      // A better bankroll than ever before is kept for good
+      if (bankroll > highscore) {
+
+        highscore = bankroll;
+        saveHighscore();
+      }
+
+      // Carry the balance over to the next session, unless a push left it
+      // exactly where it was
+      if (bankroll !== savedBankroll) {
+        saveBankroll();
+      }
+    }
+
+
+    // The bankroll the display shows: cents in, dollars out
+    function displayBankroll() {
+
+      return Math.floor(bankroll / 100);
+    }
+
+
+    function displayHighscore() {
+
+      return Math.floor(highscore / 100);
+    }
+
+
+    // Out of money: a press starts a fresh bank
+    function restartBank() {
+
+      bankroll = STARTING_BANKROLL;
+      saveBankroll();
+    }
+
+
+    // The jackpot is a finished run: it comes back playable at 100 next
+    // time instead of dropping straight into the egg again
+    function finishEgg() {
+
+      bankroll = STARTING_BANKROLL;
+      saveBankroll();
     }
 
 
     // ------------------------------------------------
-    // PUBLIC STATE
+    // TRAIN MODE TALLY
     // ------------------------------------------------
 
-    function snapshotHand(hand) {
+    function resetAccuracy() {
 
-      return {
-        total: handTotal(hand),
-        soft: handIsSoft(hand),
-        bust: handIsBust(hand),
-        pair: hand.pairValue,
-        count: hand.count,
-        wager: hand.wager,
-        cards: hand.cards.slice(),
-        natural: handIsNatural(hand),
-        aceSplit: hand.aceSplit
-      };
+      correctDecisions = 0;
+      totalDecisions = 0;
     }
 
 
-    function getState() {
+    // Marks one decision against the book and returns whether it was right
+    function grade(chosen, best) {
 
-      const hands = state.hands.map(snapshotHand);
-      const dealer = state.dealer ? snapshotHand(state.dealer) : null;
+      const correct = (chosen === best);
 
-      return {
-        phase: state.phase,
-        mode: state.mode,
-        bankroll: state.bankroll,
-        bet: BET,
-        gameOver: state.gameOver,
-        hands: hands,
-        handCount: hands.length,
-        current: state.current,
-        dealer: dealer,
-        accuracy: {
-          correct: state.correctDecisions,
-          total: state.totalDecisions,
-          percent: state.totalDecisions
-            ? Math.floor((state.correctDecisions * 100) / state.totalDecisions)
-            : 0
-        },
-        shoeRemaining: SHOE_SIZE - state.shoePosition,
-        results: state.results,
-        lastGrade: state.lastGrade,
-        inPlay: hands.reduce(function (sum, hand) { return sum + hand.wager; }, 0)
-      };
-    }
+      totalDecisions++;
 
-
-    function canAct(action) {
-
-      if (state.phase !== 'player') return false;
-
-      const hand = state.hands[state.current];
-      if (!hand) return false;
-
-      if (action === 'D') return canDouble(hand);
-      if (action === 'P') return canSplit(hand, state.hands.length);
-
-      return action === 'H' || action === 'S';
-    }
-
-
-    function setMode(mode) {
-
-      const next = (mode === 'play') ? 'play' : 'train';
-
-      if (state.mode !== next) {
-
-        state.mode = next;
-        state.lastGrade = null;
-
-        notify({ type: 'mode', mode: next });
+      if (correct) {
+        correctDecisions++;
       }
 
-      return state.mode;
+      return correct;
     }
 
 
-    function restart() {
+    // Accuracy as a percentage with two decimals, 0 to 10000
+    function accuracyHundredths() {
 
-      state.bankroll = STARTING_BANKROLL;
-      state.gameOver = false;
-      state.phase = 'idle';
-      state.hands = [];
-      state.current = 0;
-      state.dealer = null;
-      state.results = [];
-      state.lastGrade = null;
-      state.correctDecisions = 0;
-      state.totalDecisions = 0;
+      if (totalDecisions === 0) return 0;
 
-      initialiseShoe();
-
-      log('');
-      log('--- New game ---', 'dim');
-      log('Starting bankroll: $' + STARTING_BANKROLL + '  Bet: $' + BET);
-
-      notify({ type: 'roundStart' });
-      return startRound();
+      return Math.floor((correctDecisions * 10000) / totalDecisions);
     }
 
 
-    // Setup, as in the sketch
+    // ------------------------------------------------
+    // ROUND
+    // ------------------------------------------------
+
+    // Deal a fresh round: the dealer takes its two cards first, then the
+    // player, exactly as the sketch draws them
+    function startRound() {
+
+      clearHand(hands[0]);
+
+      dealerUp = drawCard();
+      dealerHole = drawCard();
+
+      addCard(hands[0], drawCard());
+      addCard(hands[0], drawCard());
+
+      hands[0].wager = betSize();
+
+      // Only the visible card is known until the hole card is turned
+      clearHand(dealer);
+      addCard(dealer, dealerUp);
+    }
+
+
+    // Boot, as setup() does it
+    loadBankroll();
     initialiseShoe();
 
-    log('');
-    log('BLACKJACK STRATEGY TRAINER', 'header');
-    log('6 deck shoe | S17 | DAS');
-    log('Starting bankroll: $' + STARTING_BANKROLL + '  Bet: $' + BET);
 
     return {
+      // shoe
+      initialiseShoe: initialiseShoe,
+      shoeIsLow: shoeIsLow,
+      drawCard: drawCard,
+      shoeRemaining: function () { return SHOE_SIZE - shoePosition; },
+
+      // hands
+      hands: hands,
+      dealer: dealer,
+      clearHand: clearHand,
+      addCard: addCard,
+      handTotal: handTotal,
+      handIsSoft: handIsSoft,
+      handIsBust: handIsBust,
+      handIsNatural: handIsNatural,
+      cardValue: cardValue,
+      canDouble: canDouble,
+      canSplit: canSplit,
+      bestAction: bestAction,
+      splitHand: splitHand,
       startRound: startRound,
-      act: act,
-      playDealer: playDealer,
-      canAct: canAct,
+      dealerUp: function () { return dealerUp; },
+      dealerHole: function () { return dealerHole; },
+
+      // betting and money
       setMode: setMode,
-      restart: restart,
-      getState: getState
+      mode: function () { return mode; },
+      betSize: betSize,
+      moneyLeft: moneyLeft,
+      bankroll: function () { return bankroll; },
+      highscore: function () { return highscore; },
+      displayBankroll: displayBankroll,
+      displayHighscore: displayHighscore,
+      outcomeFor: outcomeFor,
+      finishRound: finishRound,
+      restartBank: restartBank,
+      finishEgg: finishEgg,
+      jackpot: function () { return mode === 'play' && bankroll >= MAX_BANK; },
+
+      // train mode
+      resetAccuracy: resetAccuracy,
+      grade: grade,
+      accuracyHundredths: accuracyHundredths,
+      decisions: function () {
+        return { correct: correctDecisions, total: totalDecisions };
+      }
     };
   }
 
@@ -881,6 +794,7 @@
     bestAction: bestAction,
     handTotal: handTotal,
     handIsSoft: handIsSoft,
+    handIsNatural: handIsNatural,
     canSplit: canSplit,
     canDouble: canDouble,
     constants: {
@@ -889,7 +803,8 @@
       RESHUFFLE_AT: RESHUFFLE_AT,
       MAX_HANDS: MAX_HANDS,
       STARTING_BANKROLL: STARTING_BANKROLL,
-      BET: BET
+      BET: BET,
+      MAX_BANK: MAX_BANK
     }
   };
 });
