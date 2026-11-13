@@ -23,6 +23,10 @@ hardware/
 firmware/
   blackjack-keychain/
     blackjack-keychain.ino        the sketch
+  nano-blackjack/
+    nano-blackjack.ino            the same game, remapped for a Nano
+  nano-display-test/
+    nano-display-test.ino         display wiring check for a Nano
 virtual/
   index.html                        the board in a browser
   game.js, ui.js                    game engine, display and controls
