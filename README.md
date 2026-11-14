@@ -6,9 +6,10 @@
 
 50 × 70 mm · ATmega328P · USB-C · 0.28" four-digit display
 
-| <img src="docs/board-blue.png" width="420" alt="Front of the board with a blue solder mask"> | <img src="docs/board-red.png" width="420" alt="Front of the board with a red solder mask"> |
-|:--:|:--:|
-| Blue solder mask | Red solder mask |
+| | Blue solder mask | Red solder mask |
+|:--:|:--:|:--:|
+| Front | <img src="docs/board-blue.png" width="380" alt="Front of the board with a blue solder mask"> | <img src="docs/board-red.png" width="380" alt="Front of the board with a red solder mask"> |
+| Back | <img src="docs/board-blue-back.png" width="380" alt="Back of the board with a blue solder mask"> | <img src="docs/board-red-back.png" width="380" alt="Back of the board with a red solder mask"> |
 
 </div>
 
@@ -18,10 +19,10 @@ buttons, and the firmware marks the answer against basic strategy before
 playing the hand out. In train mode it keeps score; in play mode it keeps
 a bankroll in EEPROM between sessions.
 
-*Renders from KiCad's 3D renderer, using the board file in `hardware/`.
-The board carries no stackup colours of its own, so set the top and bottom
-solder-mask colours under Board Setup → Physical Stackup before running
-`kicad-cli pcb render` to reproduce these.*
+*Both sides rendered from the board file in `hardware/` with KiCad's 3D
+renderer. The board carries no stackup colours of its own, so set the top
+and bottom solder-mask colours under Board Setup → Physical Stackup before
+running `kicad-cli pcb render` to reproduce these.*
 
 ## What it does
 
@@ -199,7 +200,8 @@ virtual/
   board-blue.svg, board-red.svg     generated board art
   make_board.py                     plots the board art from fabrication/
 docs/
-  board-blue.png, board-red.png     KiCad 3D renders used above
+  board-blue.png, board-red.png            front renders
+  board-blue-back.png, board-red-back.png  back renders
 ```
 
 The KiCad project, its netlist and its outputs stay together under
