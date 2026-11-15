@@ -1,0 +1,422 @@
+<!doctype html>
+<!--
+  Blackjack Keychain - instruction booklet.
+
+  Booklet page is 50 x 70 mm, the size of the board. Two folded sheets
+  (8 pages) are imposed on one A4 sheet, printed double-sided flipping on
+  the long edge, and cut apart.
+
+  Pages 1 to 6 follow docs/instruction-book.txt; 7 and 8 fill the sheet a
+  fold makes room for (the end of a run, and the back cover).
+
+    sheet 1: outside 8 | 1   inside 2 | 7
+    sheet 2: outside 6 | 3   inside 4 | 5
+
+  Build the PDF with:
+
+    google-chrome --headless --disable-gpu --no-sandbox \
+      --no-pdf-header-footer --virtual-time-budget=4000 \
+      --print-to-pdf=docs/instruction-booklet.pdf \
+      file://$PWD/docs/instruction-booklet.html
+
+  Print at 100% with no scaling. Page 1 of the PDF is the front of the
+  booklet sheet, page 2 its back.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Blackjack Keychain — instruction booklet</title>
+<style>
+  @page { size: 210mm 297mm; margin: 0; }
+
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Carlito", "Liberation Sans", sans-serif;
+    color: #000;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .sheet {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    overflow: hidden;
+    page-break-after: always;
+    break-after: page;
+  }
+  .sheet:last-of-type { page-break-after: auto; break-after: auto; }
+
+  /* One booklet sheet: 100 x 70 mm, folded at its centre to 50 x 70. */
+  .piece {
+    position: absolute;
+    width: 100mm;
+    height: 70mm;
+    border: 0.15mm solid #c9c9c9;
+  }
+  /* Fold ticks, just outside the trim */
+  .piece::before,
+  .piece::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    width: 0.15mm;
+    height: 3.5mm;
+    margin-left: -0.075mm;
+    background: #c9c9c9;
+  }
+  .piece::before { top: -3.7mm; }
+  .piece::after  { bottom: -3.7mm; }
+
+  /* Trimmed off with the margins */
+  .tag {
+    position: absolute;
+    top: -4.9mm;
+    left: 0.4mm;
+    font-size: 4.8pt;
+    letter-spacing: 0.04em;
+    color: #9a9a9a;
+  }
+
+  .page {
+    position: absolute;
+    top: 0;
+    width: 50mm;
+    height: 70mm;
+    box-sizing: border-box;
+    padding: 5.6mm 4.4mm 5mm;
+  }
+  .page.left  { left: 0; }
+  .page.right { left: 50mm; }
+
+  .page h2 {
+    font-size: 8.2pt;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    margin: 0 0 2.2mm;
+    padding-bottom: 1.1mm;
+    border-bottom: 0.2mm solid #000;
+  }
+  .page p {
+    font-size: 7pt;
+    line-height: 1.4;
+    margin: 0 0 1.5mm;
+  }
+  .page p.loose { margin-bottom: 2.2mm; }
+  .page .num {
+    position: absolute;
+    bottom: 2.8mm;
+    font-size: 5pt;
+    color: #666;
+  }
+  .page.left  .num { left: 4.4mm; }
+  .page.right .num { right: 4.4mm; }
+
+  /* Lists, set as tight as the page allows */
+  .page ul {
+    margin: 0 0 1.7mm;
+    padding-left: 3.2mm;
+  }
+  .page li {
+    font-size: 7pt;
+    line-height: 1.4;
+    margin: 0 0 1.2mm;
+  }
+  .page ul.tight li { margin-bottom: 0.9mm; }
+
+  /* Cover */
+  .page .kicker {
+    font-size: 5.6pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #555;
+    margin: 0 0 2mm;
+  }
+  .page .title {
+    font-size: 14.5pt;
+    font-weight: 700;
+    line-height: 0.92;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .page .bar {
+    width: 100%;
+    height: 0.6mm;
+    background: #000;
+    margin: 3.2mm 0 2.4mm;
+  }
+  .page .lede {
+    font-size: 8pt;
+    line-height: 1.3;
+    margin: 0 0 2.4mm;
+  }
+  .page .foot {
+    position: absolute;
+    left: 4.4mm;
+    bottom: 5.4mm;
+    font-size: 5.2pt;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #444;
+    line-height: 1.7;
+  }
+
+  /* A short list of button or light words */
+  .page table { width: 100%; border-collapse: collapse; }
+  .page td {
+    font-size: 7pt;
+    line-height: 1.42;
+    padding: 0 0 1.1mm;
+    vertical-align: top;
+  }
+  .page td.w {
+    width: 12.5mm;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+  .page td.l {
+    width: 14mm;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+
+  /* Notes printed below the pieces, on the waste of the same sheet */
+  .notes {
+    position: absolute;
+    left: 5mm;
+    top: 106mm;
+    width: 200mm;
+  }
+  .notes .kicker {
+    font-size: 7pt;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #555;
+    margin: 0 0 2mm;
+  }
+  .notes h1 {
+    font-size: 18pt;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 3mm;
+  }
+  .notes hr {
+    border: 0;
+    border-top: 0.4mm solid #000;
+    margin: 6mm 0;
+  }
+  .notes p, .notes li {
+    font-size: 10pt;
+    line-height: 1.5;
+    margin: 0 0 3mm;
+    max-width: 168mm;
+  }
+  .notes h2 {
+    font-size: 7.6pt;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 6mm 0 2.5mm;
+  }
+  .notes ol { margin: 0 0 3mm; padding-left: 7mm; }
+  .notes ol li { margin-bottom: 2.2mm; }
+  .notes .warning {
+    border-left: 1.2mm solid #000;
+    padding: 0.5mm 0 0.5mm 4mm;
+    margin: 4mm 0;
+  }
+  .notes .warning p { margin: 0; max-width: 160mm; }
+  .notes .quiet { color: #555; font-size: 8.6pt; max-width: 168mm; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     PDF page 1: the outside faces, plus these notes below them
+     A outside 8 | 1      B outside 6 | 3
+     ============================================================ -->
+<div class="sheet">
+
+  <div class="piece" style="left:5mm; top:24mm;">
+    <div class="tag">A · outside · 8 | 1</div>
+
+    <div class="page left">
+      <div class="kicker">Blackjack keychain</div>
+      <div class="title" style="font-size:10.5pt;">Basic strategy<br>trainer</div>
+      <div class="bar"></div>
+      <p style="font-size:7.6pt;">A hand of blackjack in your pocket, and a
+      coach that marks every decision you make.</p>
+      <p>Train mode for the book. Play mode for the bank.</p>
+      <div class="num">8</div>
+    </div>
+
+    <div class="page right">
+      <div class="kicker">Basic strategy trainer</div>
+      <div class="title">BLACK<br>JACK<br>KEY<br>CHAIN</div>
+      <div class="bar"></div>
+      <div class="lede">Test your blackjack skills with this compact
+      keychain device.</div>
+      <p>Hone your basic strategy knowledge in train mode, then test
+      your luck and go for a high score in play mode.</p>
+      <div class="foot">Patrick Scholefield</div>
+      <div class="num">1</div>
+    </div>
+  </div>
+
+  <div class="piece" style="left:105mm; top:24mm;">
+    <div class="tag">B · outside · 6 | 3</div>
+
+    <div class="page left">
+      <h2>Play mode</h2>
+      <p class="loose">Play starts you with $100, and the bankroll is
+      kept, so a run carries on next time you switch it on.</p>
+      <p class="loose">Before each hand the display shows BET, then the
+      amount. HIT adds $5, STAND takes $5 off, DOUBLE doubles it, SPLIT
+      halves it. Tap BANK to deal.</p>
+      <p class="loose">The bet runs from $5 to $100, and never above what
+      the bank can lose.</p>
+      <p>Hold BANK at any time to read the bankroll.</p>
+      <div class="num">6</div>
+    </div>
+
+    <div class="page right">
+      <h2>Buttons</h2>
+      <table>
+        <tr><td class="w">HIT</td><td>take another card</td></tr>
+        <tr><td class="w">STAND</td><td>keep the total you have</td></tr>
+        <tr><td class="w">DOUBLE</td><td>double the bet for one more
+        card</td></tr>
+        <tr><td class="w">SPLIT</td><td>turn a pair into two hands</td></tr>
+        <tr><td class="w">BANK</td><td>show the bankroll; hold for your
+        best</td></tr>
+      </table>
+      <p style="margin-top:1.2mm;">Press one button at a time.</p>
+      <p>The switch on the side picks the mode: PLAY for money, TRAIN
+      for practice.</p>
+      <div class="num">3</div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div class="kicker">Blackjack keychain · booklet</div>
+    <h1>Print, fold, staple</h1>
+
+    <p>These two A4 pages are one booklet. Print them double-sided on a
+    single sheet, flipping on the long edge, at 100% with no scaling.
+    Side 1 carries the outside of the booklet and these notes; side 2
+    carries the inside.</p>
+
+    <hr>
+
+    <h2>What is on the sheet</h2>
+    <p>Two pieces, 100 × 70 mm, side by side near the top. Each piece is
+    one sheet of the booklet: fold it in half on its ticks and it is
+    50 × 70 mm, the size of the board. Eight pages in total.</p>
+
+    <h2>Check it before you cut</h2>
+    <div class="warning">
+      <p>Hold the printed sheet up to a light. Page 2 must sit directly
+      behind page 1, the right way up. If page 5 sits there instead, or
+      a page is upside down, the printer flipped the second side on the
+      short edge: print again with long-edge, or book, binding.</p>
+    </div>
+
+    <h2>Assembly</h2>
+    <ol>
+      <li>Cut along the grey lines. A steel rule and a knife give a
+      straighter edge than scissors. Nothing outside the lines is kept.</li>
+      <li>Fold each piece in half along its ticks with the outside faces
+      showing: on the piece with page 1, page 1 stays out. Running a
+      blunt rule along the fold first makes it crisper.</li>
+      <li>Nest the pieces: the one with page 1 outermost, then the one
+      with page 3 on its outer face. The tags name each piece's letter
+      and the two pages on that face.</li>
+      <li>Staple twice on the fold, about 10 mm in from each end, through
+      both layers. Open the booklet and flatten the staple legs with a
+      fingernail or the flat of the rule.</li>
+    </ol>
+
+    <p class="quiet">Page numbers sit at the foot of each page, odd on
+    the right. A booklet that reads 1 to 8 in order, with no page upside
+    down, is bound correctly.</p>
+  </div>
+
+</div>
+
+<!-- ============================================================
+     PDF page 2: the inside faces, as read after flipping on the
+     long edge.
+     B inside 4 | 5      A inside 2 | 7
+     ============================================================ -->
+<div class="sheet">
+
+  <div class="piece" style="left:5mm; top:24mm;">
+    <div class="tag">B · inside · 4 | 5</div>
+
+    <div class="page left">
+      <h2>The lights</h2>
+      <table>
+        <tr><td class="l">WIN</td><td>the hand paid</td></tr>
+        <tr><td class="l">PUSH</td><td>it tied, bet returned</td></tr>
+        <tr><td class="l">LOSE</td><td>the bet was lost</td></tr>
+        <tr><td class="l">SOFT</td><td>an ace counts as eleven</td></tr>
+        <tr><td class="l">PAIR</td><td>your first two cards match</td></tr>
+        <tr><td class="l">CORRECT</td><td>a right answer</td></tr>
+        <tr><td class="l">WRONG</td><td>a wrong one</td></tr>
+      </table>
+      <p style="margin-top:1.2mm;">They go out at the next hand.</p>
+      <div class="num">4</div>
+    </div>
+
+    <div class="page right">
+      <h2>Train mode</h2>
+      <p class="loose">Nothing is at stake. A right answer lights
+      CORRECT and the hand carries on.</p>
+      <p class="loose">A wrong one lights WRONG, and the book's play
+      shows for a moment: HIT, STND, DOUB or SPLT.</p>
+      <p class="loose">Each hand ends with your accuracy blinking in
+      place of the bankroll. 87.50 is 87.5 per cent.</p>
+      <p class="loose">Hold BANK to see it. It starts at zero each
+      session.</p>
+      <p>Doubles and splits are always offered here.</p>
+      <div class="num">5</div>
+    </div>
+  </div>
+
+  <div class="piece" style="left:105mm; top:24mm;">
+    <div class="tag">A · inside · 2 | 7</div>
+
+    <div class="page left">
+      <h2>Blackjack</h2>
+      <p>Get closer to 21 than the dealer without going over.</p>
+      <ul class="tight">
+        <li>Pictures count ten, an ace one or eleven.</li>
+        <li>Two cards making 21 is blackjack and beats any other 21.</li>
+        <li>The dealer stands on 17, soft or hard.</li>
+        <li>Double any first two cards, split or not.</li>
+        <li>A pair splits into up to four hands; split aces take one
+        card.</li>
+        <li>No surrender. Equal totals push.</li>
+      </ul>
+      <div class="num">2</div>
+    </div>
+
+    <div class="page right">
+      <h2>The end of a run</h2>
+      <p class="loose">A win pays the bet, a push returns it, a loss
+      takes it. A natural pays three to two.</p>
+      <p class="loose">Keep holding BANK and it flashes HIGH over the
+      best bank you have had.</p>
+      <p class="loose">With less than $10 left, the whole balance goes on
+      the next hand.</p>
+      <p class="loose">An empty bank lights LOSE and ends the run. Press
+      any button to start again from $100.</p>
+      <p>Reach the top of the display and every light starts flashing.
+      That is the jackpot.</p>
+      <div class="num">7</div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

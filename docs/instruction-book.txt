@@ -1,0 +1,26 @@
+Blackjack keychain - by Patrick Scholefield
+
+PAGE 1
+Test your blackjack skills with this compact keychain device.
+Hone your basic strategy knowledge in train mode, then test your luck and go for a high score in play mode.
+
+PAGE 2
+Blackjack rules
+
+PAGE 3
+Buttons
+
+PAGE 4
+LEDS
+
+PAGE 5
+Train mode
+- wrong/right leds
+- display showing the correct move
+- percentage showing after each hand and on bankroll
+
+PAGE 6
+Play mode
+- choose bet before each hand
+- bankroll shows current bankroll
+
