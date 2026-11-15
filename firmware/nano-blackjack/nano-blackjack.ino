@@ -41,13 +41,15 @@
     D9   segment dp         A0  win LED
                             A3  lose LED
     A4   push LED
-    A5   mode switch, +5 V for play, GND for train
+    A5   spare, pulled up, no switch fitted
     A6   hit / stand / double ladder
     A7   split / bank ladder
 
-  That is every usable pin spoken for: fifteen outputs (twelve for
-  the display, five LEDs), A5 as the mode switch, and A6 and A7 as
-  the two analogue inputs. Nothing is left over.
+  That is every usable pin spoken for: seventeen outputs (twelve
+  for the display, five LEDs) and A6 and A7 as the two analogue
+  inputs. A5 is the only pin left over, because the mode switch it
+  was meant for is not on this build, so the bank button switches
+  mode instead: see MODE below.
 
   D0 and D1 are deliberately left alone. D1 is driven by the USB
   serial chip, so an output there would fight it, and nothing in
@@ -70,9 +72,28 @@
   - each LED from its pin through 330R to ground
   - ladders: 10k from A6 and A7 to ground, +5 V through 1k, 3.3k
     and 6.8k to A6, through 2.2k and 6.8k to A7
-  - mode switch, SPDT, +5 V and ground to A5
+  - no mode switch, A5 is left unconnected
 
-  PLAY MODE - mode switch to +5 V
+  MODE
+
+  There is no room for a mode switch on a Nano, and this build has
+  none: the wrong and correct LEDs are missing already, and A5, the
+  pin the switch would have sat on, is now pulled up in software
+  and left alone. Two quick clicks of the bank button change mode
+  instead, play to train or train back, and the change is taken
+  between hands just as the switch would have been, so a double
+  click in the middle of a hand lands on the next round.
+
+  A click is a press shorter than half a second, released before
+  the bankroll hold moves on to HIGH, and the second click has to
+  follow within half a second. A longer press is the bank button
+  doing its usual job and is not counted.
+
+  Coming into train mode the accuracy blinks once, which is the
+  only sign of the change here: with no correct or wrong LED, a
+  train session otherwise looks exactly like a play one.
+
+  PLAY MODE - the mode the game starts in
 
   Digits 1 and 2 show the player's total for the hand in play.
   Digits 3 and 4 show the dealer's up card, then the dealer's
@@ -120,7 +141,7 @@
   that is worth a party: every LED starts flashing at random and
   nothing else happens until the chip is reset.
 
-  TRAIN MODE - mode switch to GND
+  TRAIN MODE - after a double click of the bank button
 
   The same hands with no bankroll. Nothing costs anything, so a
   double or a split is always offered when the cards allow one.
@@ -139,7 +160,7 @@
   100.
 
   Nothing about accuracy is stored between sessions; it starts
-  again from zero each time the switch comes back to GND.
+  again from zero each time train mode is entered.
 
   Rules:
   - 6 deck shoe, reshuffled between hands when it runs low
@@ -172,7 +193,8 @@
   D = Double  (SW3, 6.8k on A6)
   P = Split   (SW4, 2.2k on A7)
   B = Bank    (SW5, 6.8k on A7)   holds the bankroll, or the
-                                 accuracy in train mode
+                                 accuracy in train mode; two
+                                 quick clicks change mode
 
   The five buttons are two resistor ladders, not five separate
   pins. Each one switches its pin to +5 V through its own resistor
@@ -239,7 +261,8 @@ int savedBankroll = STARTING_BANKROLL;
 int correctDecisions = 0;
 int totalDecisions = 0;
 
-// Latched from the mode switch at the start of each hand
+// Latched at the start of each hand, by a double click of the bank
+// button: this build has no mode switch
 bool trainingMode = false;
 bool modeKnown = false;
 
@@ -526,13 +549,25 @@ Action bestAction(const Hand &hand, byte dealerUp, int handCount) {
 
     if (total == 12) return (up >= 4 && up <= 6) ? STAND : HIT;
 
-    if (total == 11) return DOUBLE;
+    // These fall through to the available-action check below, so a
+    // hit that leaves 9, 10 or 11 is graded HIT when doubling is
+    // no longer on the table
+    if (total == 11) {
 
-    if (total == 10) return (up <= 9) ? DOUBLE : HIT;
+      action = DOUBLE;
 
-    if (total == 9) return (up >= 3 && up <= 6) ? DOUBLE : HIT;
+    } else if (total == 10) {
 
-    return HIT;
+      action = (up <= 9) ? DOUBLE : HIT;
+
+    } else if (total == 9) {
+
+      action = (up >= 3 && up <= 6) ? DOUBLE : HIT;
+
+    } else {
+
+      return HIT;
+    }
   }
 
   // A double is only available on the first two cards
@@ -551,9 +586,10 @@ Action bestAction(const Hand &hand, byte dealerUp, int handCount) {
 // settings.
 // --------------------------------------------------
 
-// Mode switch, +5 V for play, GND for train. A plain digital input
-// on a pin that also happens to be an analogue one.
-const int MODE_PIN = A5;
+// The mode switch the board was written for sits on A5, but this
+// build has none, so the pin is parked as a pulled up input and a
+// double click of the bank button changes mode instead.
+const int SPARE_PIN = A5;
 
 // Button ladders. Read with analogRead(), which is all A6 and A7
 // can do: they have no digital port bit behind them.
@@ -667,10 +703,26 @@ byte displayBuffer[4] = { SEGMENT_BLANK, SEGMENT_BLANK, SEGMENT_BLANK, SEGMENT_B
 // What the bank button shows, rebuilt whenever it is sampled
 byte holdDigits[4] = { SEGMENT_BLANK, SEGMENT_BLANK, SEGMENT_BLANK, SEGMENT_BLANK };
 
+// Two quick clicks of the bank button ask for the other mode. A
+// press shorter than CLICK_MAX_MS is a click, and the second click
+// has to start within DOUBLE_CLICK_GAP_MS of the first.
+const unsigned long CLICK_MAX_MS = 500;
+const unsigned long DOUBLE_CLICK_GAP_MS = 500;
+
 byte refreshIndex = 0;
 byte refreshTicks = 0;
+
+// The bank button as sampled with the display refresh. bankShown is
+// the debounced state, and a change has to hold for three samples
+// before it counts, which is what rides out contact bounce.
 bool bankShown = false;
+byte bankSettle = 0;
 unsigned long bankHeldSince = 0;
+unsigned long bankPressStart = 0;
+unsigned long lastBankClickAt = 0;
+
+// Set by a double click and taken at the top of the next round
+bool modeToggleRequested = false;
 
 
 void writeSegments(byte pattern) {
@@ -781,18 +833,53 @@ bool holdWantsHighWord() {
 void refreshDisplay() {
 
   // Sample the bank button now and then. Holding it takes the
-  // display over from whatever the game was showing.
+  // display over from whatever the game was showing, and two quick
+  // clicks ask for the other mode.
   if ((refreshTicks++ & 7) == 0) {
 
     bool down = (readLadder(BTN_SIDE_PIN) == LEVEL_6K8);
 
-    // Start the hold clock on the edge, so the first second is the
-    // bankroll and only then does it move on
-    if (down && !bankShown) {
-      bankHeldSince = millis();
-    }
+    if (down == bankShown) {
 
-    bankShown = down;
+      bankSettle = 0;
+
+    } else if (++bankSettle >= 3) {
+
+      bankSettle = 0;
+      bankShown = down;
+
+      if (bankShown) {
+
+        // Start the hold clock on the edge, so the first second is
+        // the bankroll and only then does it move on
+        bankHeldSince = millis();
+        bankPressStart = millis();
+
+      } else {
+
+        if (millis() - bankPressStart < CLICK_MAX_MS) {
+
+          // Short press: a click. A second one straight after is
+          // the double click that changes mode.
+          if (lastBankClickAt != 0 &&
+              (bankPressStart - lastBankClickAt) < DOUBLE_CLICK_GAP_MS) {
+
+            modeToggleRequested = true;
+            lastBankClickAt = 0;
+
+          } else {
+
+            lastBankClickAt = millis();
+          }
+
+        } else {
+
+          // Held too long to be a click: the bank button showing the
+          // bankroll, or flashing HIGH, and not a mode change
+          lastBankClickAt = 0;
+        }
+      }
+    }
 
     if (bankShown) {
       fillHoldView(holdDigits);
@@ -1035,16 +1122,10 @@ void initialiseInputs() {
   pinMode(BTN_MAIN_PIN, INPUT);
   pinMode(BTN_SIDE_PIN, INPUT);
 
-  // The mode switch always drives its pin to a rail. It is a
-  // digital input, even though A5 can also be read as an analogue
-  // one.
-  pinMode(MODE_PIN, INPUT);
-}
-
-
-bool inPlayMode() {
-
-  return digitalRead(MODE_PIN) == HIGH;
+  // Nothing is wired to A5 on this build. Pulling it up keeps an
+  // unused pin from floating about, and leaves it ready if a switch
+  // is ever added there.
+  pinMode(SPARE_PIN, INPUT_PULLUP);
 }
 
 
@@ -1678,15 +1759,28 @@ void setup() {
 
 void loop() {
 
-  // The switch is read between hands, not in the middle of one
-  bool wantTraining = !inPlayMode();
+  // A double click is taken between hands, not in the middle of one,
+  // just as the mode switch would have been
+  bool modeChanged = false;
   bool enteredPlay = false;
 
-  if (!modeKnown || wantTraining != trainingMode) {
+  if (!modeKnown) {
 
+    // The game starts in play mode
     modeKnown = true;
-    enteredPlay = !wantTraining;
-    trainingMode = wantTraining;
+    modeChanged = true;
+    enteredPlay = true;
+    trainingMode = false;
+
+  } else if (modeToggleRequested) {
+
+    modeToggleRequested = false;
+    modeChanged = true;
+    trainingMode = !trainingMode;
+    enteredPlay = !trainingMode;
+  }
+
+  if (modeChanged) {
 
     setOutcomeLed(OUTCOME_NONE);
     setCorrectLed(LOW);
@@ -1700,9 +1794,16 @@ void loop() {
     }
   }
 
-  // HIGH, then the best bank, before the first hand
   if (enteredPlay) {
+
+    // HIGH, then the best bank, before the first hand
     showHighScore();
+
+  } else if (modeChanged) {
+
+    // Into train mode, where the accuracy blinking is the only sign
+    // of the change: the correct and wrong LEDs are not fitted
+    flashSummary();
   }
 
   playRound();

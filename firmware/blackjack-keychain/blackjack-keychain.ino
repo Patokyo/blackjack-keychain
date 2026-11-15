@@ -511,13 +511,25 @@ Action bestAction(const Hand &hand, byte dealerUp, int handCount) {
 
     if (total == 12) return (up >= 4 && up <= 6) ? STAND : HIT;
 
-    if (total == 11) return DOUBLE;
+    // These fall through to the available-action check below, so a
+    // hit that leaves 9, 10 or 11 is graded HIT when doubling is
+    // no longer on the table
+    if (total == 11) {
 
-    if (total == 10) return (up <= 9) ? DOUBLE : HIT;
+      action = DOUBLE;
 
-    if (total == 9) return (up >= 3 && up <= 6) ? DOUBLE : HIT;
+    } else if (total == 10) {
 
-    return HIT;
+      action = (up <= 9) ? DOUBLE : HIT;
+
+    } else if (total == 9) {
+
+      action = (up >= 3 && up <= 6) ? DOUBLE : HIT;
+
+    } else {
+
+      return HIT;
+    }
   }
 
   // A double is only available on the first two cards

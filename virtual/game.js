@@ -236,13 +236,25 @@
 
       if (total === 12) return (up >= 4 && up <= 6) ? 'S' : 'H';
 
-      if (total === 11) return 'D';
+      // These fall through to the available-action check below, so a
+      // hit that leaves 9, 10 or 11 is graded HIT when doubling is
+      // no longer on the table
+      if (total === 11) {
 
-      if (total === 10) return (up <= 9) ? 'D' : 'H';
+        action = 'D';
 
-      if (total === 9) return (up >= 3 && up <= 6) ? 'D' : 'H';
+      } else if (total === 10) {
 
-      return 'H';
+        action = (up <= 9) ? 'D' : 'H';
+
+      } else if (total === 9) {
+
+        action = (up >= 3 && up <= 6) ? 'D' : 'H';
+
+      } else {
+
+        return 'H';
+      }
     }
 
     // A double is only available on the first two cards
