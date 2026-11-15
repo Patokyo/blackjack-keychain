@@ -14,8 +14,12 @@
     - a two card 21 is a natural, and not after a split
     - a natural beats any 21 made with three or more cards
     - two naturals, or two ordinary 21s, push
-    - $100 to start, a fixed $10 on every hand
-    - a split hand costs another $10, a double costs another $10
+    - $100 to start, and the bet on every hand is the player's, from $5
+      up to $100, set before the cards come out. A bank holding less than
+      the bet allows caps it, so a hand never stakes more than the bank
+      can lose
+    - a split hand and a double each cost another bet the size of the one
+      already on the hand
     - money is counted in cents, a natural pays 3:2, and the half dollar
       it can pay on a short bet is kept (the display drops it)
     - a bank under $10 goes on the next hand whole, and only an empty
@@ -47,7 +51,15 @@
   // Money is counted in cents, so a 3:2 natural on an odd bet is carried
   // exactly rather than rounded away
   const STARTING_BANKROLL = 10000;        // $100.00
-  const BET = 1000;                       // $10.00
+
+  // The bet is the player's to set before every hand: what a run starts
+  // on, the least it can be, the most it can be, and what one press moves
+  // it by
+  const BET = 1000;                       // $10.00, the bet a run starts on
+  const MIN_BET = 500;                    // $5.00, the smallest bet allowed
+  const MAX_BET = 10000;                  // $100.00, the largest bet allowed
+  const BET_STEP = 500;                   // $5.00, one press of hit or stand
+
   const MAX_BANK = 999900;                // $9999.00, the most four digits show
 
   // Bumped whenever the stored meaning changes. This one counts cents and
@@ -354,8 +366,12 @@
     // write at all
     let savedBankroll = STARTING_BANKROLL;
 
-    // Latched by ui.js at the start of each hand
+    // Latched by ui.js the instant the switch moves
     let mode = 'train';
+
+    // The bet set for the next hand, kept from hand to hand until it is
+    // changed again. Not stored, so a run starts on $10.
+    let betAmount = BET;
 
     // Train mode score, one count per decision. Not stored anywhere and
     // reset every time a train session starts.
@@ -431,17 +447,75 @@
     // BETTING
     // ------------------------------------------------
 
-    // What one bet costs this round. The bank can fall below a full bet,
-    // and then the whole of it goes on the table: $5 staked is better
-    // than $5 sat out. Train mode has no bank, so it always plays full
-    // bets.
+    // The bet that goes on the next hand, kept inside what the bank can
+    // cover and under the ceiling. Nothing under the minimum can be bet
+    // while the bank holds that much, and nothing above the bank at all.
+    // A bank too small for the minimum goes on the table whole: $3 staked
+    // is a better end to a run than $3 sat out.
+    function chosenBet() {
+
+      if (bankroll <= 0) return 0;
+
+      if (bankroll < MIN_BET) return bankroll;
+
+      if (betAmount < MIN_BET) return MIN_BET;
+
+      if (betAmount > bankroll) return bankroll;
+
+      if (betAmount > MAX_BET) return MAX_BET;
+
+      return betAmount;
+    }
+
+
+    // One button's worth of change, held to the same limits: a double that
+    // would pass the bank stops at the bank, and a half that would fall
+    // under the minimum stops at the minimum. Returns false when the press
+    // asked for more than the bank can cover, more than the ceiling allows
+    // or less than the minimum, which the caller answers with the usual two
+    // blinks so no end of the range is ever silent.
+    function changeBet(button) {
+
+      // An all in bet has nothing to move: there is no room above it and
+      // the minimum is already out of reach, so every press is refused
+      if (bankroll < MIN_BET) {
+
+        betAmount = chosenBet();
+        return false;
+      }
+
+      let bet = chosenBet();
+
+      if (button === 'H') bet += BET_STEP;
+      else if (button === 'S') bet -= BET_STEP;
+      else if (button === 'D') bet *= 2;
+      else if (button === 'P') bet = Math.floor(bet / 2);
+
+      // The ceiling and the bank are two separate reasons to stop, and
+      // either one refuses the press
+      const overBank = bet > bankroll;
+      const overMax = bet > MAX_BET;
+      const underMin = bet < MIN_BET;
+
+      if (overBank) bet = bankroll;
+      if (overMax) bet = MAX_BET;
+      if (underMin) bet = MIN_BET;
+
+      betAmount = bet;
+
+      return !overBank && !overMax && !underMin;
+    }
+
+
+    // What one bet costs this round, which is the bet the player has set.
+    // Train mode has no bank, so there every hand is the same $10.
     function betSize() {
 
       if (mode === 'train') {
         return BET;
       }
 
-      return (bankroll < BET) ? bankroll : BET;
+      return chosenBet();
     }
 
 
@@ -673,6 +747,7 @@
     function restartBank() {
 
       bankroll = STARTING_BANKROLL;
+      betAmount = BET;
       saveBankroll();
     }
 
@@ -779,6 +854,8 @@
       setMode: setMode,
       mode: function () { return mode; },
       betSize: betSize,
+      betAmount: function () { return betAmount; },
+      changeBet: changeBet,
       moneyLeft: moneyLeft,
       bankroll: function () { return bankroll; },
       highscore: function () { return highscore; },
@@ -816,6 +893,9 @@
       MAX_HANDS: MAX_HANDS,
       STARTING_BANKROLL: STARTING_BANKROLL,
       BET: BET,
+      MIN_BET: MIN_BET,
+      MAX_BET: MAX_BET,
+      BET_STEP: BET_STEP,
       MAX_BANK: MAX_BANK
     }
   };

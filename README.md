@@ -180,9 +180,12 @@ python3 -m http.server 8000
 # then open http://localhost:8000/virtual/
 ```
 
-`H`, `S`, `D` and `P` play, `B` shows the bankroll, and `T` (or the slide
-switch) changes mode. The blue/red swatches below the board switch the
-solder-mask colour.
+`H`, `S`, `D` and `P` play, and before each hand in play mode they set the
+bet: `H` adds $5, `S` takes $5 off, `D` doubles it, `P` halves it. A tap of
+`B` deals the hand and a hold on it shows the bankroll. `T` (or the slide
+switch) changes mode, and moving it mid-hand drops that hand the way the
+boards do. The blue/red swatches below the board switch the solder-mask
+colour.
 
 After re-plotting the fabrication outputs, regenerate the board art with:
 
@@ -253,7 +256,3 @@ kicad-cli pcb render --side top --quality high --perspective \
 - **`hardware/blackjack-keychain.net` is older than the board.** It does not
   show the two VCC pins or the decoupling capacitors, and several pin nets
   differ from the PCB. Re-export the netlist from KiCad before using it.
-- **The keychain sketch's bankroll tops out below the display limit.** `int`
-  is 16 bits on AVR, so `MAX_BANK` (999900 cents) wraps to 16860 there and
-  the "9999" jackpot fires at $168.60. The Nano build counts money in
-  `long` and does reach $9999; the browser version never had this limit.

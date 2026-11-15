@@ -46,8 +46,10 @@
 
   // Enough letters for the four action words. A seven segment cell only
   // ever draws a rough letter, so these are the usual shapes.
+  const LETTER_A = 0x77;   // a b c e f g, a closed A
   const LETTER_B = 0x7C;   // c d e f g
   const LETTER_D = 0x5E;   // b c d e g
+  const LETTER_E = 0x79;   // a d e f g
   const LETTER_G = 0x3D;   // a c d e f, a C that closes
   const LETTER_H = 0x76;   // b c e f g
   const LETTER_I = 0x06;   // b c
@@ -55,12 +57,20 @@
   const LETTER_N = 0x54;   // c e g
   const LETTER_O = 0x3F;   // a b c d e f
   const LETTER_P = 0x73;   // a b e f g
+  const LETTER_R = 0x50;   // e g
   const LETTER_S = 0x6D;   // a c d f g
   const LETTER_T = 0x78;   // d e f g
   const LETTER_U = 0x3E;   // b c d e f
+  const LETTER_Y = 0x6E;   // b c d f g
 
   // The label shown when the best bank is on the display
   const HIGH_WORD = [LETTER_H, LETTER_I, LETTER_G, LETTER_H];
+
+  // The word for the mode the switch has just been put in
+  const MODE_WORDS = {
+    play: [LETTER_P, LETTER_L, LETTER_A, LETTER_Y],
+    train: [LETTER_T, LETTER_R, LETTER_N]
+  };
 
   const ACTION_WORDS = {
     H: [LETTER_H, LETTER_I, LETTER_T],
@@ -356,6 +366,19 @@
   }
 
 
+  // PLAY or TRN, before anything else the new mode has to say
+  async function showModeWord(play) {
+
+    clearDisplay();
+
+    MODE_WORDS[play ? 'play' : 'train'].forEach(function (pattern, index) {
+      displayBuffer[index] = pattern;
+    });
+
+    await pause(700);
+  }
+
+
   // The word for the action the book wanted, left justified, held for the
   // half second the sketch pauses for
   async function showActionWord(action) {
@@ -391,6 +414,46 @@
   }
 
 
+  // Before the cards come out the bet is the player's to set. BET names
+  // what the number that follows is, then the four action buttons move the
+  // bet and a tap of the bank button deals the hand.
+  async function askForBet() {
+
+    clearDisplay();
+
+    displayBuffer[0] = LETTER_B;
+    displayBuffer[1] = LETTER_E;
+    displayBuffer[2] = LETTER_T;
+
+    await pause(700);
+
+    while (true) {
+
+      if (pendingModeChange) return false;
+
+      // The amount stays up while the buttons are worked
+      numberToDigits(displayBuffer, 0, 4, Math.floor(game.betSize() / 100));
+
+      const press = await waitForBetPress();
+
+      if (press === null || pendingModeChange) return false;
+
+      // A hold was a look at the bank, not a confirmation
+      if (press.action === 'B') {
+
+        if (press.held < 1000) return true;
+
+        continue;
+      }
+
+      // A press past either end blinks twice, as any refused action does
+      if (!game.changeBet(press.action)) {
+        await rejectAction();
+      }
+    }
+  }
+
+
   function setOutcomeLed(outcome) {
 
     leds.win = (outcome === 'win');
@@ -405,14 +468,33 @@
 
   let actionWaiter = null;
   let pressWaiter = null;
+  let betWaiter = null;
 
-  // Latched from the mode switch at the start of each hand
+  // Latched from the mode switch the moment it moves, not between hands
   let trainingMode = false;
   let modeKnown = false;
-  let switchPosition = 'train';
+  let switchPosition = null;
+
+  // Set the instant the switch moves, and cleared by loop(), which is
+  // what tears down the hand that was in play
+  let pendingModeChange = false;
+
+  // How long the last bank press lasted, so a tap can deal the hand and
+  // a hold can only look at the money
+  let lastBankHoldMs = 0;
 
 
   function takePress(action) {
+
+    // The bet prompt takes every press, the bank button included
+    if (betWaiter) {
+
+      const resolve = betWaiter;
+      betWaiter = null;
+      resolve({ action: action, held: lastBankHoldMs });
+
+      return;
+    }
 
     if (pressWaiter) {
 
@@ -441,6 +523,18 @@
 
     return new Promise(function (resolve) {
       actionWaiter = resolve;
+    });
+  }
+
+
+  // One press at the bet prompt: a card button moves the bet, a tap of
+  // the bank button deals it
+  function waitForBetPress() {
+
+    paint();
+
+    return new Promise(function (resolve) {
+      betWaiter = resolve;
     });
   }
 
@@ -480,6 +574,7 @@
 
     if (!bankDown) return;
 
+    lastBankHoldMs = performance.now() - bankHeldSince;
     bankDown = false;
 
     clearInterval(bankTicker);
@@ -513,9 +608,45 @@
 
   function setSwitch(position) {
 
+    if (position === switchPosition) return;
+
     switchPosition = position;
 
     els.modeSwitch.setAttribute('aria-checked', position === 'train' ? 'true' : 'false');
+
+    // Before the first hand the loop reads the switch itself
+    if (!modeKnown) return;
+
+    trainingMode = (position === 'train');
+    game.setMode(trainingMode ? 'train' : 'play');
+    pendingModeChange = true;
+
+    // Whatever the round was waiting on gives up on its press
+    dropWaiters();
+  }
+
+
+  // A press the round was waiting on is abandoned when the switch moves,
+  // which is what drops the hand instead of playing it on
+  function dropWaiters() {
+
+    if (actionWaiter) {
+      const resolve = actionWaiter;
+      actionWaiter = null;
+      resolve(null);
+    }
+
+    if (betWaiter) {
+      const resolve = betWaiter;
+      betWaiter = null;
+      resolve(null);
+    }
+
+    if (pressWaiter) {
+      const resolve = pressWaiter;
+      pressWaiter = null;
+      resolve(null);
+    }
   }
 
 
@@ -562,7 +693,11 @@
   window.addEventListener('keyup', function (event) {
 
     if (event.key.length === 1 && event.key.toUpperCase() === 'B') {
+
       hideBank();
+
+      // A key release is the press at the bet prompt, as a click is
+      if (betWaiter) takePress('B');
     }
   });
 
@@ -573,19 +708,30 @@
 
   async function playRound() {
 
+    // A switch moved since the last round: loop() shows the new mode
+    // rather than this one dealing a hand
+    if (pendingModeChange) return;
+
     if (game.shoeIsLow()) {
       game.initialiseShoe();
     }
 
     // Switching back from train mode with an empty bank
     if (!trainingMode && game.bankroll() <= 0) {
+
       await waitForBankRestart();
+
+      if (pendingModeChange) return;
     }
 
     // New round, no result showing yet
     setOutcomeLed(null);
     leds.correct = false;
     leds.wrong = false;
+
+    // The bet is set here, in play mode only: train mode has no bank to
+    // bet and no reason to ask
+    if (!trainingMode && !(await askForBet())) return;
 
     const hands = game.hands;
     let handCount = 1;
@@ -598,6 +744,9 @@
     let current = 0;
 
     while (current < handCount) {
+
+      // The hand was dropped between hands of a split, so it stops here
+      if (pendingModeChange) return;
 
       const hand = hands[current];
 
@@ -641,6 +790,9 @@
         leds.pair = hand.pairValue !== 0;
 
         const chosen = await waitForAction();
+
+        // The switch moved instead of a button being pressed
+        if (chosen === null) return;
 
         // Reject actions this hand cannot make, without grading them.
         // Train mode has no bankroll, so there only the cards can say no;
@@ -734,6 +886,9 @@
       await pause(500);
     }
 
+    // A hand dropped inside that pause never reaches the dealer
+    if (pendingModeChange) return;
+
     leds.correct = false;
     leds.wrong = false;
     leds.soft = false;
@@ -766,6 +921,8 @@
       // second so the total climbs where it can be watched.
       while (game.handTotal(dealer) < 17) {
 
+        if (pendingModeChange) return;
+
         game.addCard(dealer, game.drawCard());
 
         showTable(hands[displayHand], game.handTotal(dealer));
@@ -781,6 +938,10 @@
     // ------------------------------------------------
     // RESULT
     // ------------------------------------------------
+
+    // A dropped hand is void: it is not settled, so no money moves and
+    // nothing is paid out or taken for it
+    if (pendingModeChange) return;
 
     const dealerTotal = game.handTotal(dealer);
 
@@ -830,7 +991,8 @@
 
     paint();
 
-    await waitForRestart();
+    // A mode change is a way out that leaves the bank where it is
+    if ((await waitForRestart()) === null) return;
 
     game.restartBank();
 
@@ -873,19 +1035,32 @@
 
     while (true) {
 
-      // The switch is read between hands, not in the middle of one
-      const wantTraining = (switchPosition === 'train');
+      let modeChanged = false;
       let enteredPlay = false;
 
-      if (!modeKnown || wantTraining !== trainingMode) {
+      if (!modeKnown) {
 
+        // The switch decides from the first hand on
         modeKnown = true;
-        enteredPlay = !wantTraining;
-        trainingMode = wantTraining;
-
+        modeChanged = true;
+        enteredPlay = (switchPosition === 'play');
+        trainingMode = !enteredPlay;
         game.setMode(trainingMode ? 'train' : 'play');
 
+      } else if (pendingModeChange) {
+
+        // The switch moved mid-hand: setSwitch() has changed the mode
+        // already, and the round has dropped the hand
+        pendingModeChange = false;
+        modeChanged = true;
+        enteredPlay = !trainingMode;
+      }
+
+      if (modeChanged) {
+
         setOutcomeLed(null);
+        leds.soft = false;
+        leds.pair = false;
         leds.correct = false;
         leds.wrong = false;
 
@@ -894,11 +1069,20 @@
           // Every train session starts from nothing
           game.resetAccuracy();
         }
+
+        // PLAY or TRN, before anything else the new mode has to say
+        await showModeWord(enteredPlay);
       }
 
-      // HIGH, then the best bank, before the first hand
       if (enteredPlay) {
+
+        // HIGH, then the best bank, before the first hand
         await showHighScore();
+
+      } else if (modeChanged) {
+
+        // Into train mode, where the accuracy blinking follows TRN
+        await flashSummary();
       }
 
       await playRound();
