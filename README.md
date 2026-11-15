@@ -26,10 +26,10 @@ running `kicad-cli pcb render` to reproduce these.*
 
 ## What it does
 
-- **Play mode** — a $100 bankroll, a flat $10 bet, and the bank carried
-  over in EEPROM after every hand. A bank under $10 goes on the next hand
-  whole; only an empty bank ends the run. Reach $9999 and the board throws
-  a party.
+- **Play mode** — a $100 bankroll, a bet you set before every hand from $5
+  to $100, and the bank carried over in EEPROM after every hand. A bank
+  under $5 goes on the next hand whole; only an empty bank ends the run.
+  Reach $9999 and the board throws a party.
 - **Train mode** — the same hands with no money. Every decision is graded,
   a wrong answer shows the play the book wanted, and the bank button
   reports your running accuracy.
@@ -127,8 +127,9 @@ IDE. The folder name matches the sketch name, as the IDE requires.
 - Burn the chip with no bootloader and program it through J2 with an ISP
   programmer.
 
-The mode switch is read between hands, so flipping it mid-hand takes
-effect on the next round. Play is +5 V, train is GND.
+The mode switch is read all through a hand: flipping it mid-hand drops that
+hand, void, and switches straight away, with PLAY or TRN on the display as
+the switch lands. Play is +5 V, train is GND.
 
 ### Controls
 
@@ -138,8 +139,12 @@ effect on the next round. Play is +5 V, train is GND.
 | SW2 | A4, 3.3 kΩ | Stand |
 | SW3 | A4, 6.8 kΩ | Double |
 | SW4 | A5, 2.2 kΩ | Split |
-| SW5 | A5, 6.8 kΩ | Bank: hold for the bankroll or accuracy, hold longer for HIGH and the best bank |
+| SW5 | A5, 6.8 kΩ | Bank: tap to deal the hand at the bet prompt; hold for the bankroll or accuracy, hold longer for HIGH and the best bank |
 | SW6 | D0 | Play (+5 V) / train (GND) |
+
+Before every hand the same four action buttons set the bet, with BET on the
+display first: hit adds $5, stand takes $5 off, double doubles it, split
+halves it, and a tap of the bank button deals.
 
 A decision the hand cannot make — a double after a hit, or a split the
 bankroll cannot cover — blinks the display and is not graded.
@@ -148,9 +153,16 @@ bankroll cannot cover — blinks the display and is not graded.
 
 `firmware/nano-blackjack/` is the same game on an Arduino Nano, with the
 parts on a breadboard. Its pin map is different: the ladders move to A6
-and A7, the correct and wrong LEDs are dropped, and a double-click of the
-bank button changes mode instead of SW6. See the header of that sketch
-for the breadboard wiring.
+and A7, the correct and wrong LEDs are dropped, and the mode switch goes
+on A5, the one pin left over, as an SPDT with its common to A5, one throw
+to +5 V (play) and the other to ground (train). Nothing else changes
+mode: a build with no switch fitted leaves A5 to its internal pull-up and
+so stays in play. See the header of that sketch for the breadboard
+wiring.
+
+The game it plays is the keychain's, line for line: same bet prompt, same
+$5 to $100 range, same grading and the same EEPROM layout. Train mode has
+no bank on either build, so there every hand is a flat $10.
 
 `firmware/nano-display-test/` is a wiring check for the display alone: it
 lights each digit, each segment and each decimal point in turn, then
@@ -202,6 +214,9 @@ virtual/
 docs/
   board-blue.png, board-red.png            front renders
   board-blue-back.png, board-red-back.png  back renders
+  instruction-booklet.txt                  the page-by-page outline the booklet follows
+  instruction-booklet.html                 printable booklet, 8 pages at 50 × 70 mm
+  instruction-booklet.pdf                  the same, imposed on one A4 sheet for duplex
 ```
 
 The KiCad project, its netlist and its outputs stay together under
@@ -238,7 +253,7 @@ kicad-cli pcb render --side top --quality high --perspective \
 - **`hardware/blackjack-keychain.net` is older than the board.** It does not
   show the two VCC pins or the decoupling capacitors, and several pin nets
   differ from the PCB. Re-export the netlist from KiCad before using it.
-- **The bankroll tops out below the display limit in the firmware.** `int` is
-  16 bits on AVR, so `MAX_BANK` (999900 cents) wraps to 16860 and the
-  "9999" jackpot fires at $168.60. The browser version does not have this
-  limit.
+- **The keychain sketch's bankroll tops out below the display limit.** `int`
+  is 16 bits on AVR, so `MAX_BANK` (999900 cents) wraps to 16860 there and
+  the "9999" jackpot fires at $168.60. The Nano build counts money in
+  `long` and does reach $9999; the browser version never had this limit.

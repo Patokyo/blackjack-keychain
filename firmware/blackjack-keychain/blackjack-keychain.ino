@@ -4,6 +4,12 @@
   Hardware: ATmega328P-A in the 32 pin TQFP/MLF package, 5 V from
   the USB-C socket, internal 8 MHz RC oscillator, no crystal.
 
+  This is the keychain build. The game itself - the rules, the
+  timing, the betting, the grading and the EEPROM layout - is the
+  same one firmware/nano-blackjack runs, line for line. What is
+  different here is the board, which has a pin for all seven LEDs,
+  and the two extra digits of wiring that come with it.
+
   No serial. Everything the game knows is on the four digit
   display and the seven LEDs, and every input is a button.
 
@@ -79,18 +85,31 @@
   hand is dealt.
 
   Coming into play mode, at power up or back from train mode, the
-  display shows HIGH and then the best bank so far before the
-  first hand is dealt.
+  display shows PLAY, then HIGH and then the best bank so far,
+  before the first hand is dealt.
 
   Hold the bank button at any time, in any part of the game, to
   take the display over and show the bankroll. Keep holding past
   a second and it starts flashing HIGH over the best bank, over
   and over, until the button is let go.
 
-  A hand costs $10, but a shorter bank is not the end of the run:
-  with less than $10 left the whole balance goes on the next hand,
-  so $5 can be bet back up to $10. Only a completely empty bank
-  stops the game.
+  Before every hand the display shows BET, then the bet itself.
+  The bet is the player's to set right there: HIT puts another $5
+  on it, STAND takes $5 off, DOUBLE doubles it and SPLIT halves
+  it, as often as wanted until it reads right. It never goes below
+  $5, never above $100, and never above what the bank holds: a
+  press that would take it past any of those limits is refused,
+  and answers with the same two quick blinks as any other action
+  the game will not take. Tapping the bank button confirms it and
+  the hand is dealt; holding it past that second is only a look at
+  the bank, so a hand is never dealt by accident while the bankroll
+  is being read. The bet chosen carries over to the next hand, so
+  it only has to be set again to change it.
+
+  A hand costs what the bet says, $10 to begin with, but a short
+  bank is not the end of the run: with less than $5 left the whole
+  balance goes on the next hand. Only a completely empty bank stops
+  the game.
 
   The bankroll itself is kept in EEPROM after every hand, so
   switching the keychain off carries the run over to the next
@@ -108,8 +127,9 @@
 
   TRAIN MODE - SW6 to GND
 
-  The same hands with no bankroll. Nothing costs anything, so a
-  double or a split is always offered when the cards allow one.
+  The same hands with no bankroll, so the bet is not asked for and
+  every hand is the same $10. Nothing costs anything, so a double
+  or a split is always offered when the cards allow one.
 
   Every decision is graded. Correct lights the correct LED; wrong
   lights the wrong LED and puts the action the book wanted on the
@@ -124,7 +144,12 @@
   100.
 
   Nothing about accuracy is stored between sessions; it starts
-  again from zero each time the switch comes back to GND.
+  again from zero each time the switch comes back to train.
+
+  The switch is read all through a hand, not only between hands.
+  Moving it drops the hand that is in play, void, with no money
+  paid out or taken for it, and the display answers with PLAY or
+  TRN as the switch lands.
 
   Rules:
   - 6 deck shoe, reshuffled between hands when it runs low
@@ -139,8 +164,13 @@
   - Surrender disabled
 
   Betting:
-  - $100 to start, a fixed $10 on every hand
-  - A split hand costs another $10, a double costs another $10
+  - $100 to start, and the bet on every hand is the player's,
+    from $5 up to $100, set before the cards come out. A bank
+    holding less than the bet allows caps it, so a hand never
+    stakes more than the bank can lose
+  - Train mode has no bank, so there every hand is the same $10
+  - A split hand and a double each cost another bet the size of
+    the one already on the hand
   - Something is only offered when there is money left to cover
     it, so the bankroll can never run below 0
   - Wins pay even money, a natural pays 3:2, pushes return the
@@ -152,12 +182,13 @@
     to a whole number of dollars
 
   Controls:
-  H = Hit     (SW1, 1k   on A4)
-  S = Stand   (SW2, 3.3k on A4)
-  D = Double  (SW3, 6.8k on A4)
-  P = Split   (SW4, 2.2k on A5)
-  B = Bank    (SW5, 6.8k on A5)   holds the bankroll, or the
-                                 accuracy in train mode
+  H = Hit     (SW1, 1k   on A4)   adds $5 to the bet
+  S = Stand   (SW2, 3.3k on A4)   takes $5 off the bet
+  D = Double  (SW3, 6.8k on A4)   doubles the bet
+  P = Split   (SW4, 2.2k on A5)   halves the bet
+  B = Bank    (SW5, 6.8k on A5)   confirms the bet, and holds the
+                                  bankroll, or the accuracy in
+                                  train mode
 
   The five buttons are two resistor ladders, not five separate
   pins. Each one switches its pin to +5 V through its own resistor
@@ -196,37 +227,60 @@ byte shoe[SHOE_SIZE];
 int shoePosition = 0;
 
 // Betting. Money is counted in cents, so a 3:2 natural on an odd
-// bet is carried exactly rather than rounded away.
-const int STARTING_BANKROLL = 10000;   // $100.00
-const int BET = 1000;                  // $10.00
+// bet is carried exactly rather than rounded away. A long is 32 bits
+// here, which is what $9999.00 needs: a 16 bit int stops at $327.67
+// and 999900 cents would wrap to 16860, ending the run early at
+// $168.60.
+const long STARTING_BANKROLL = 10000;   // $100.00
+
+// The bet is the player's to set before every hand. This is what a
+// run starts on, the least it can be, the most it can be, and what
+// one press moves it by
+const long BET = 1000;      // $10.00, the bet a run starts on
+const long MIN_BET = 500;   // $5.00, the smallest bet allowed
+const long MAX_BET = 10000; // $100.00, the largest bet allowed
+const long BET_STEP = 500;  // $5.00, one press of hit or stand
 
 // $9999.00: the most four digits can show, and where the egg is
-const int MAX_BANK = 999900;
+const long MAX_BANK = 999900;
 
-// Two byte high score, little endian, at the bottom of the EEPROM,
+// Four byte high score, little endian, at the bottom of the EEPROM,
 // then the bankroll, its complement and a format tag right after it
-const int HIGHSCORE_ADDRESS = 0;
-const int BANKROLL_ADDRESS = 2;
+const int HIGHSCORE_ADDRESS = 0;   // 0 to 3
+const int BANKROLL_ADDRESS = 4;    // tag at 4, balance 5 to 8, complement 9 to 12
 
 // Bumped whenever the stored meaning changes. This one counts cents
-// and pays 3:2, so a balance left by an older build is ignored.
-const byte BANKROLL_VERSION = 2;
+// in a long and pays 3:2, so a balance left by an older build is
+// ignored and the run starts over.
+const byte BANKROLL_VERSION = 3;
 
-int bankroll = STARTING_BANKROLL;
-int highscore = 0;
+long bankroll = STARTING_BANKROLL;
+long highscore = 0;
 
 // What is already in EEPROM, so a hand that changed nothing costs
 // no write at all
-int savedBankroll = STARTING_BANKROLL;
+long savedBankroll = STARTING_BANKROLL;
+
+// The bet set for the next hand, kept from hand to hand until it is
+// changed again. Not stored, so a run starts on $10.
+long betAmount = BET;
 
 // Train mode score, one count per decision. Not stored anywhere
 // and reset every time a train session starts.
 int correctDecisions = 0;
 int totalDecisions = 0;
 
-// Latched from the mode switch at the start of each hand
+// Latched the moment the mode switch moves, wherever the game is
 bool trainingMode = false;
 bool modeKnown = false;
+
+// What the switch said when it was last sampled, so a move is seen
+// as an edge
+bool switchWasPlay = true;
+
+// Set the instant the switch moves, and cleared by loop(), which is
+// what tears down the hand that was in play
+bool modeChangePending = false;
 
 // Player actions
 enum Action {
@@ -251,7 +305,7 @@ struct Hand {
   byte aces;       // number of aces in the hand
   byte count;      // number of cards in the hand
   byte first;      // value of the first card
-  int wager;       // money riding on the hand, 0 for the dealer
+  long wager;      // money riding on the hand, 0 for the dealer
   byte pairValue;  // matching value if the hand is a pair, else 0
   bool aceSplit;   // came from splitting aces: one card only
   bool fromSplit;  // came off a split, so 21 is not a natural
@@ -410,26 +464,108 @@ bool canSplit(const Hand &hand, int handCount) {
 }
 
 
-// What one bet costs this round. The bank can fall below a full
-// bet, and then the whole of it goes on the table: $5 staked is
-// better than $5 sat out. Train mode has no bank, so it always
-// plays full bets.
-int betSize() {
+// The bet that goes on the next hand, kept inside what the bank can
+// cover and under the ceiling. Nothing under the minimum can be bet
+// while the bank holds that much, and nothing above the bank at all.
+// A bank too small for the minimum goes on the table whole: $3
+// staked is a better end to a run than $3 sat out. The ceiling keeps
+// one hand from swallowing a fat bank in a single round.
+long chosenBet() {
+
+  if (bankroll <= 0) {
+    return 0;
+  }
+
+  if (bankroll < MIN_BET) {
+    return bankroll;
+  }
+
+  if (betAmount < MIN_BET) {
+    return MIN_BET;
+  }
+
+  if (betAmount > bankroll) {
+    return bankroll;
+  }
+
+  if (betAmount > MAX_BET) {
+    return MAX_BET;
+  }
+
+  return betAmount;
+}
+
+
+// One button's worth of change, held to the same limits: a double
+// that would pass the bank stops at the bank, and a half that would
+// fall under the minimum stops at the minimum. Returns false when
+// the press asked for more than the bank can cover, more than the
+// ceiling allows or less than the minimum, which the caller answers
+// with the usual two blinks so no end of the range is ever silent.
+bool changeBet(char button) {
+
+  // An all in bet has nothing to move: there is no room above it and
+  // the minimum is already out of reach, so every press is refused
+  if (bankroll < MIN_BET) {
+    betAmount = chosenBet();
+    return false;
+  }
+
+  long bet = chosenBet();
+
+  if (button == 'H') {
+    bet += BET_STEP;
+  } else if (button == 'S') {
+    bet -= BET_STEP;
+  } else if (button == 'D') {
+    bet *= 2;
+  } else if (button == 'P') {
+    bet /= 2;
+  }
+
+  // The ceiling and the bank are two separate reasons to stop, and
+  // either one refuses the press. A bank over $100 refuses on the
+  // ceiling first, which is what keeps a single hand to $100.
+  bool overBank = bet > bankroll;
+  bool overMax = bet > MAX_BET;
+  bool underMin = bet < MIN_BET;
+
+  if (overBank) {
+    bet = bankroll;
+  }
+
+  if (overMax) {
+    bet = MAX_BET;
+  }
+
+  if (underMin) {
+    bet = MIN_BET;
+  }
+
+  betAmount = bet;
+
+  return !overBank && !overMax && !underMin;
+}
+
+
+// What one bet costs this round, which is the bet the player has set.
+// Train mode has no bank, so there every hand is the same $10.
+long betSize() {
 
   if (trainingMode) {
     return BET;
   }
 
-  return (bankroll < BET) ? bankroll : BET;
+  return chosenBet();
 }
 
 
 // Money not already riding on the table this round. A double or a
 // split needs another bet out of this, which is what stops the
 // bankroll from running below 0.
-int moneyLeft(const Hand hands[], int handCount) {
+long moneyLeft(const Hand hands[], int handCount) {
 
-  int committed = 0;
+  long committed = 0;
 
   for (int i = 0; i < handCount; i++) {
     committed += hands[i].wager;
@@ -547,7 +683,8 @@ Action bestAction(const Hand &hand, byte dealerUp, int handCount) {
 // board is fixed, so these are constants rather than settings.
 // --------------------------------------------------
 
-// Mode switch, +5 V for play, GND for train
+// Mode switch, +5 V for play, GND for train. The pull up covers the
+// break in the switch and holds play on a board with none fitted.
 const int MODE_PIN = 0;        // PD0 pad 30
 
 // Button ladders
@@ -563,24 +700,43 @@ const int LED_CORRECT = 2;     // PD2 pad 32
 const int LED_WRONG   = 1;     // PD1 pad 31
 const byte LED_PUSH_BIT = 6;   // PB6 pad 7, PORTB only
 
+// PB6 and PB7 have no Arduino number, so the push LED and digit 2
+// are written through PORTB rather than digitalWrite()
+void writePortBPin(byte bit, bool on) {
+
+  if (on) {
+    PORTB |= _BV(bit);
+  } else {
+    PORTB &= ~_BV(bit);
+  }
+}
+
+// Every indicator goes through one of these, so a call site does
+// not have to know which pin, or which port, it landed on
+void setCorrectLed(bool on) { digitalWrite(LED_CORRECT, on); }
+void setWrongLed(bool on) { digitalWrite(LED_WRONG, on); }
+void setPairLed(bool on) { digitalWrite(LED_PAIR, on); }
+void setSoftLed(bool on) { digitalWrite(LED_SOFT, on); }
+void setPushLed(bool on) { writePortBPin(LED_PUSH_BIT, on); }
+
 // Four digit display U2, CC56-12EWA, common cathode, with one NPN
 // low side switch per digit. Segments and digit drives are all
 // active high. Segments a to g are shared by all four digits, and
 // the single decimal point is shared with them.
-const int SEG_A  = 12;   // PB4 pad 16
-const int SEG_B  = 5;    // PD5 pad 9
-const int SEG_C  = 7;    // PD7 pad 11
-const int SEG_D  = 11;   // PB3 pad 15
-const int SEG_E  = 13;   // PB5 pad 17
-const int SEG_F  = 10;   // PB2 pad 14
-const int SEG_G  = 6;    // PD6 pad 10
-const int SEG_DP = 9;    // PB1 pad 13
+const int SEG_A  = 12;
+const int SEG_B  = 5;
+const int SEG_C  = 7;
+const int SEG_D  = 11;
+const int SEG_E  = 13;
+const int SEG_F  = 10;
+const int SEG_G  = 6;
+const int SEG_DP = 9;
 
 // One low side switch per digit, Q1 leftmost through Q4 rightmost
-const int DIGIT_1 = A2;  // PC2 pad 25, Q1
-const int DIGIT_3 = A1;  // PC1 pad 24, Q3
-const int DIGIT_4 = 4;   // PD4 pad 2,  Q4
-const byte DIGIT_2_BIT = 7;    // PB7 pad 8, Q2, PORTB only
+const int DIGIT_1 = A2;  // Q1
+const byte DIGIT_2_BIT = 7;    // Q2, PORTB only
+const int DIGIT_3 = A1;  // Q3
+const int DIGIT_4 = 4;   // Q4
 
 // Segment order for the font table below
 const byte SEG_PIN[7] = { SEG_A, SEG_B, SEG_C, SEG_D, SEG_E, SEG_F, SEG_G };
@@ -631,8 +787,10 @@ const byte FONT[10] = {
 
 // Enough letters for the four action words. A seven segment cell
 // only ever draws a rough letter, so these are the usual shapes.
+const byte LETTER_A = 0x77;   // a b c e f g, a closed A
 const byte LETTER_B = 0x7C;   // c d e f g
 const byte LETTER_D = 0x5E;   // b c d e g
+const byte LETTER_E = 0x79;   // a d e f g
 const byte LETTER_G = 0x3D;   // a c d e f, a C that closes
 const byte LETTER_H = 0x76;   // b c e f g
 const byte LETTER_I = 0x06;   // b c
@@ -640,9 +798,11 @@ const byte LETTER_L = 0x38;   // d e f
 const byte LETTER_N = 0x54;   // c e g
 const byte LETTER_O = 0x3F;   // a b c d e f
 const byte LETTER_P = 0x73;   // a b e f g
+const byte LETTER_R = 0x50;   // e g
 const byte LETTER_S = 0x6D;   // a c d f g
 const byte LETTER_T = 0x78;   // d e f g
 const byte LETTER_U = 0x3E;   // b c d e f
+const byte LETTER_Y = 0x6E;   // b c d f g
 
 // The label shown when the high score is on the display
 const byte HIGH_WORD[4] = { LETTER_H, LETTER_I, LETTER_G, LETTER_H };
@@ -653,22 +813,23 @@ byte displayBuffer[4] = { SEGMENT_BLANK, SEGMENT_BLANK, SEGMENT_BLANK, SEGMENT_B
 // What the bank button shows, rebuilt whenever it is sampled
 byte holdDigits[4] = { SEGMENT_BLANK, SEGMENT_BLANK, SEGMENT_BLANK, SEGMENT_BLANK };
 
+// The best bank so far, for the half of a long hold that shows it
+byte highScoreDigits[4] = { SEGMENT_BLANK, SEGMENT_BLANK, SEGMENT_BLANK, SEGMENT_BLANK };
+
 byte refreshIndex = 0;
 byte refreshTicks = 0;
+
+// The bank button as sampled with the display refresh. bankShown is
+// the debounced state, and a change has to hold for three samples
+// before it counts, which is what rides out contact bounce.
 bool bankShown = false;
+byte bankSettle = 0;
 unsigned long bankHeldSince = 0;
 
-
-// PB6 and PB7 have no Arduino number, so the push LED and digit 2
-// are written through PORTB rather than digitalWrite()
-void writePortBPin(byte bit, bool on) {
-
-  if (on) {
-    PORTB |= _BV(bit);
-  } else {
-    PORTB &= ~_BV(bit);
-  }
-}
+// How long a press has to last before it is a hold rather than a tap.
+// The high score comes up at this point, and at the bet prompt a press
+// shorter than this confirms the bet instead of only showing the bank.
+const unsigned long BANK_HOLD_MS = 1000;
 
 
 void writeSegments(byte pattern) {
@@ -698,7 +859,7 @@ void digitDrive(byte index, bool on) {
 
 // Writes value into width digits at offset, right justified with
 // blank leading digits. Only the requested digits are touched.
-void numberToDigits(byte *out, byte offset, byte width, int value) {
+void numberToDigits(byte *out, byte offset, byte width, long value) {
 
   for (byte i = 0; i < width; i++) {
     out[offset + i] = SEGMENT_BLANK;
@@ -712,7 +873,7 @@ void numberToDigits(byte *out, byte offset, byte width, int value) {
 
     i--;
 
-    out[offset + i] = FONT[value % 10];
+    out[offset + i] = FONT[(byte)(value % 10)];
     value /= 10;
 
     if (value == 0) break;
@@ -773,32 +934,88 @@ bool holdWantsHighWord() {
 
   unsigned long held = millis() - bankHeldSince;
 
-  if (held < 1000) {
+  if (held < BANK_HOLD_MS) {
     return false;
   }
 
-  return (((held - 1000) / 200) % 2) == 0;
+  return (((held - BANK_HOLD_MS) / 200) % 2) == 0;
+}
+
+
+// The other half of that flash: the best bank itself, in the dollars
+// the bankroll is shown in. Train mode has no high score, so there the
+// hold stays on the accuracy.
+bool holdWantsHighScore() {
+
+  if (trainingMode) {
+    return false;
+  }
+
+  unsigned long held = millis() - bankHeldSince;
+
+  if (held < BANK_HOLD_MS) {
+    return false;
+  }
+
+  return (((held - BANK_HOLD_MS) / 200) % 2) != 0;
+}
+
+
+// The mode switch is sampled with every display refresh, which runs
+// through pause() in all of the waits, so a move is caught wherever
+// the game happens to be. It is sampled on the same slow tick as the
+// bank button, so it costs well under a millisecond.
+void pollModeSwitch() {
+
+  bool switchPlay = switchSaysPlay();
+
+  if (switchPlay == switchWasPlay) {
+    return;
+  }
+
+  switchWasPlay = switchPlay;
+
+  // The mode changes right here and now. Dropping the hand in play
+  // is left to the checkpoints in playRound(), which see the flag on
+  // their way round and return instead of dealing on.
+  trainingMode = !switchPlay;
+  modeChangePending = true;
 }
 
 
 void refreshDisplay() {
 
-  // Sample the bank button now and then. Holding it takes the
-  // display over from whatever the game was showing.
+  // Sample the bank button and the mode switch now and then:
+  // holding the button takes the display over from whatever the game
+  // was showing, and the switch is what changes mode.
   if ((refreshTicks++ & 7) == 0) {
+
+    pollModeSwitch();
 
     bool down = (readLadder(BTN_SIDE_PIN) == LEVEL_6K8);
 
-    // Start the hold clock on the edge, so the first second is the
-    // bankroll and only then does it move on
-    if (down && !bankShown) {
-      bankHeldSince = millis();
+    if (down == bankShown) {
+
+      bankSettle = 0;
+
+    } else if (++bankSettle >= 3) {
+
+      bankSettle = 0;
+      bankShown = down;
+
+      // Start the hold clock on the edge, so the first second is
+      // the bankroll and only then does it move on
+      if (bankShown) {
+        bankHeldSince = millis();
+      }
     }
 
-    bankShown = down;
-
     if (bankShown) {
+
       fillHoldView(holdDigits);
+
+      // Cents in, dollars out, as with the bankroll above
+      numberToDigits(highScoreDigits, 0, 4, highscore / 100);
     }
   }
 
@@ -811,8 +1028,15 @@ void refreshDisplay() {
   if (bankShown) {
 
     if (holdWantsHighWord()) {
+
       writeSegments(HIGH_WORD[refreshIndex]);
+
+    } else if (holdWantsHighScore()) {
+
+      writeSegments(highScoreDigits[refreshIndex]);
+
     } else {
+
       writeSegments(holdDigits[refreshIndex]);
     }
 
@@ -848,10 +1072,9 @@ void initialiseDisplay() {
   pinMode(SEG_DP, OUTPUT);
 
   pinMode(DIGIT_1, OUTPUT);
+  DDRB |= _BV(DIGIT_2_BIT);
   pinMode(DIGIT_3, OUTPUT);
   pinMode(DIGIT_4, OUTPUT);
-
-  DDRB |= _BV(DIGIT_2_BIT);
 
   writeSegments(SEGMENT_BLANK);
 
@@ -890,6 +1113,29 @@ void flashSummary() {
     clearDisplay();
     pause(125);
   }
+}
+
+
+// The word for the mode the switch has just been put in
+void showModeWord(bool play) {
+
+  clearDisplay();
+
+  if (play) {
+
+    displayBuffer[0] = LETTER_P;
+    displayBuffer[1] = LETTER_L;
+    displayBuffer[2] = LETTER_A;
+    displayBuffer[3] = LETTER_Y;
+
+  } else {
+
+    displayBuffer[0] = LETTER_T;
+    displayBuffer[1] = LETTER_R;
+    displayBuffer[2] = LETTER_N;
+  }
+
+  pause(700);
 }
 
 
@@ -978,18 +1224,13 @@ void initialiseLeds() {
   pinMode(LED_SOFT, OUTPUT);
   pinMode(LED_WIN, OUTPUT);
   pinMode(LED_LOSE, OUTPUT);
-  pinMode(LED_CORRECT, OUTPUT);
-  pinMode(LED_WRONG, OUTPUT);
-
   DDRB |= _BV(LED_PUSH_BIT);
 
   digitalWrite(LED_PAIR, LOW);
   digitalWrite(LED_SOFT, LOW);
   digitalWrite(LED_WIN, LOW);
   digitalWrite(LED_LOSE, LOW);
-  digitalWrite(LED_CORRECT, LOW);
-  digitalWrite(LED_WRONG, LOW);
-  writePortBPin(LED_PUSH_BIT, false);
+  setPushLed(LOW);
 }
 
 
@@ -1010,14 +1251,14 @@ void easterEgg() {
 
   while (true) {
 
-    digitalWrite(LED_PAIR, random(2));
-    digitalWrite(LED_SOFT, random(2));
+    setPairLed(random(2));
+    setSoftLed(random(2));
     digitalWrite(LED_WIN, random(2));
     digitalWrite(LED_LOSE, random(2));
-    digitalWrite(LED_CORRECT, random(2));
-    digitalWrite(LED_WRONG, random(2));
+    setCorrectLed(random(2));
+    setWrongLed(random(2));
 
-    writePortBPin(LED_PUSH_BIT, random(2));
+    setPushLed(random(2));
 
     pause(random(20, 120));
   }
@@ -1027,10 +1268,7 @@ void easterEgg() {
 void setOutcomeLed(Outcome outcome) {
 
   digitalWrite(LED_WIN, outcome == OUTCOME_WIN);
-
-  // Push has no Arduino number, so it goes through PORTB
-  writePortBPin(LED_PUSH_BIT, outcome == OUTCOME_PUSH);
-
+  setPushLed(outcome == OUTCOME_PUSH);
   digitalWrite(LED_LOSE, outcome == OUTCOME_LOSE);
 }
 
@@ -1047,12 +1285,15 @@ void initialiseInputs() {
   pinMode(BTN_MAIN_PIN, INPUT);
   pinMode(BTN_SIDE_PIN, INPUT);
 
-  // The mode switch always drives its pin to a rail
-  pinMode(MODE_PIN, INPUT);
+  // The mode switch drives this pin to a rail either way, and the
+  // pull up tidies the moment between throws
+  pinMode(MODE_PIN, INPUT_PULLUP);
 }
 
 
-bool inPlayMode() {
+// True when the mode switch is at the play end. A build with no
+// switch fitted has the pull up and so reads play always.
+bool switchSaysPlay() {
 
   return digitalRead(MODE_PIN) == HIGH;
 }
@@ -1102,10 +1343,16 @@ byte settledLevel(int pin) {
 
 
 // Hold until the button is let go again, which also rides out
-// any contact bounce on the way up
+// any contact bounce on the way up. A mode change gives up on the
+// button rather than waiting for it to be let go.
 void waitForRelease(int pin) {
 
   while (readLadder(pin) != LEVEL_NONE) {
+
+    if (modeChangePending) {
+      return;
+    }
+
     pause(5);
   }
 
@@ -1155,16 +1402,23 @@ char readButton() {
 // Waits for one of the four action buttons. The bank button is not
 // an action: holding it only changes what the display shows, and
 // refreshDisplay already handles that, so it is swallowed here.
-Action waitForAction() {
+// Returns false when the mode switch moved instead of a button being
+// pressed, which drops the hand rather than asking for a decision on
+// it.
+bool waitForAction(Action &chosen) {
 
   while (true) {
 
+    if (modeChangePending) {
+      return false;
+    }
+
     char button = readButton();
 
-    if (button == 'H') return HIT;
-    if (button == 'S') return STAND;
-    if (button == 'D') return DOUBLE;
-    if (button == 'P') return SPLIT;
+    if (button == 'H') { chosen = HIT;    return true; }
+    if (button == 'S') { chosen = STAND;  return true; }
+    if (button == 'D') { chosen = DOUBLE; return true; }
+    if (button == 'P') { chosen = SPLIT;  return true; }
   }
 }
 
@@ -1225,7 +1479,7 @@ void saveBankroll() {
 
   EEPROM.put(BANKROLL_ADDRESS, BANKROLL_VERSION);
   EEPROM.put(BANKROLL_ADDRESS + 1, bankroll);
-  EEPROM.put(BANKROLL_ADDRESS + 3, (int)~bankroll);
+  EEPROM.put(BANKROLL_ADDRESS + 5, (long)~bankroll);
 
   savedBankroll = bankroll;
 }
@@ -1233,21 +1487,21 @@ void saveBankroll() {
 
 // -1 when nothing trustworthy is stored, which is what a blank chip,
 // a half written pair and an older build's balance all look like
-int loadBankroll() {
+long loadBankroll() {
 
   byte version = 0;
-  int value = 0;
-  int checkValue = 0;
+  long value = 0;
+  long checkValue = 0;
 
   EEPROM.get(BANKROLL_ADDRESS, version);
   EEPROM.get(BANKROLL_ADDRESS + 1, value);
-  EEPROM.get(BANKROLL_ADDRESS + 3, checkValue);
+  EEPROM.get(BANKROLL_ADDRESS + 5, checkValue);
 
   if (version != BANKROLL_VERSION) {
     return -1;
   }
 
-  if (checkValue != (int)~value) {
+  if (checkValue != (long)~value) {
     return -1;
   }
 
@@ -1267,28 +1521,141 @@ void waitForRestart() {
   numberToDigits(displayBuffer, 0, 4, 0);
 
   setOutcomeLed(OUTCOME_LOSE);
-  digitalWrite(LED_SOFT, LOW);
-  digitalWrite(LED_PAIR, LOW);
-  digitalWrite(LED_CORRECT, LOW);
-  digitalWrite(LED_WRONG, LOW);
+  setSoftLed(false);
+  setPairLed(false);
+  setCorrectLed(LOW);
+  setWrongLed(LOW);
 
-  // The press and its release both have to finish first
+  // The press and its release both have to finish first, and a mode
+  // change is a way out that leaves the bank where it is
   while (!anyButtonDown()) {
+
+    if (modeChangePending) {
+      return;
+    }
+
     pause(20);
   }
 
   while (anyButtonDown()) {
+
+    if (modeChangePending) {
+      return;
+    }
+
     pause(20);
   }
 
   bankroll = STARTING_BANKROLL;
+  betAmount = BET;
   saveBankroll();
 
   setOutcomeLed(OUTCOME_NONE);
 }
 
 
+// Before the cards come out the bet is the player's to set. BET names
+// what the number that follows is, then the four action buttons move
+// the bet and a tap of the bank button deals the hand. Returns false
+// when the mode switch moved instead, which drops the round before a
+// card is dealt.
+bool askForBet() {
+
+  clearDisplay();
+
+  displayBuffer[0] = LETTER_B;
+  displayBuffer[1] = LETTER_E;
+  displayBuffer[2] = LETTER_T;
+
+  pause(700);
+
+  while (true) {
+
+    if (modeChangePending) {
+      return false;
+    }
+
+    // The amount stays up while the buttons are worked
+    numberToDigits(displayBuffer, 0, 4, betSize() / 100);
+
+    // The press is timed from here, so a tap and a hold can be told
+    // apart once it is let go
+    unsigned long pressedAt = millis();
+
+    byte main = settledLevel(BTN_MAIN_PIN);
+
+    if (main != LEVEL_NONE) {
+
+      char button = 0;
+
+      if (main == LEVEL_1K)  button = 'H';
+      if (main == LEVEL_3K3) button = 'S';
+      if (main == LEVEL_6K8) button = 'D';
+
+      waitForRelease(BTN_MAIN_PIN);
+
+      if (modeChangePending) {
+        return false;
+      }
+
+      // A press past either end blinks twice, as any refused
+      // action does
+      if (!changeBet(button)) {
+        rejectAction();
+      }
+
+      continue;
+    }
+
+    byte side = settledLevel(BTN_SIDE_PIN);
+
+    if (side == LEVEL_2K2) {
+
+      waitForRelease(BTN_SIDE_PIN);
+
+      if (modeChangePending) {
+        return false;
+      }
+
+      // Half of $5 is under the minimum, which is refused the
+      // same way
+      if (!changeBet('P')) {
+        rejectAction();
+      }
+
+      continue;
+    }
+
+    if (side == LEVEL_6K8) {
+
+      // Down until it is let go, with the display showing the
+      // bankroll and then the high score, as any other hold does
+      waitForRelease(BTN_SIDE_PIN);
+
+      if (modeChangePending) {
+        return false;
+      }
+
+      // A hold was a look at the bank, not a confirmation
+      if (millis() - pressedAt < BANK_HOLD_MS) {
+        return true;
+      }
+
+      continue;
+    }
+
+    pause(10);
+  }
+}
+
+
 void playRound() {
+
+  // A switch moved since the last round: loop() shows the new mode
+  // rather than this one dealing a hand
+  if (modeChangePending) {
+    return;
+  }
 
   if (shoeIsLow()) {
     initialiseShoe();
@@ -1296,13 +1663,24 @@ void playRound() {
 
   // Switching back from train mode with an empty bank
   if (!trainingMode && bankroll <= 0) {
+
     waitForRestart();
+
+    if (modeChangePending) {
+      return;
+    }
   }
 
   // New round, no result showing yet
   setOutcomeLed(OUTCOME_NONE);
-  digitalWrite(LED_CORRECT, LOW);
-  digitalWrite(LED_WRONG, LOW);
+  setCorrectLed(LOW);
+  setWrongLed(LOW);
+
+  // The bet is set here, in play mode only: train mode has no bank
+  // to bet and no reason to ask
+  if (!trainingMode && !askForBet()) {
+    return;
+  }
 
   Hand hands[MAX_HANDS];
   int handCount = 1;
@@ -1326,14 +1704,20 @@ void playRound() {
 
   while (current < handCount) {
 
+    // The hand was dropped between hands of a split, so it stops
+    // here rather than playing the remaining ones out
+    if (modeChangePending) {
+      return;
+    }
+
     // A freshly split hand holds one card and needs a second
     if (hands[current].count == 1) {
 
       addCard(hands[current], drawCard());
 
       showTable(hands[current], cardValue(dealerUp));
-      digitalWrite(LED_SOFT, handIsSoft(hands[current]));
-      digitalWrite(LED_PAIR, hands[current].pairValue != 0);
+      setSoftLed(handIsSoft(hands[current]));
+      setPairLed(hands[current].pairValue != 0);
       pause(500);
 
       // Split aces are played with that single card
@@ -1347,8 +1731,8 @@ void playRound() {
     if (handIsNatural(hands[current])) {
 
       showTable(hands[current], cardValue(dealerUp));
-      digitalWrite(LED_SOFT, handIsSoft(hands[current]));
-      digitalWrite(LED_PAIR, LOW);
+      setSoftLed(handIsSoft(hands[current]));
+      setPairLed(false);
       pause(700);
 
       current++;
@@ -1360,10 +1744,14 @@ void playRound() {
     while (true) {
 
       showTable(hands[current], cardValue(dealerUp));
-      digitalWrite(LED_SOFT, handIsSoft(hands[current]));
-      digitalWrite(LED_PAIR, hands[current].pairValue != 0);
+      setSoftLed(handIsSoft(hands[current]));
+      setPairLed(hands[current].pairValue != 0);
 
-      Action chosen = waitForAction();
+      Action chosen;
+
+      if (!waitForAction(chosen)) {
+        return;
+      }
 
       // Reject actions this hand cannot make, without grading them.
       // Train mode has no bankroll, so there only the cards can say
@@ -1385,9 +1773,10 @@ void playRound() {
       }
 
       // Play mode takes the decision at face value and says nothing
-      // about it. Train mode grades every decision: the LEDs stay lit
-      // until the next decision replaces them, and a wrong one also
-      // shows the action the book wanted before the hand carries on.
+      // about it. Train mode grades every decision and shows the
+      // action the book wanted when the answer is wrong. The correct
+      // and wrong LEDs are not fitted on this build, so a right
+      // answer is graded silently.
       if (trainingMode) {
 
         Action correct = bestAction(hands[current], dealerUp, handCount);
@@ -1399,8 +1788,8 @@ void playRound() {
           correctDecisions++;
         }
 
-        digitalWrite(LED_CORRECT, correctChoice);
-        digitalWrite(LED_WRONG, !correctChoice);
+        setCorrectLed(correctChoice);
+        setWrongLed(!correctChoice);
 
         if (!correctChoice) {
 
@@ -1429,8 +1818,8 @@ void playRound() {
       addCard(hands[current], drawCard());
 
       showTable(hands[current], cardValue(dealerUp));
-      digitalWrite(LED_SOFT, handIsSoft(hands[current]));
-      digitalWrite(LED_PAIR, hands[current].pairValue != 0);
+      setSoftLed(handIsSoft(hands[current]));
+      setPairLed(hands[current].pairValue != 0);
       pause(350);
 
       if (handIsBust(hands[current])) {
@@ -1464,10 +1853,15 @@ void playRound() {
     pause(500);
   }
 
-  digitalWrite(LED_CORRECT, LOW);
-  digitalWrite(LED_WRONG, LOW);
-  digitalWrite(LED_SOFT, LOW);
-  digitalWrite(LED_PAIR, LOW);
+  // A hand dropped inside that pause never reaches the dealer
+  if (modeChangePending) {
+    return;
+  }
+
+  setCorrectLed(LOW);
+  setWrongLed(LOW);
+  setSoftLed(false);
+  setPairLed(false);
 
   // Nothing to beat if every hand has already busted. The first
   // two digits keep following the last hand that is still alive.
@@ -1494,6 +1888,10 @@ void playRound() {
     // half second so the total climbs where it can be watched.
     while (handTotal(dealer) < 17) {
 
+      if (modeChangePending) {
+        return;
+      }
+
       addCard(dealer, drawCard());
 
       showTable(hands[displayHand], handTotal(dealer));
@@ -1509,6 +1907,12 @@ void playRound() {
   // RESULT
   // --------------------------------------------------
 
+  // A dropped hand is void: it is not settled, so no money moves and
+  // nothing is paid out or taken for it
+  if (modeChangePending) {
+    return;
+  }
+
   byte dealerTotal = handTotal(dealer);
   bool dealerNatural = handIsNatural(dealer);
 
@@ -1516,10 +1920,10 @@ void playRound() {
 
     byte playerTotal = handTotal(hands[i]);
     bool playerNatural = handIsNatural(hands[i]);
-    int wager = hands[i].wager;
+    long wager = hands[i].wager;
 
     Outcome outcome = OUTCOME_PUSH;
-    int change = 0;
+    long change = 0;
 
     if (playerTotal > 21) {
 
@@ -1628,7 +2032,11 @@ void setup() {
   initialiseLeds();
   initialiseInputs();
 
-  int storedBank = loadBankroll();
+  // What the switch reads now, so the first sample during a pause
+  // has something to compare against
+  switchWasPlay = switchSaysPlay();
+
+  long storedBank = loadBankroll();
 
   highscore = 0;
   EEPROM.get(HIGHSCORE_ADDRESS, highscore);
@@ -1685,19 +2093,35 @@ void setup() {
 
 void loop() {
 
-  // The switch is read between hands, not in the middle of one
-  bool wantTraining = !inPlayMode();
+  bool modeChanged = false;
   bool enteredPlay = false;
 
-  if (!modeKnown || wantTraining != trainingMode) {
+  if (!modeKnown) {
 
+    // The switch decides from the first hand on. A build with no
+    // switch fitted is pulled up, so it comes up in play.
     modeKnown = true;
-    enteredPlay = !wantTraining;
-    trainingMode = wantTraining;
+    modeChanged = true;
+    enteredPlay = switchSaysPlay();
+    switchWasPlay = enteredPlay;
+    trainingMode = !enteredPlay;
+
+  } else if (modeChangePending) {
+
+    // The switch moved mid-hand: pollModeSwitch() has changed the
+    // mode already, and playRound() has dropped the hand
+    modeChangePending = false;
+    modeChanged = true;
+    enteredPlay = !trainingMode;
+  }
+
+  if (modeChanged) {
 
     setOutcomeLed(OUTCOME_NONE);
-    digitalWrite(LED_CORRECT, LOW);
-    digitalWrite(LED_WRONG, LOW);
+    setSoftLed(false);
+    setPairLed(false);
+    setCorrectLed(LOW);
+    setWrongLed(LOW);
 
     if (trainingMode) {
 
@@ -1705,11 +2129,21 @@ void loop() {
       correctDecisions = 0;
       totalDecisions = 0;
     }
+
+    // PLAY or TRN, before anything else the new mode has to say
+    showModeWord(enteredPlay);
   }
 
-  // HIGH, then the best bank, before the first hand
   if (enteredPlay) {
+
+    // HIGH, then the best bank, before the first hand
     showHighScore();
+
+  } else if (modeChanged) {
+
+    // Into train mode, where the accuracy blinking follows the TRN
+    // word: the correct and wrong LEDs are not fitted
+    flashSummary();
   }
 
   playRound();
