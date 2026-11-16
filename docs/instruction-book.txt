@@ -1,26 +1,82 @@
 Blackjack keychain - by Patrick Scholefield
 
 PAGE 1
+Cover.
+Blackjack keychain.
 Test your blackjack skills with this compact keychain device.
-Hone your basic strategy knowledge in train mode, then test your luck and go for a high score in play mode.
+Hone your basic strategy knowledge in train mode, then compete for a
+highscore in play mode.
 
 PAGE 2
-Blackjack rules
+Rules of Blackjack.
+Get closer to 21 than the dealer without going over.
+Each round starts with the player receiving two cards and the dealer
+receiving one. These totals are shown on the display.
+Pictures count ten, an ace one or eleven.
+Two cards making 21 is blackjack, and beats any other 21.
+The dealer stands on 17, and only draws after the player stands.
 
 PAGE 3
-Buttons
+The board.
+Front of the board as a numbered diagram: display, USB-C, pair and soft
+LEDs, win/push/lose LEDs, right/wrong LEDs, the mode lever, the bank
+button, the four call buttons, and the ATmega328P. A two column key gives
+each part's job in a line.
 
 PAGE 4
-LEDS
+Your move: the five buttons.
+Hit: deal the player another card.
+Stand: stay at the total you have.
+Double: double the bet, and take only one extra card before auto
+standing.
+Split: create two separate hands out of your pair, doubling the bet, each
+hand resolving in turn, up to four hands.
+Press one button at a time.
 
 PAGE 5
-Train mode
-- wrong/right leds
-- display showing the correct move
-- percentage showing after each hand and on bankroll
+Playing the hand out.
+The player acts, then the dealer draws to 17, then the closest to 21
+wins. The bank pays 1:1, a natural pays 3:2, and equal totals push.
 
 PAGE 6
-Play mode
-- choose bet before each hand
-- bankroll shows current bankroll
+The 4 digit display.
+Blackjack is usually played with cards, but as the display is only four
+digits there are two LEDs to help show what your hand contains.
+Pair: the two cards are each half of the total, eg 18 with pair means two
+9s.
+Soft: an ace is counting as 11, and the LED goes out once the ace must be
+1.
+Letters stand in for words: BET, PLAY, TRN, HIGH.
 
+PAGE 7
+Train mode.
+Two extra LEDs, wrong and right, grade every decision against basic
+strategy. The game records the percentage of correct decisions in each
+session, showing it after each hand and when the bank button is held.
+
+PAGE 8
+Play mode.
+A bankroll to bet from, a bet to set before each hand, and a high score
+to chase. The bank is kept between sessions. A short bank goes on the
+next hand whole; only an empty bank ends the run.
+
+PAGE 9
+The first hand.
+Plug in, pick a mode with the lever, deal with the bank button, answer
+with one button. Start in train mode. The bankroll survives unplugging.
+
+PAGE 10
+Basic strategy.
+The reference sheet, as a grid: your hand down the side, the dealer's
+up-card across the top, hit, stand, double or split in every cell. Hard
+totals, then soft, then pairs by total.
+
+PAGE 11
+The lights.
+Pair, soft, win, push, lose, right, wrong: what each one means, and the
+decisions the game refuses and does not grade.
+
+PAGE 12
+Back cover.
+The title again on solid ink, a line on what the book is, and the
+credits: USB-C, 5 V, no batteries.

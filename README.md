@@ -218,7 +218,7 @@ docs/
   board-blue.png, board-red.png            front renders
   board-blue-back.png, board-red-back.png  back renders
   instruction-booklet.txt                  the page-by-page outline the booklet follows
-  instruction-booklet.html                 printable booklet, 8 pages at 50 × 70 mm
+  instruction-booklet.html                 printable booklet, 12 pages at 50 × 70 mm
   instruction-booklet.pdf                  the same, imposed on one A4 sheet for duplex
 ```
 

@@ -2,15 +2,37 @@
 <!--
   Blackjack Keychain - instruction booklet.
 
-  Booklet page is 50 x 70 mm, the size of the board. Two folded sheets
-  (8 pages) are imposed on one A4 sheet, printed double-sided flipping on
+  Booklet page is 50 x 70 mm, the size of the board. Three folded pieces
+  (12 pages) are imposed on ONE A4 sheet, printed double-sided flipping on
   the long edge, and cut apart.
 
-  Pages 1 to 6 follow docs/instruction-book.txt; 7 and 8 fill the sheet a
-  fold makes room for (the end of a run, and the back cover).
+  Pages 1 to 12 follow docs/instruction-book.txt:
 
-    sheet 1: outside 8 | 1   inside 2 | 7
-    sheet 2: outside 6 | 3   inside 4 | 5
+    1 cover            2 the rules        3 the board
+    4 your move        5 the hand         6 the display
+    7 train mode       8 play mode        9 first hand
+   10 basic strategy  11 the lights      12 back cover
+
+    side 1:  A 12 | 1    B 10 | 3    C  8 | 5
+    side 2:  A  2 | 11   B  4 | 9    C  6 | 7
+
+  The two pieces on the top row of side 1 sit at x 5 and 105; their
+  reverse sides are printed at the mirrored x, which is where a long-edge
+  flip puts them. Piece C sits below them, so all six faces share the one
+  sheet and nothing is thrown away.
+
+  Ink: one dark ink, one red, plus colour only where the board itself
+  uses it - blue and amber for the pair and soft lights, and the four
+  colour-coded cells of the strategy chart. Tones between are halftone
+  dithers: dot screens on the stock, the glow round a light, the shading
+  under a key cap, and the mask of the board.
+
+  Typefaces. Body text is Liberation Sans Narrow; captions are monospace.
+  Headings are Silkscreen by Jason Kottke (SIL Open Font License 1.1),
+  carried inline below as a base64 woff2 so this file prints the same on
+  any machine with no network and no font install. It is the latin subset
+  from Google Fonts, regular and bold, and nothing else about it is
+  modified.
 
   Build the PDF with:
 
@@ -19,21 +41,59 @@
       --print-to-pdf=docs/instruction-booklet.pdf \
       file://$PWD/docs/instruction-booklet.html
 
-  Print at 100% with no scaling. Page 1 of the PDF is the front of the
-  booklet sheet, page 2 its back.
+  Print at 100% with no scaling. Page 1 of the PDF is one side of the
+  sheet of paper, page 2 the other.
 -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <title>Blackjack Keychain — instruction booklet</title>
 <style>
+  @font-face {
+    font-family: "Silkscreen";
+    font-style: normal;
+    font-weight: 400;
+    src: url(data:font/woff2;base64,d09GMgABAAAAACDUABEAAAAAc1wAACBxAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGlIbhAAcbAZgAIQ+CFIJnAwRCAqBpxSBkiMLgzYAATYCJAOGaAQgBYRGB4RMDIEyGwpmRQdixjgAMHx2yMhAsHHANtNLxf/HA02GJOR7JKprV5NUnRSjxHppZpqxPWeO2JpuP0Isn3Ov4hHC4zgO9qdWap45dxcvUZxGXXw/8Nxb3aV/w6i27p5poYiio1hQTiyOIYq3OJ9tR+9p4zYLR5R3f208FD8D20b+JCev/4CnvZ9U2MkZjQ7u4J7o7SzUVNVI6WwIJOW0uo52Sqs/fYh/f2+bc9/fTpMEh7Kb1TTXFbYVR9AEiTKlKSzGo4jHYzBd/Q+EJMSMdcuq80ykKr90zV3RXfY3/0NBa9t5xEoiUaqEhj+mHko5eD5t6TpQVEAKfOWHb3YDZEAdGUEKSr71FbWLervqaY2x/5Z+flXd2D0jaZ+DHBLaRchcZgPHuR9cv8N95J8g/qbZ0vsBIkuW98HTVBltFaZD9UlTBkImywPyEPAXpbZ1WaksC7Z0eA8kIAHRej2HDmOnmSDMsT4kRFxZZaPdY2avJsdX3SI7V/XTmIYWUjkRYUjoh+wiM8j/2fTf9t7Ryk+2P9hBhdgBKjp94Cq/aINFubqzM+Od2bWeViaB/UD2y3u2P1j+4NgBzUrWW8uBhwGG7hNBlxQN9/lFnaohKpr0qcqcNEWXx9H7S064bLOOjnhfc75fophbX9tkyWGC6uq0g+Ia4Rrf+9t9X0tNVZfKWSNjQRdlgVW5JK/2zDG2agP0ov/bWAWDg50ZaN2PM4IwFPbH3wNDiPARIRmi4IX4iEYS1SFnnce66BIWIYAI4TvrnPPZ204ACY4bmgVFJECEB4BWywEIc86t6HpUVrk9R/HkZ4FhQkBAB5EAKKtpNSgtkOHHjazIiobTWPAARIQymlxASYNMWUqpgErjkwrIiBNyu3pTV1IAsb6o3cXgr+9E+QUjfPRaG+Gp3kuExi9FSwBGRdyXhsuxUorKvruRqW2kpIrkqiTK6jy9djO9QdnOlqW9jNo0MpWv/iURH9GAa4r2DqnlDW/Y70xcecMbanqzfTWDj/Ah1yk+Sp8cxcOEc/gmIq2HfU13J/Bl0Ginr9T7Z96j4OT7s2Dc/D87zEAEtD3wcrqKBUZ3kqmlI7FmacVoVWB4O9VsRHPDCaNJC14d5GTwgblnUgCEj749HcDOb+T5g6HIoRLXI3EtPAoHyVf1eAKtAGB/pRhdLv25vQA4LICB5kVdsajKKzOIHk8Oj4icNVcDaekFc1x3jVgeK+K6cr25/pweZ8S5ceuDetoR5Dg23CxOHP8g2PaiLlxPrm/a9dL/AcEAAP+X/FG9nUfNaAB4eG5O5msqD6aDAEYAP6fDIeu3Sbc0FPg/DkebZKOZ9jqj3SYLLTLDQePMMdYs401wzBFHTbEZEZOQUeiiq26666OvfvobQJcpcxYsWbHmwJETZ66Wmm2ZUxa4yo0ff4GCRYgUJVqCREmSpUiTp4BKoWIlKlWpplZnsZ2WOGGMyXbbb48Ddtniiq3qrXXSXNvctMNxQw1zzWkdprlliAbrjDDcSFPxMVhCPAIiUp0p6eiktx566kWOY0iPPmMGDjFiz4YtOy7MFPHizoMPT958BQgXIlSYeDFixQmSKku6DDkyHZatQqky5Wrkq2Ui12prLLfSKit0vgae/5uXocvSiMxSA0THvQDKKHq2+aI19yyKQSr/RV/5fhBZu4Z7t4b28NOzOKL7FsfSvHqFevrPZV7akR4ba8E7cEN7LYgwuhICqtW4hEKt2hIFUp8p2/cK1yWixOgy3e663Jq6AeX+qWAblN1Uw25PWzoYMDpq/RMLZbd1dyauPxEo1bVRirrRKXjqT0IrEjULbJESJPTe3QQh2G6tkVq4egrLP9tuctgf9dGKtygedn/5ldOZ5q3y1JctkiI244XNW5Bcb0s13RtBc01soif8cHU6GUvzX+qA6UddVzm0OWYrWE3GEBYuA+rYHIHnHjw4+lYdNsjKjeWLdO3LiO9KrlVpQqhTgEQIYUC4HxFUF0pUSF9gnmpB57ZHNwc3Z6wNkKpEi7rrIeay3jhhIa8D4wUNJ6FV2oY6sTP3DaWp/l9MRJ7MtGB5x8dtk3aD12CDIB88JAw4YkYXVKIDg50WNNnAT2+YUwH8egnajCHtJPokVQyIyytcjq6ZNKJnO7IKjKXYay7ORGusCvvuvS0fsOxyCmxdV05CwQ2YR+k3jVrqmEcopOU0qkfIuE2iuC3oGXpvHCVFmruIlh245NclnTnLMlW2vTVqw3t7LPOQ6aDw0/w6JT4glVQ8rqrJX+fMBXwaPjd+1iBwWx6bS5RrJm3TqAkYpfmq7M6BXmKItX2fWdcLL3F6PdUhmtnxa3vnorEpFQ2NkRF2D4ZDuQJSO4IIns1Rd9m7oL8MsquC4qxzFBth7pr/xPg2f2J1WVICwwU0L/htZ8DjMLouP4pJWTuJvNwMRNqDEJxaktL1PktQZGjZ94TmpI9rDseglZN4ld2fwEZxp3DOwQDxOUPqHM8P+L9z9CLgcoGMpFOSaRiBLKOQYwrkGYMCU6HINCgxHcqMQ4UZ0wNoFs4TrVrb9yoV5GvNuDGZsmwSzm/ucFPb+fu+VVHQI9gZSH1xptoKEmtYxToqNlCxiYotVGyjYgcVu6jYQ8U+an0EmS1bGC+OZCvpatd0EztMih4hd9kEjIPxJDx/CpFhGzndrmlSt/f2+bSBAGbeaXt2Zwvuzo/pJKtpp+8/hlDNPEpr4KwvIN/cn1qiqDcolqch4VD85GVCnAMAbs7rZF6kJODvywoyK8MgJsEN+g0qWaN6MFuyEdgMGeeXlm+Rqey+kipUQGPN7Fxp/htanUvij83eu9xcu0lk5+57XLwDEGSeReYfnPmSsy3nWOycNCMTmW02jyPZj0qldQeaOZmK8HVnWS7v/BnT21Uj5/LtfHD77bxJaRpykzqI1JWLVsc9z/vRdC6MsVZUpjpPMiaqqIyPWMlyUtm5/KyDNGkUkwOoY9LWfqN0WmtfxzqmpKx6ErGsFVieC3NfkWI/bbK4I5QcAPFlNKbmelJnJyc2HUuYXMMDINOUy5ETB/fJg9vVX+elr2RWrVFnLc6FjK2oubZu5RcYL5UtMS9ypq3wR85PyoG86fhzTqznMtFzEioVlK645Az9ttkNXmZDlScp7liOeO0Nd832xtc1tC33dd8AuzB7+ptgH031JKQdYLMRWITGiske3CpBoDTI8E8m7OxFgO7DujgrlU5aabyNbE67qztd2H8XQyxTYLSbffmsThqLmjEbnIU709h1oPHvau45ZrUXIalI4L0gWfxRi3U+fGeYWU2Ozv2dD5BBekXWfttDsL3Ao4uC6KtUMmgaNWTRY5R1kUedRU/QArcDPmVFE8T6AMYZQWJQCMYkI0j1AUwzWpxJtwjwP9BOEWT7AeZSBPknCYSFFEGxH2ApRbpsGQNZhRqo9gGsMYL6oBCCDUbQ7APYYmTazmEA6/AWuv0AeymC/pMEwkGKYNgPcJSi08ZpuzzSaCa04uZwdKYY0bPY8wajs/O0nSYKYZEmtUwDqwl5onHteOLG8TRb4lfciSvs08AhDRwn5HXFk+OFZ8cLL44XXgXBLQ3c08BjQt6ET8cbX443vh1v/AiCbxr4pan/047A+9ubvlnQp8PJsIEp+rp9dFNT/cw3e1WbWYOYppfse9/y7Qn+n0IAbgPQK3TwkDwgWyHMmIgeMV+juI0yg6TLPPH8NuCwt35bAJglacCyPaAcJerCgxJoNor4Y8dsBW6dIwVpSUmWqM2Lng3PFZhBZ9iynvB2ZS2igCsbKlFdEswoVh24DbdS1gWOio0RqU3AlZdqHyowmCEvIJSrCI0fwlILJkCa9cuvioW6fLIMQYAu60ohfFMdoR5u84mlSJH8kQD75kTxFrp9p4Mi3krLtgsSkBp1pitndci5tGxV7BnByVQFYfg800YfhRqcslgug9pTRqDhYIZM98+eT9gkI90+D51U183V7YZNmbbUaiwFu14rTSIGw6JeWUlLWIiqssQy3WYCuA6QJTa79HegK67udlrIZD6S0GTEclEShUWaBN9heERM7jiB08wJIS+VRAlmK6RACt7E+FOr3gWONSsYaDmK/0VMEVtLaiUuoao1I2qLcqV2qRLMueiFUUpXbYrofR+idlVyj/c3txC6hfyiSncNAfsBpDuggkX+8DU3sHWqcFJT7VMjXhttkMUmUpQIzmdIRKGqWIpwGOaMKYmVgj+YSX9MiZV6IjbRSAHhGHFcPfy/WHosXHrlz5RkUnMAVlM0MzE66O99X9rud4FA0T8j9DJXM+IclGzoejyuVpVVdf6hjoMeypCLBtzEGYktnkeoykgdDII74iWFyOscJLzSETJC2OGtDfy4kUiLvYQtPRDOFxDeJtlxNUJa8zIGtZphiaWhRSmJdaRUpQUtHEb976pwpTQMxCE0no26R770NaxNOB4KUYwqUeumB5FgCbNQraTIHynKUdkopTburx4q6Sh/4AVMdhaR7Zfdn17HJ48FWZ02NZTJQlEhC1Nd5zlXyE041gvCaRWjnvZ+SH0yDjUUnd7teAinSeEJp2wTk9y2MWmUHApzhjbc30JfJLOqZzrSZORDXrk2sEZSIgTFiIZrdBFUnyljuxezBU/Ov0TaCT3+kY0jJfFZgahM+Rrk1UImsYNXL2qlrRDjb7XU/y4Efz4zymgpWP42nG765IPVrwRoes2xx8ow0G4yNyNQWuVzazLq/WPH7FYR1GtDmCNgctRhq4Td8j5POkGhKGSTjqxYk+cQ4OR0KxXpwr4Mnz1xgrvw1xnylU2+ElrPyt1+VlR6aEe5JV6qRk1GGIRz8IBCnp+qksaazZ/Bc3KB9eKY+voc+niGbPfp7WVTsKLhyG0Jnia+fEqnJ8S4D0M+eJHYH/hBR6XYWT5SCVYTP5FC88XnEKXrVFLpxInlys5E6lraNj0rrow5q3ObqmWotMO46A3908cys3etYw9vEaHo3FsCJKvioOXpd09s84rDrzSGCRkmTMmnBI0zhQrkDRvltlZo9tqneFAES7F6k2/0y2kLtCUJYopLT9wPeiSzHfhJ0BhxvmPYcqnX/g9LhGU4XIW5GRnNgEsO7ZDR261I5mgOAz98e9pa0tzyu3ksinwG1UwEjOvA87RlgRoTT0piWwpXxvLDFoggLDDA1WprC4W/I2v/WULxGLEcBAM/890Py0pA/KT05Glh6pYt84eDdjtfXZNW1S0Y/ul0LxMEaBz5ONTXr5/YGKjpQnvw1tQ/Tsty23Bt7zZNvm3m+K3T3qt6gG5f3SAj1QYUAqJ22lkXDQq4ZIW58HSql0WBOttJqiuA7Oqznz6NPIjPlGlRV252oVarVPFnvHRiLjFN46IszfuLotCqQjpO09Uq4cv4YV4OUoEf6k1CwTTUr0aKGxLUct5oSAZZKl9m6bpPytqMharYeCRc0XyUUIJcaRcwKxF9tR7fqxmqnWUL2CyQKm8Egy50SubfpNrnLOZCfovs1C4XMsHzWKq16Q+l5TE09eLBoWGB4LNjYtSdj7NJQYwaIU8VniItViqTO5DKwq0ZP8TEZ2X0lMxcoFrn5YW7x7UFORtok/2c2GOoxTBpDU+icA9zEkafHA30Cfdix4yDvcM9Iw4o6SkfV4Nbmj6+8N4ZfI+1JRaCWJnkMe0vszHi1o3YIt6SQBp5lZbIm4P2ctp3Uamk1sK9RXPN27/i65iTgXkhVJ9h1sySIwsbDnP0KUBLVnuDtam+NsjdCpaWMYcID3nKXwsXnsKpwfTPbiKKPq7DuBF8G4t4hgMvQmEEgbWU93wdfdNaxGvD0TOowYvJNIw2viuWklW2tFXFa54FCmWlOBQV82rSluqnyiYyLnwZb7e7qhVghO6NRNrk4+hCxL7O6aLvJdrHTM36lfXSbOYEXm/bPHxBh9TwoZHdhC6z1buvhrmMxzPkNX7PND5aN6Z3PrFniNiNYWF5PRefu+yUlAAQBOc1AZN7ru8iUuv6Ln8vbFJJOvQCgJ50FsM8GEOwa2FwdrFhzi42zNnFs8Fhc6ZJHjV0jjIv5yjzco7KoApPpgJyU3NTc1Mxd14YnMfe2FOgmJ5zyiZZ6U1ubW5tbm1ubbKvVmdABmWYO5CcF+bOh6b01O/AWK7S3A1WB3P+n4zBWY0HkeURnKepS3D5d4Jh8OjtPl+nPvqKuMEnJggADgEADLgKNAgYw76LGe2sS8T2kbeX9VfyCY4IFo7hN5Qlrc26hGFtYhV2d/E2bO2HTckFh9pCsZcIYMPghn2gRWa9UCIv49xP+UOtYyD9A+sb4ARbiNSBxFNQfICQ4TDYy5hf/OWMhFv6ooon5OdNAe7UlNmdN+jXy44N2wuZNPSb1YFXYAbcZuFq1mXvIdwxxz4Xl0udVH3eXOY4+2iM+7HLBWY+l7Xf+KeuLd550c78zHN6X19sNwa4mOiavdi2OIn4vDXudbZW1V23bndA4xR/7Hw++zaHl1dGmL2l0SvF/99cOLHwK6M85nwS7oO+eV6h+sY9uKievpWjCCt6mK9EgvGcAPyZtzLv7rCIn2vuuRZMmOab9PtIN7dlAmazAy94IZds6/d/ucNR8loQOEitK8EJuD5Cpp0qlSJG841C3eGrm3xfpUlr2aL3Ic/2BZjVQGYZMaffem4FRlSzYcDL0yk65uiRG0fiGfce3+wC0085KTiyM2/wNCSCSpID7xBnEnEfLHOsMMOshhTB3Ic9SLsQUlgJob7skvV/7b9ZnkfRblC530XwSRFjUtOv51/nMQJu4Yu15TSrE6LsrwBVfRbdd9vtK8rN7aVmL88ucQXJckkTwm31kJqCttBsdytSwNNAkXd0pAW42ZNfwgIj7bCvIuAEcqcim8MunWBWf455/X3R9V4QKeZCCFOsagycOrtVMPOzlCKz7HLxfeCSqaMiKYJZ3HArxAFPvwuKs7hkUj870p024ICYGmD65cp9AJMuRrMMi+gZq1s9zeVMuR+1fBr7ArMzG4b7G1hfTplqYciwXKJp2mxl/ElnfCqKBH74Jc4c6EQQ6Epp/P5GpZIW/7v737pc0dvc+o0cVfnGxMg5lvrDtu3FVfFzqc21cWf7aD75F2VkPXltyzyxxWs+c17vgCPgUQY8z0ZmvUUcaFNJAKdZYczSM6Cm4l1hHrbI1KIRHQakvxIKjK9aQZRYSsQkt4HBO7e5ordI7gUKEuIiJyvrN8awEzOoonv8/d8gsVDDihGRlvEmPeshjYxOMtkCLJ1qc43bfTDsyT+OLeMFKz+HI3genqEM/diN1Vkr0cBg9+CWIzOGpMmnsvL1TQJbyhYUO8LIURAjU7cPw1CzSPAtkEj02+kGdGvsRa609kbL65ztQ3DDyiVSpyehg5N2jGGHoIN27TEm9vPcQAHh8BMmSsTxeulpdVRu3XTV2pKh8y7yjyk+TVo6wGUmV1OfFaELq/gUVmTun7dvlrF+PYZKfQ5fX8ViHANfjZqt14qVuXIpLsT2OB9tmIPY/VOXxnaeCsGgN8LT6MZs2GjbJfb/nPIYTtpF9uRfiEc++fluWUqeCaTbNJByjiQPL8H6C9pwLJJTJ8OwEp7msAWuiSCsNWZ/mFwCWGyWmzN3AwMpiKziaArNC5YzC5Sl0cHBenjJvY4B3MghZgT7pHU8hvozRWgZnzRjr4xqMrfKGjrTvRX7vvlvom27rxPmyiCaPsJPkJnMrZhzOO6ndOL8lwjhL7t9hW7AFgPtoxeOjMz4nF7TGaryLGNvZwD3eEg9/Zs5+oMnvad8DFDcsabbKKESE3bqjsvFjpS4VeTKvMwDWtts5rIWasudIEReJafs6V63gCScf5L79xTRO/bHIsxfGDoQFkRHDrDovzO3JPt8P9NvtOSYOBdnMzJ+C1677mpv0DrvoqAZssX3qADkLImJxayPyciIjGuEFtsnI8HcD7ziWP/PmVaTun1RIuvJXReWDXI/L1Exe9VTaNJCRAWe4+rC9sMafWfTzlk0IoVXp5dxHRnVKi4GOsD12/oRw90U3pPZSyqbriWku/nXQAcPHKN9LCKJCizyOR8/uplQyNAWLsrniQCFkQWWWeDPWdTmajc+CD75R9/Sm/EdeKiypGhaTFz2eVkBmxh5LPBedxdUqDEGoL0+5syLrqHHyz1oMJvrwJCwAo18OBiQyRopqjl63yXH3A9g3voMbcMADPjx6O7ieWmA8LOq+gB03fn9LySIJ//yLX0gz7hhqkg2l3ha/Fix9145Gj585Fyt3z4A/M0/Yks3DgFruMzDf/kNPANpx22GwvWaxUtcLsnIVRHNI0A3vrpm0J9PrazRP71eQoQh8CrVbLEgctlsJkz2iqPdBIzql+nHEfXnMLVCC3ZflOKdpzGDK0t4p79mmf3zsZR19k+jeM7MevqY/LYQEz9quPv0L6IQB8VZhwd/R2hwtavGsB6rso2aptdfnH/P89Rv9p6P223Y8Yr4/4CzGfaVMDkuAAmfgXk8d1LmXN1GQZP99nuO0CjN4uO8fJkCIQUuZKZDkbyHDR+tYNPjCxWHHWycEVw1FQpjlmiWZYjVdqs9euKdSdHIrsc+drTDjptQi9994HZzwVm87PO2V8yC20cyCiqJ1ZucactwiK2zFoAhDnVOgw+2xiZL79n8dlFe94YEMQkFltIgNzEaD9z4K/N4lB+FbIoPQ5m/6qaeslsLHbOtxTMKG7G8B1Sq1FsEtLSKb3Bvn1hQ2BlHwq9KZzRF2SJlwdvcAFv7Ana+CSepNTUDq5YY5KYJd2rXqjDPYSjzszq3DusFPkO6ymj+RsDrk/6XcrXcg3O0NteoVcQn/wIQ+eTxdgFUjv58WZjmmYARosLIY5Ols4+8VRRP/rmTePL2zx9F1gF26+goWTeX/YPf7RQmBrVU7PM8hFtDr0kJZ6ZtN50mhNUdC8Hb/XnlDkc8SL4FeTvgxEo8wo/EPc46u4XHo2ojz4Iuv9zOIk2cjWxmYJMe4NVweMAxRH2MIFcVojIwAV16sR5kNz5+FUNlYFXA+UixO9f0Mh7ChuxgbPQYc31XIUqxEgDG7HtvTweY8ZR5u/OVKcMmBw+XG/mxuQD1Lxw2vAyQnRpzVMDgqBvWPE0e3DbwzcGdc+3I78D/uv7Y/B8vKbXGYObpQy9YVxJVEF5YSbd3PGW9ioOkSpuCY2Zf4SckKrIWjZv1TUcuU1fT4gpuVy4wpDe/qTlEyB/UfrLv93AQnFr1831vxitrjNljMS/cMLedZEy+yOZI8qC48l0eYwAj45sifTb2UYVgaghaVNa6j8dpv+taOHBUWAb6iXLXgeRnPp3u8gfgimkfak+2xOQ4nDzSWRIkpS037g84WaKOhj4XM3IgPOiv6RnHToHDragfq/PvBsTOqZirhw9X8UuwuQB3SxrnqKsc8mFznVvs6bAPw+32g4nrteNHNHcZipIjES06OfaTwTDwBQBf5wgB87H3ur9Co0ZXNufIC5rYYm6rMSON/DkY4WI/vWEPwf/24rqOPrinaVro6Bt7VsRopd59gZ/5qA9caU+oLZWDsWcs9ndJPvd8SzRneVz4aePc6o+DvzYICyYm3IYw5n6Nf580QDiVeiHyQDXdyoGNW+ngVWOBLclXkeVfiALQGZdN7RXa045fdspGQPvthkArmnS3Vem4DFWdqVXf5iHLP5VxPsBW8NjBWCbxuOCRmqrYovxP+7i2fOTMc2hT+hyJqOr7UvAuLzDLKbW1bRHmVS6VvdJDs1C/K7w7K9nDm9LI+QaoAaEhOoTUoKVQLP3UzW+V13bUj8C6ooyDAPsXBMyB3A0Gj7nEr/ep/7GP2NK6JYoLkeznnWfMcNx0iX5vmGWXGLdzHRBRmIw8Wv3qvbVrkElbBe7PcR2GXGrEccr/rv2ZJM907KeTOLy//YKao9xMorULqfQtJbbnad+kygoUzAcA+oGjQue93D3tX9sHHSXt5IjRo+9HBCB+X3WPhmV7Ht9ESvYlAOxa/q0EgPvfC1Vt4MlU2XkBBnQBZkRv5v1YMibRZu/fz9ulhqbeJwfSyjIbq0kJJ9JIPVAgplbUvrkS9ahVaEsdn/yxrbTz1cYXriBrSPbI1zDWqcg8zhZAwY1YHMhQuRDnSuuC6qANLL7w0tgyl6zKqKwNtoRqsZy0qrAgxMQrWjuXVJPdCI8ODJLEqGoo2C5XRqGRqzPATx4MhoU0EwAjFmRgEECkEIs6MYCOWDEvIV3T+yUMRWQvYbm5/BIeAxtfwpcgzRcM006+gncBxerq0Gq13FjneXG+GiWqcbCWVblEOfhV7BeZlkYLEiGewjLNpamoVLIUR6VIPfm54CehqYH4VZbL49iyYsOGLXectV9o9uubsGqG+tI6HBMNct9FoMPLO7PkqOBj5zE1PxLONtuVKEq4e9/dy7a51jrjP+fdNPtkihyc4thZljkJOqjaKdWPUcpVSsnkq42vA6bYX127xjekWqREVq6Xx3P5qlTk8ohVc+VUCh3m7QLrVtZ1U4z9jWrnF3Ye7NsAA6eckGeDfBtNZshIAWOvmFA56bQzTJkxZ/GrEcILc/Op+mohu1+VcPFFrphik83svZuof/4urrqm2HWu3GbS45vbF6BEmXKlKlVYLFCQKsFeC1HtilFPqy+HiygLDRrVT+Dn0+v9JrryZq3atFhCo12897P5zZh4fgMNNsQgqdJm3Jff2k3TCyz8RQBiiv7/+t766BuGWOLhq2++hw82AnSi1E9/6/Aso2epI0aRE+jMm06E6LCFHymZLDm8+DjqmK222W6HNdba7wA+CX1io400zljjDZPtpeH2EUaEEWZS+Ggnjq4Bpsm1nG/EEEVCUpKRnBSkJB1M5G+Cm2657f6gvrLExsbP9ZC2m7Fn/OM+jfnaUBTA+6tfhMg40mfa27iI/6XN9ar/r3JenJtfXxeF4DvYietKygv4wCFcoZ0zwj9xcstuJ5qYekE/2/a8TtshnG5B/4LZdsZt+rxOEkYSn2XM9BGcm3i6RwzeHRhSAumz4OPgZe4SCwFPBjQ69u1mn39SIhQwk9pOEe4aELDdpz0UT7dbNBjUmcfzX36d9kveZsh0EzAKs51oR8AmtNPc+MIvECBgBgAAAA==) format("woff2");
+  }
+  @font-face {
+    font-family: "Silkscreen";
+    font-style: normal;
+    font-weight: 700;
+    src: url(data:font/woff2;base64,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) format("woff2");
+  }
+
   @page { size: 210mm 297mm; margin: 0; }
+
+  :root {
+    --ink: #16181f;
+    --ink-soft: #4b4e5c;
+    --paper: #f5eeda;
+    --red: #cf2b1c;
+    --red-dark: #8d1a10;
+    /* colour, only where the hardware or the chart uses it */
+    --blue: #2f6fb5;
+    --amber: #eda51d;
+    --green: #3f9b52;
+    --mask: #35568c;
+
+    /* Halftone screens, as 2 or 4 unit tiles scaled by background-size */
+    --dt12: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='1.3' height='1.3' fill='%2316181f'/%3E%3C/svg%3E");
+    --dt25: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='2'%3E%3Crect width='1' height='1' fill='%2316181f'/%3E%3C/svg%3E");
+    --dt50: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='2'%3E%3Crect width='1' height='1' fill='%2316181f'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%2316181f'/%3E%3C/svg%3E");
+    --dtR25: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='2'%3E%3Crect width='1' height='1' fill='%23cf2b1c'/%3E%3C/svg%3E");
+    --dtA25: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='2'%3E%3Crect width='1' height='1' fill='%23eda51d'/%3E%3C/svg%3E");
+    /* Stock texture: a sparse dot on every page */
+    --dtfaint: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='1' height='1' fill='%2316181f' fill-opacity='.22'/%3E%3C/svg%3E");
+    --dtpaper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='1' height='1' fill='%23f5eeda' fill-opacity='.2'/%3E%3C/svg%3E");
+  }
 
   html, body { margin: 0; padding: 0; }
   body {
-    font-family: "Carlito", "Liberation Sans", sans-serif;
-    color: #000;
+    font-family: "Liberation Sans Narrow", "Nimbus Sans Narrow", sans-serif;
+    color: var(--ink);
+    background: #fff;
     -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   .sheet {
@@ -53,7 +113,6 @@
     height: 70mm;
     border: 0.15mm solid #c9c9c9;
   }
-  /* Fold ticks, just outside the trim */
   .piece::before,
   .piece::after {
     content: "";
@@ -67,353 +126,1226 @@
   .piece::before { top: -3.7mm; }
   .piece::after  { bottom: -3.7mm; }
 
-  /* Trimmed off with the margins */
   .tag {
     position: absolute;
     top: -4.9mm;
     left: 0.4mm;
-    font-size: 4.8pt;
+    font-family: "Liberation Mono", monospace;
+    font-size: 4.6pt;
     letter-spacing: 0.04em;
     color: #9a9a9a;
   }
 
+  /* ---------------------------------------------------------------
+     The booklet page itself
+     --------------------------------------------------------------- */
   .page {
     position: absolute;
     top: 0;
     width: 50mm;
     height: 70mm;
     box-sizing: border-box;
-    padding: 5.6mm 4.4mm 5mm;
+    padding: 4.2mm 4.2mm 4mm;
+    overflow: hidden;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image: var(--dtfaint);
+    background-size: 1.4mm 1.4mm;
   }
   .page.left  { left: 0; }
   .page.right { left: 50mm; }
 
-  .page h2 {
-    font-size: 8.2pt;
-    font-weight: 700;
-    letter-spacing: 0.07em;
+  /* Page head: number block, pixel title, rule */
+  .hd {
+    display: flex;
+    align-items: center;
+    gap: 1.4mm;
+    border-bottom: 0.45mm solid var(--ink);
+    padding-bottom: 0.95mm;
+    margin: 0 0 1.9mm;
+  }
+  .hd .n {
+    font: 400 4.4pt/1 "Silkscreen";
+    letter-spacing: 0.04em;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0.8mm 0.85mm 0.7mm;
+  }
+  .hd h2 {
+    font: 400 6.9pt/1 "Silkscreen";
     text-transform: uppercase;
-    margin: 0 0 2.2mm;
-    padding-bottom: 1.1mm;
-    border-bottom: 0.2mm solid #000;
-  }
-  .page p {
-    font-size: 7pt;
-    line-height: 1.4;
-    margin: 0 0 1.5mm;
-  }
-  .page p.loose { margin-bottom: 2.2mm; }
-  .page .num {
-    position: absolute;
-    bottom: 2.8mm;
-    font-size: 5pt;
-    color: #666;
-  }
-  .page.left  .num { left: 4.4mm; }
-  .page.right .num { right: 4.4mm; }
-
-  /* Lists, set as tight as the page allows */
-  .page ul {
-    margin: 0 0 1.7mm;
-    padding-left: 3.2mm;
-  }
-  .page li {
-    font-size: 7pt;
-    line-height: 1.4;
-    margin: 0 0 1.2mm;
-  }
-  .page ul.tight li { margin-bottom: 0.9mm; }
-
-  /* Cover */
-  .page .kicker {
-    font-size: 5.6pt;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #555;
-    margin: 0 0 2mm;
-  }
-  .page .title {
-    font-size: 14.5pt;
-    font-weight: 700;
-    line-height: 0.92;
-    letter-spacing: -0.01em;
+    letter-spacing: 0.01em;
     margin: 0;
+    color: var(--ink);
   }
-  .page .bar {
+
+  .page p {
+    font-size: 6.4pt;
+    line-height: 1.31;
+    margin: 0 0 1.3mm;
+  }
+  .page p.lede {
+    font-size: 7.5pt;
+    font-weight: 700;
+    line-height: 1.22;
+    margin-bottom: 1.6mm;
+  }
+  .page p.tight { margin-bottom: 0.9mm; }
+  .page p:last-child { margin-bottom: 0; }
+  .page b { font-weight: 700; }
+  .page .red { color: var(--red); }
+
+  /* Tiny monospace caption or value */
+  .mono {
+    font-family: "Liberation Mono", monospace;
+    font-size: 5.6pt;
+    letter-spacing: 0;
+  }
+
+  /* Footer rule and number */
+  .pgfoot {
+    position: absolute;
+    left: 4.2mm;
+    right: 4.2mm;
+    bottom: 2.2mm;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    font: 400 4.1pt/1 "Silkscreen";
+    letter-spacing: 0.09em;
+    color: var(--ink-soft);
+    border-top: 0.15mm solid rgba(22,24,31,.4);
+    padding-top: 0.75mm;
+  }
+  .page.left .pgfoot { flex-direction: row-reverse; }
+  /* pages the chart runs to the bottom of: no rule, just the folio */
+  .pgfoot.bare { border-top: 0; padding-top: 0; }
+
+  /* ---------------------------------------------------------------
+     Screen diagram: real seven segment digits, dithered ghost segments
+     --------------------------------------------------------------- */
+  .screen {
+    background: var(--ink);
+    border: 0.45mm solid var(--ink);
+    border-radius: 1mm;
+    padding: 1.05mm 1.35mm 0.95mm;
+    margin: 0 0 0.9mm;
+  }
+  .screen svg { display: block; width: 100%; height: auto; }
+  .screen .ghost use { fill: url(#gh); }
+  .screen use.lit { fill: var(--red); }
+  .screen.narrow { width: 28mm; margin-left: auto; margin-right: auto; }
+  .screen.tiny   { width: 23mm; margin-left: auto; margin-right: auto; }
+
+  .cap {
+    display: flex;
+    justify-content: space-between;
+    font: 400 4pt/1.3 "Silkscreen";
+    letter-spacing: 0.03em;
+    color: var(--ink-soft);
+    margin: 0 0 1.6mm;
+  }
+  .cap span:last-child { text-align: right; }
+
+  /* ---------------------------------------------------------------
+     Key caps, lights, halftone shadows
+     --------------------------------------------------------------- */
+  .k {
+    display: inline-block;
+    font: 400 4.9pt/1 "Silkscreen";
+    letter-spacing: 0.03em;
+    color: var(--paper);
+    background: var(--red);
+    padding: 0.9mm 1mm 0.7mm;
+    border-radius: 0.5mm;
+    box-shadow: 0.55mm 0.55mm 0 var(--ink);
+  }
+  .btnrow {
+    display: grid;
+    grid-template-columns: 14.6mm 1fr;
+    gap: 1.3mm;
+    align-items: start;
+    margin-bottom: 1.55mm;
+  }
+  .btnrow p { margin: 0; font-size: 6.4pt; line-height: 1.24; }
+
+  .ledrow {
+    display: grid;
+    grid-template-columns: 3.4mm 1fr;
+    gap: 1.2mm;
+    margin-bottom: 1.5mm;
+  }
+  .ledrow.wide { grid-template-columns: 10mm 1fr; }
+  .dots { display: flex; gap: 0.75mm; }
+  .dot {
+    width: 2.5mm;
+    height: 2.5mm;
+    border-radius: 50%;
+    border: 0.28mm solid var(--ink);
+    margin-top: 0.2mm;
+    background: var(--red);
+    flex: none;
+  }
+  .dot.blue  { background: var(--blue); }
+  .dot.amber { background: var(--amber); }
+  .dot.green { background: var(--green); }
+  .dot.out   { background: transparent; }
+  /* A halftone halo, the way a comic prints a glow */
+  .dot.glow { position: relative; }
+  .dot.glow::after {
+    content: "";
+    position: absolute;
+    inset: -1.6mm;
+    border-radius: 50%;
+    background-image: var(--dtA25);
+    background-size: 0.55mm 0.55mm;
+    -webkit-mask-image: radial-gradient(circle, transparent 42%, #000 43%);
+    mask-image: radial-gradient(circle, transparent 42%, #000 43%);
+  }
+  .ledrow .name {
+    font: 400 5.1pt/1 "Silkscreen";
+    letter-spacing: 0.03em;
+    display: block;
+    margin-bottom: 0.55mm;
+  }
+  .ledrow p { margin: 0; font-size: 6.4pt; line-height: 1.24; }
+
+  /* Numbered steps */
+  .step {
+    display: grid;
+    grid-template-columns: 3.2mm 1fr;
+    gap: 1.3mm;
+    margin-bottom: 1.3mm;
+  }
+  .step .sn {
+    width: 3.2mm;
+    height: 3.2mm;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    font: 400 4.2pt/3.2mm "Silkscreen";
+    text-align: center;
+    margin-top: 0.15mm;
+  }
+  .step p { margin: 0; font-size: 6.4pt; line-height: 1.24; }
+
+  /* ---------------------------------------------------------------
+     The board, drawn as it looks: blue mask, white silkscreen
+     --------------------------------------------------------------- */
+  .boardfig {
+    display: block;
+    width: 34mm;
+    height: auto;
+    margin: 0.2mm auto 0;
+  }
+  .boardfig text.silk {
+    font-family: "Silkscreen";
+    fill: var(--paper);
+    text-anchor: middle;
+  }
+  .boardfig text.silk.end { text-anchor: end; }
+  .boardfig .mark {
+    fill: var(--paper);
+    stroke: var(--ink);
+    stroke-width: 0.32;
+  }
+  .boardfig .num {
+    font: 400 2.5px "Silkscreen";
+    fill: var(--ink);
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+  .figkey {
+    display: flex;
+    justify-content: space-between;
+    font: 400 4.1pt/1 "Silkscreen";
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    margin: 1.6mm 0 0;
+  }
+  .figkey b { color: var(--red); font-weight: 400; }
+
+  /* ---------------------------------------------------------------
+     Basic strategy chart
+     --------------------------------------------------------------- */
+  .chartkey {
+    display: flex;
+    justify-content: space-between;
+    font: 400 3.8pt/1 "Silkscreen";
+    letter-spacing: 0.03em;
+    margin: 0 0 1.1mm;
+  }
+  .chartkey span { display: inline-flex; align-items: center; gap: 0.5mm; }
+  .chartkey em {
+    display: inline-block;
+    width: 2mm;
+    height: 1.7mm;
+    border: 0.12mm solid rgba(22,24,31,.55);
+    font-style: normal;
+  }
+  .c-h  { background: #f2a495; }
+  .c-d  { background: #f7dd93; }
+  .c-s  { background: #a9d5a7; }
+  .c-sp { background: #a9c6ea; }
+
+  table.chart {
     width: 100%;
-    height: 0.6mm;
-    background: #000;
-    margin: 3.2mm 0 2.4mm;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font: 700 5pt/1.05 "Liberation Sans Narrow", sans-serif;
+    text-align: center;
+    margin: 0 0 0;
   }
-  .page .lede {
-    font-size: 8pt;
-    line-height: 1.3;
+  table.chart th, table.chart td {
+    border: 0.12mm solid rgba(22,24,31,.55);
+    height: 1.72mm;
+    padding: 0;
+  }
+  table.chart td { background: #f2a495; }
+  table.chart td.d  { background: #f7dd93; }
+  table.chart td.s  { background: #a9d5a7; }
+  table.chart td.sp { background: #a9c6ea; }
+  table.chart thead th {
+    background: var(--ink);
+    color: var(--paper);
+    font: 400 4.3pt/1 "Silkscreen";
+    height: 2.6mm;
+  }
+  table.chart th.rw {
+    background: var(--ink);
+    color: var(--paper);
+    font: 400 3.8pt/1 "Silkscreen";
+    letter-spacing: 0;
+  }
+  table.chart col.rw { width: 7.6mm; }
+
+  /* ---------------------------------------------------------------
+     Cover
+     --------------------------------------------------------------- */
+  .cover { padding-top: 0; }
+  .cover .band {
+    margin: 0 -4.2mm 2.6mm;
+    padding: 1.6mm 4.2mm 1.4mm;
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    justify-content: space-between;
+    font: 400 4.1pt/1 "Silkscreen";
+    letter-spacing: 0.1em;
+  }
+  .cover h1 {
+    font: 400 12.2pt/1.05 "Silkscreen";
+    letter-spacing: 0;
+    margin: 0;
+    color: var(--ink);
+    text-shadow: 0.75mm 0.75mm 0 var(--red);
+  }
+  .cover .rule {
+    height: 1mm;
+    background: var(--ink);
+    margin: 2.4mm 0 1.9mm;
+  }
+  .cover .lede { font-size: 7.2pt; line-height: 1.22; margin-bottom: 1.4mm; }
+  .cover p.cta { font-size: 6.4pt; line-height: 1.28; margin-bottom: 0; }
+  .cover-row {
+    display: flex;
+    align-items: center;
+    gap: 3.2mm;
+    margin-top: 2.2mm;
+  }
+  .cover-row .screen { width: 24mm; flex: none; margin: 0; }
+  .cover .cover-foot {
+    position: absolute;
+    left: 4.2mm;
+    right: 4.2mm;
+    bottom: 6.4mm;
+    font: 400 4pt/1.7 "Silkscreen";
+    letter-spacing: 0.09em;
+    color: var(--ink-soft);
+  }
+  .badge {
+    flex: none;
+    width: 13.6mm;
+    height: 13.6mm;
+    background: var(--red);
+    color: var(--paper);
+    font: 400 3.4pt/1.45 "Silkscreen";
+    text-align: center;
+    padding-top: 3.3mm;
+    box-sizing: border-box;
+    transform: rotate(-11deg);
+    clip-path: polygon(50% 0,61% 18%,82% 18%,73% 37%,91% 50%,73% 63%,
+                       82% 82%,61% 82%,50% 100%,39% 82%,18% 82%,27% 63%,
+                       9% 50%,27% 37%,18% 18%,39% 18%);
+  }
+
+  /* ---------------------------------------------------------------
+     Back cover: solid ink, halftone stock showing through
+     --------------------------------------------------------------- */
+  .back {
+    background-color: var(--ink);
+    background-image: var(--dtpaper);
+    background-size: 1.4mm 1.4mm;
+    color: var(--paper);
+    padding-top: 4.6mm;
+  }
+  .back .sub {
+    font: 400 3.9pt/1 "Silkscreen";
+    letter-spacing: 0.18em;
+    color: var(--red);
+    margin: 0 0 1.8mm;
+  }
+  .back h2 {
+    font: 400 7.2pt/1 "Silkscreen";
+    letter-spacing: 0.02em;
+    color: var(--paper);
     margin: 0 0 2.4mm;
   }
-  .page .foot {
+  .back h2.big {
+    font-size: 11.4pt;
+    line-height: 1.06;
+    margin: 1.6mm 0 3.4mm;
+    text-shadow: 0.7mm 0.7mm 0 var(--red);
+  }
+  .back .backrule {
+    height: 0.7mm;
+    background: var(--red);
+    margin: 0 0 3mm;
+  }
+  .back .tagline {
+    font-size: 6.6pt;
+    line-height: 1.3;
+    color: var(--paper);
+    margin: 0;
+  }
+  .back p { font-size: 6pt; line-height: 1.28; color: var(--paper); margin: 0 0 2.2mm; }
+  .back h3 {
+    font: 400 4.7pt/1 "Silkscreen";
+    letter-spacing: 0.12em;
+    color: var(--paper);
+    margin: 0 0 1.1mm;
+    padding-top: 1.6mm;
+    border-top: 0.15mm solid rgba(245,238,218,.45);
+  }
+  .back .pgfoot { color: rgba(245,238,218,.7); border-color: rgba(245,238,218,.4); }
+  .back .credit {
     position: absolute;
-    left: 4.4mm;
-    bottom: 5.4mm;
-    font-size: 5.2pt;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #444;
-    line-height: 1.7;
+    left: 4.2mm;
+    right: 4.2mm;
+    bottom: 6.2mm;
+    font: 400 4pt/1.7 "Silkscreen";
+    letter-spacing: 0.07em;
+    color: var(--red);
   }
 
-  /* A short list of button or light words */
-  .page table { width: 100%; border-collapse: collapse; }
-  .page td {
-    font-size: 7pt;
-    line-height: 1.42;
-    padding: 0 0 1.1mm;
-    vertical-align: top;
-  }
-  .page td.w {
-    width: 12.5mm;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-  }
-  .page td.l {
-    width: 14mm;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-  }
-
-  /* Notes printed below the pieces, on the waste of the same sheet */
+  /* ---------------------------------------------------------------
+     Notes printed on the waste of the A4 sheet
+     --------------------------------------------------------------- */
   .notes {
     position: absolute;
     left: 5mm;
-    top: 106mm;
+    top: 178mm;
     width: 200mm;
+    color: var(--ink);
   }
   .notes .kicker {
-    font-size: 7pt;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: #555;
-    margin: 0 0 2mm;
+    font: 400 5pt/1 "Silkscreen";
+    letter-spacing: 0.14em;
+    color: var(--ink-soft);
+    margin: 0 0 2.4mm;
   }
   .notes h1 {
-    font-size: 18pt;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    margin: 0 0 3mm;
+    font: 400 15pt/1 "Silkscreen";
+    letter-spacing: 0.01em;
+    margin: 0 0 2.6mm;
+    color: var(--ink);
+    text-shadow: 0.85mm 0.85mm 0 var(--red);
   }
   .notes hr {
     border: 0;
-    border-top: 0.4mm solid #000;
-    margin: 6mm 0;
-  }
-  .notes p, .notes li {
-    font-size: 10pt;
-    line-height: 1.5;
-    margin: 0 0 3mm;
-    max-width: 168mm;
-  }
-  .notes h2 {
-    font-size: 7.6pt;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    margin: 6mm 0 2.5mm;
-  }
-  .notes ol { margin: 0 0 3mm; padding-left: 7mm; }
-  .notes ol li { margin-bottom: 2.2mm; }
-  .notes .warning {
-    border-left: 1.2mm solid #000;
-    padding: 0.5mm 0 0.5mm 4mm;
+    border-top: 0.4mm solid var(--ink);
     margin: 4mm 0;
   }
-  .notes .warning p { margin: 0; max-width: 160mm; }
-  .notes .quiet { color: #555; font-size: 8.6pt; max-width: 168mm; }
+  .notes p, .notes li {
+    font-family: "Liberation Sans Narrow", "Nimbus Sans Narrow", sans-serif;
+    font-size: 8.8pt;
+    line-height: 1.38;
+    margin: 0 0 2.2mm;
+  }
+  .notes h2 {
+    font: 400 5.4pt/1 "Silkscreen";
+    letter-spacing: 0.1em;
+    margin: 3.6mm 0 1.8mm;
+    color: var(--red);
+  }
+  .notes h2:first-child { margin-top: 0; }
+  .notes ol { margin: 0 0 2mm; padding-left: 5.4mm; }
+  .notes ol li { margin-bottom: 1.6mm; }
+  .notes .cols { column-count: 2; column-gap: 9mm; }
+  .notes .cols > * { break-inside: avoid; }
+  .notes .warning {
+    border-left: 1.3mm solid var(--red);
+    background-image: var(--dtR25);
+    background-size: 0.62mm 0.62mm;
+    padding: 1.8mm 2.4mm 0.4mm 2.6mm;
+    margin: 0 0 2.2mm;
+  }
+  .notes .warning p { margin: 0; }
+  .notes .quiet { color: var(--ink-soft); font-size: 8pt; }
+  .notes .stamp {
+    display: inline-block;
+    font: 400 4.4pt/1 "Silkscreen";
+    letter-spacing: 0.1em;
+    border: 0.35mm solid var(--red);
+    color: var(--red);
+    padding: 1.1mm 1.5mm 0.9mm;
+    transform: rotate(-2deg);
+  }
 </style>
 </head>
 <body>
 
+<!-- Seven segment glyphs and the halftone screens, drawn once and used by
+     every diagram. Units are mm inside the board figure, plain numbers
+     inside the screens. -->
+<svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <defs>
+    <pattern id="p25" width="1.5" height="1.5" patternUnits="userSpaceOnUse">
+      <rect width="0.75" height="0.75" fill="#16181f"/>
+    </pattern>
+    <!-- the dim ghost behind a lit digit, printed as a red halftone -->
+    <pattern id="gh" width="3" height="3" patternUnits="userSpaceOnUse">
+      <rect width="1.5" height="1.5" fill="#cf2b1c" fill-opacity=".34"/>
+      <rect x="1.5" y="1.5" width="1.5" height="1.5" fill="#cf2b1c" fill-opacity=".34"/>
+    </pattern>
+
+    <g id="segG">
+      <rect x="9" y="2" width="38" height="9" rx="1.4"/>
+      <rect x="2" y="9" width="9" height="34" rx="1.4"/>
+      <rect x="45" y="9" width="9" height="34" rx="1.4"/>
+      <rect x="9" y="42" width="38" height="9" rx="1.4"/>
+      <rect x="2" y="49" width="9" height="34" rx="1.4"/>
+      <rect x="45" y="49" width="9" height="34" rx="1.4"/>
+      <rect x="9" y="82" width="38" height="9" rx="1.4"/>
+    </g>
+    <g id="dpG"><rect x="50" y="87" width="5" height="5" rx="0.8"/></g>
+
+    <g id="d0">
+      <rect x="9" y="2" width="38" height="9" rx="1.4"/>
+      <rect x="2" y="9" width="9" height="34" rx="1.4"/>
+      <rect x="45" y="9" width="9" height="34" rx="1.4"/>
+      <rect x="2" y="49" width="9" height="34" rx="1.4"/>
+      <rect x="45" y="49" width="9" height="34" rx="1.4"/>
+      <rect x="9" y="82" width="38" height="9" rx="1.4"/>
+    </g>
+    <g id="d1">
+      <rect x="45" y="9" width="9" height="34" rx="1.4"/>
+      <rect x="45" y="49" width="9" height="34" rx="1.4"/>
+    </g>
+    <g id="d2">
+      <rect x="9" y="2" width="38" height="9" rx="1.4"/>
+      <rect x="45" y="9" width="9" height="34" rx="1.4"/>
+      <rect x="9" y="42" width="38" height="9" rx="1.4"/>
+      <rect x="2" y="49" width="9" height="34" rx="1.4"/>
+      <rect x="9" y="82" width="38" height="9" rx="1.4"/>
+    </g>
+    <g id="d3">
+      <rect x="9" y="2" width="38" height="9" rx="1.4"/>
+      <rect x="45" y="9" width="9" height="34" rx="1.4"/>
+      <rect x="9" y="42" width="38" height="9" rx="1.4"/>
+      <rect x="45" y="49" width="9" height="34" rx="1.4"/>
+      <rect x="9" y="82" width="38" height="9" rx="1.4"/>
+    </g>
+    <g id="d4">
+      <rect x="2" y="9" width="9" height="34" rx="1.4"/>
+      <rect x="45" y="9" width="9" height="34" rx="1.4"/>
+      <rect x="9" y="42" width="38" height="9" rx="1.4"/>
+      <rect x="45" y="49" width="9" height="34" rx="1.4"/>
+    </g>
+    <g id="d5">
+      <rect x="9" y="2" width="38" height="9" rx="1.4"/>
+      <rect x="2" y="9" width="9" height="34" rx="1.4"/>
+      <rect x="9" y="42" width="38" height="9" rx="1.4"/>
+      <rect x="45" y="49" width="9" height="34" rx="1.4"/>
+      <rect x="9" y="82" width="38" height="9" rx="1.4"/>
+    </g>
+    <g id="d6">
+      <rect x="9" y="2" width="38" height="9" rx="1.4"/>
+      <rect x="2" y="9" width="9" height="34" rx="1.4"/>
+      <rect x="9" y="42" width="38" height="9" rx="1.4"/>
+      <rect x="2" y="49" width="9" height="34" rx="1.4"/>
+      <rect x="45" y="49" width="9" height="34" rx="1.4"/>
+      <rect x="9" y="82" width="38" height="9" rx="1.4"/>
+    </g>
+    <g id="d7">
+      <rect x="9" y="2" width="38" height="9" rx="1.4"/>
+      <rect x="45" y="9" width="9" height="34" rx="1.4"/>
+      <rect x="45" y="49" width="9" height="34" rx="1.4"/>
+    </g>
+    <g id="d8">
+      <rect x="9" y="2" width="38" height="9" rx="1.4"/>
+      <rect x="2" y="9" width="9" height="34" rx="1.4"/>
+      <rect x="45" y="9" width="9" height="34" rx="1.4"/>
+      <rect x="9" y="42" width="38" height="9" rx="1.4"/>
+      <rect x="2" y="49" width="9" height="34" rx="1.4"/>
+      <rect x="45" y="49" width="9" height="34" rx="1.4"/>
+      <rect x="9" y="82" width="38" height="9" rx="1.4"/>
+    </g>
+    <g id="d9">
+      <rect x="9" y="2" width="38" height="9" rx="1.4"/>
+      <rect x="2" y="9" width="9" height="34" rx="1.4"/>
+      <rect x="45" y="9" width="9" height="34" rx="1.4"/>
+      <rect x="9" y="42" width="38" height="9" rx="1.4"/>
+      <rect x="45" y="49" width="9" height="34" rx="1.4"/>
+      <rect x="9" y="82" width="38" height="9" rx="1.4"/>
+    </g>
+  </defs>
+</svg>
+
 <!-- ============================================================
-     PDF page 1: the outside faces, plus these notes below them
-     A outside 8 | 1      B outside 6 | 3
+     PDF page 1: side 1 of the sheet
+     A outside 12 | 1     B outside 10 | 3     C outside 8 | 5
      ============================================================ -->
 <div class="sheet">
 
-  <div class="piece" style="left:5mm; top:24mm;">
-    <div class="tag">A · outside · 8 | 1</div>
+  <div class="piece" style="left:5mm; top:20mm;">
+    <div class="tag">A · outside · 12 | 1</div>
 
-    <div class="page left">
-      <div class="kicker">Blackjack keychain</div>
-      <div class="title" style="font-size:10.5pt;">Basic strategy<br>trainer</div>
-      <div class="bar"></div>
-      <p style="font-size:7.6pt;">A hand of blackjack in your pocket, and a
-      coach that marks every decision you make.</p>
-      <p>Train mode for the book. Play mode for the bank.</p>
-      <div class="num">8</div>
+    <!-- page 12: the back cover -->
+    <div class="page left back">
+      <div class="sub">INSTRUCTION BOOKLET · NO. BJ-21</div>
+      <h2 class="big">BLACK<br>JACK<br>KEYCHAIN</h2>
+
+      <div class="backrule"></div>
+      <p class="tagline">A pocket trainer for blackjack basic strategy.<br>
+      Twelve pages, one sheet, no batteries.</p>
+
+      <div class="credit">USB-C · 5 V<br>DESIGNED BY PATRICK SCHOLEFIELD</div>
+      <div class="pgfoot"><span>50 × 70 MM</span><span>12</span></div>
     </div>
 
-    <div class="page right">
-      <div class="kicker">Basic strategy trainer</div>
-      <div class="title">BLACK<br>JACK<br>KEY<br>CHAIN</div>
-      <div class="bar"></div>
-      <div class="lede">Test your blackjack skills with this compact
-      keychain device.</div>
-      <p>Hone your basic strategy knowledge in train mode, then test
-      your luck and go for a high score in play mode.</p>
-      <div class="foot">Patrick Scholefield</div>
-      <div class="num">1</div>
+    <!-- page 1: the cover -->
+    <div class="page right cover">
+      <div class="band"><span>HANDHELD · NO. BJ-21</span><span>1 PLAYER</span></div>
+
+      <h1>BLACK<br>JACK<br>KEYCHAIN</h1>
+      <div class="rule"></div>
+
+      <p class="lede">Test your blackjack skills with this compact keychain
+      device.</p>
+      <p class="cta">Hone your basic strategy knowledge in <b>TRAIN</b>
+      mode, then compete for a highscore in <b>PLAY</b> mode.</p>
+
+      <div class="cover-row">
+        <div class="screen">
+          <svg viewBox="0 0 248 94" role="img" aria-label="The display showing 21">
+            <g class="ghost">
+              <use href="#segG" x="0"/><use href="#segG" x="64"/>
+              <use href="#segG" x="128"/><use href="#segG" x="192"/>
+              <use href="#dpG" x="0"/><use href="#dpG" x="64"/>
+              <use href="#dpG" x="128"/><use href="#dpG" x="192"/>
+            </g>
+            <use class="lit" href="#d2" x="0"/>
+            <use class="lit" href="#d1" x="64"/>
+          </svg>
+        </div>
+        <div class="badge">NO<br>BATTERIES</div>
+      </div>
+
+      <div class="cover-foot">A POCKET TRAINER<br>BY PATRICK SCHOLEFIELD</div>
+      <div class="pgfoot"><span>INSTRUCTION BOOKLET</span><span>1</span></div>
     </div>
   </div>
 
-  <div class="piece" style="left:105mm; top:24mm;">
-    <div class="tag">B · outside · 6 | 3</div>
+  <div class="piece" style="left:105mm; top:20mm;">
+    <div class="tag">B · outside · 10 | 3</div>
 
+    <!-- page 10: the basic strategy chart -->
     <div class="page left">
-      <h2>Play mode</h2>
-      <p class="loose">Play starts you with $100, and the bankroll is
-      kept, so a run carries on next time you switch it on.</p>
-      <p class="loose">Before each hand the display shows BET, then the
-      amount. HIT adds $5, STAND takes $5 off, DOUBLE doubles it, SPLIT
-      halves it. Tap BANK to deal.</p>
-      <p class="loose">The bet runs from $5 to $100, and never above what
-      the bank can lose.</p>
-      <p>Hold BANK at any time to read the bankroll.</p>
-      <div class="num">6</div>
+      <div class="hd"><span class="n">10</span><h2>BASIC STRATEGY</h2></div>
+
+      <div class="chartkey">
+        <span><em class="c-h"></em>HIT</span>
+        <span><em class="c-s"></em>STAND</span>
+        <span><em class="c-d"></em>DOUBLE</span>
+        <span><em class="c-sp"></em>SPLIT</span>
+      </div>
+
+      <table class="chart">
+        <colgroup><col class="rw"><col><col><col><col><col><col><col><col><col><col></colgroup>
+        <thead>
+          <tr>
+            <th class="rw">YOU</th>
+            <th>2</th><th>3</th><th>4</th><th>5</th><th>6</th>
+            <th>7</th><th>8</th><th>9</th><th>10</th><th>A</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th class="rw">3-8</th>
+            <td>H</td><td>H</td><td>H</td><td>H</td><td>H</td><td>H</td><td>H</td><td>H</td><td>H</td><td>H</td></tr>
+          <tr><th class="rw">9</th>
+            <td>H</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td>H</td><td>H</td><td>H</td><td>H</td><td>H</td></tr>
+          <tr><th class="rw">10</th>
+            <td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td>H</td><td>H</td></tr>
+          <tr><th class="rw">11</th>
+            <td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td>H</td></tr>
+          <tr><th class="rw">12</th>
+            <td>H</td><td>H</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td>H</td><td>H</td><td>H</td><td>H</td><td>H</td></tr>
+          <tr><th class="rw">13-16</th>
+            <td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td>H</td><td>H</td><td>H</td><td>H</td><td>H</td></tr>
+          <tr><th class="rw">S13</th>
+            <td>H</td><td>H</td><td>H</td><td class="d">D</td><td class="d">D</td><td>H</td><td>H</td><td>H</td><td>H</td><td>H</td></tr>
+          <tr><th class="rw">S14-17</th>
+            <td>H</td><td>H</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td>H</td><td>H</td><td>H</td><td>H</td><td>H</td></tr>
+          <tr><th class="rw">S18</th>
+            <td class="s">S</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="s">S</td><td class="s">S</td><td>H</td><td>H</td><td>H</td></tr>
+          <tr><th class="rw">S19</th>
+            <td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td></tr>
+          <tr><th class="rw">S20</th>
+            <td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td></tr>
+          <tr><th class="rw">P4</th>
+            <td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td>H</td><td>H</td><td>H</td><td>H</td></tr>
+          <tr><th class="rw">P6</th>
+            <td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td>H</td><td>H</td><td>H</td><td>H</td></tr>
+          <tr><th class="rw">P8</th>
+            <td>H</td><td>H</td><td>H</td><td class="sp">SP</td><td class="sp">SP</td><td>H</td><td>H</td><td>H</td><td>H</td><td>H</td></tr>
+          <tr><th class="rw">P10</th>
+            <td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td class="d">D</td><td>H</td><td>H</td></tr>
+          <tr><th class="rw">P12</th>
+            <td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td>H</td><td>H</td><td>H</td><td>H</td><td>H</td></tr>
+          <tr><th class="rw">P14</th>
+            <td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td>H</td><td>H</td><td>H</td><td>H</td></tr>
+          <tr><th class="rw">P16</th>
+            <td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td></tr>
+          <tr><th class="rw">P18</th>
+            <td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="s">S</td><td class="sp">SP</td><td class="sp">SP</td><td class="s">S</td><td class="s">S</td></tr>
+          <tr><th class="rw">P20</th>
+            <td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td><td class="s">S</td></tr>
+          <tr><th class="rw">PAA</th>
+            <td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td><td class="sp">SP</td></tr>
+        </tbody>
+      </table>
+
+      <div class="pgfoot bare"><span>BASIC STRATEGY</span><span>10</span></div>
     </div>
 
+    <!-- page 3: the board -->
     <div class="page right">
-      <h2>Buttons</h2>
-      <table>
-        <tr><td class="w">HIT</td><td>take another card</td></tr>
-        <tr><td class="w">STAND</td><td>keep the total you have</td></tr>
-        <tr><td class="w">DOUBLE</td><td>double the bet for one more
-        card</td></tr>
-        <tr><td class="w">SPLIT</td><td>turn a pair into two hands</td></tr>
-        <tr><td class="w">BANK</td><td>show the bankroll; hold for your
-        best</td></tr>
-      </table>
-      <p style="margin-top:1.2mm;">Press one button at a time.</p>
-      <p>The switch on the side picks the mode: PLAY for money, TRAIN
-      for practice.</p>
-      <div class="num">3</div>
+      <div class="hd"><span class="n">03</span><h2>THE BOARD</h2></div>
+
+      <svg class="boardfig" viewBox="0 0 50 70" role="img"
+           aria-label="Front of the board, with its silkscreen">
+        <!-- solder mask and keyring hole -->
+        <rect x="0.4" y="0.4" width="49.2" height="69.2" rx="3.4"
+              fill="#35568c" stroke="#16181f" stroke-width="0.5"/>
+        <circle cx="46.3" cy="5.4" r="2.6" fill="#f5eeda"
+                stroke="#16181f" stroke-width="0.45"/>
+
+        <!-- silkscreen: the A and spade -->
+        <text class="silk" x="3.2" y="12.4" font-size="5.8">A</text>
+        <path fill="#f5eeda" d="M3.2 13.9c-.7 1.3-1.5 2-1.5 3 0 .7.5 1.2 1.1 1.2.2 0 .4 0 .5-.1.1.1.3.1.5.1.6 0 1.1-.5 1.1-1.2 0-1-.8-1.7-1.7-3z"/>
+        <rect x="3.05" y="18.1" width="0.35" height="0.9" fill="#f5eeda"/>
+        <rect x="2.6" y="18.9" width="1.25" height="0.35" fill="#f5eeda"/>
+
+        <!-- USB-C, straddling the top edge -->
+        <rect x="16.6" y="-0.7" width="13.6" height="3.4" rx="0.7"
+              fill="#f5eeda" stroke="#16181f" stroke-width="0.45"/>
+        <rect x="19.2" y="0.3" width="8.4" height="1.7" rx="0.3"
+              fill="#16181f"/>
+
+        <!-- four digit display, all segments lit -->
+        <rect x="6.6" y="4.5" width="36.8" height="12.2" rx="0.7"
+              fill="#16181f"/>
+        <g transform="translate(12.1,5.55) scale(.105)" fill="#cf2b1c">
+          <use href="#segG" x="0"/><use href="#dpG" x="0"/>
+          <use href="#segG" x="64"/><use href="#dpG" x="64"/>
+          <use href="#segG" x="128"/><use href="#dpG" x="128"/>
+          <use href="#segG" x="192"/><use href="#dpG" x="192"/>
+        </g>
+
+        <!-- silkscreen: player | dealer -->
+        <g stroke="#f5eeda" stroke-width="0.3" fill="none">
+          <rect x="6.0" y="17.7" width="38.0" height="4.7" rx="0.9"/>
+          <line x1="25.0" y1="18.0" x2="25.0" y2="22.1"/>
+        </g>
+        <text class="silk" x="15.4" y="21.2" font-size="2.6">player</text>
+        <text class="silk" x="34.6" y="21.2" font-size="2.6">dealer</text>
+
+        <!-- silkscreen: light boxes -->
+        <g stroke="#f5eeda" stroke-width="0.28" fill="none">
+          <rect x="5.4" y="24.0" width="13.4" height="8.4" rx="0.9"/>
+          <rect x="21.6" y="24.0" width="19.0" height="8.4" rx="0.9"/>
+          <rect x="23.6" y="33.4" width="14.8" height="8.0" rx="0.9"/>
+        </g>
+
+        <!-- the seven lights -->
+        <circle cx="8.8" cy="26.6" r="1.3" fill="#2f6fb5" stroke="#16181f" stroke-width="0.3"/>
+        <circle cx="15.4" cy="26.6" r="1.3" fill="#eda51d" stroke="#16181f" stroke-width="0.3"/>
+        <circle cx="25.2" cy="26.6" r="1.3" fill="#3f9b52" stroke="#16181f" stroke-width="0.3"/>
+        <circle cx="31.4" cy="26.6" r="1.3" fill="#eda51d" stroke="#16181f" stroke-width="0.3"/>
+        <circle cx="37.6" cy="26.6" r="1.3" fill="#cf2b1c" stroke="#16181f" stroke-width="0.3"/>
+        <circle cx="27.4" cy="36.2" r="1.3" fill="#3f9b52" stroke="#16181f" stroke-width="0.3"/>
+        <circle cx="34.8" cy="36.2" r="1.3" fill="#cf2b1c" stroke="#16181f" stroke-width="0.3"/>
+
+        <text class="silk" x="8.8" y="31.0" font-size="1.3">pair</text>
+        <text class="silk" x="15.4" y="31.0" font-size="1.3">soft</text>
+        <text class="silk" x="25.2" y="31.0" font-size="1.3">win</text>
+        <text class="silk" x="31.4" y="31.0" font-size="1.3">push</text>
+        <text class="silk" x="37.6" y="31.0" font-size="1.3">lose</text>
+        <text class="silk" x="27.4" y="40.2" font-size="1.3">right</text>
+        <text class="silk" x="34.8" y="40.2" font-size="1.3">wrong</text>
+
+        <!-- ATmega328P, pin fingers as a dashed ring -->
+        <rect x="7.2" y="34.0" width="11.4" height="11.4" rx="0.6" fill="none"
+              stroke="#16181f" stroke-width="1.2" stroke-dasharray="0.5 0.75"/>
+        <rect x="8.2" y="35.0" width="9.4" height="9.4" rx="0.4" fill="#16181f"/>
+
+        <!-- passives -->
+        <g fill="url(#p25)" stroke="#16181f" stroke-width="0.2">
+          <rect x="20.2" y="33.2" width="2.4" height="1.0"/>
+          <rect x="20.2" y="35.8" width="2.4" height="1.0"/>
+          <rect x="4.4" y="28.4" width="1.0" height="2.4"/>
+          <rect x="20.2" y="46.6" width="2.4" height="1.0"/>
+        </g>
+
+        <!-- bank button -->
+        <rect x="23.7" y="43.1" width="6.6" height="6.6" rx="0.85"
+              fill="#f5eeda" stroke="#16181f" stroke-width="0.5"/>
+        <rect x="25.3" y="44.7" width="3.4" height="3.4" rx="0.35" fill="url(#p25)"/>
+        <text class="silk" x="27.0" y="53.0" font-size="2.0">bank</text>
+
+        <!-- mode lever -->
+        <rect x="43.2" y="42.4" width="5.4" height="10.4" rx="0.7"
+              fill="#f5eeda" stroke="#16181f" stroke-width="0.45"/>
+        <rect x="44.5" y="43.6" width="2.8" height="3.6" rx="0.3" fill="#16181f"/>
+        <text class="silk end" x="42.6" y="46.0" font-size="1.7">train</text>
+        <text class="silk end" x="42.6" y="50.6" font-size="1.7">play</text>
+
+        <!-- the four call buttons -->
+        <g fill="#f5eeda" stroke="#16181f" stroke-width="0.5">
+          <rect x="3.8" y="57.0" width="6.6" height="6.6" rx="0.85"/>
+          <rect x="14.4" y="57.0" width="6.6" height="6.6" rx="0.85"/>
+          <rect x="25.0" y="57.0" width="6.6" height="6.6" rx="0.85"/>
+          <rect x="35.6" y="57.0" width="6.6" height="6.6" rx="0.85"/>
+        </g>
+        <g fill="url(#p25)">
+          <rect x="5.4" y="58.6" width="3.4" height="3.4" rx="0.35"/>
+          <rect x="16.0" y="58.6" width="3.4" height="3.4" rx="0.35"/>
+          <rect x="26.6" y="58.6" width="3.4" height="3.4" rx="0.35"/>
+          <rect x="37.2" y="58.6" width="3.4" height="3.4" rx="0.35"/>
+        </g>
+        <text class="silk" x="7.1" y="66.4" font-size="2.0">hit</text>
+        <text class="silk" x="17.7" y="66.4" font-size="2.0">stand</text>
+        <text class="silk" x="28.3" y="66.4" font-size="2.0">double</text>
+        <text class="silk" x="38.9" y="66.4" font-size="2.0">split</text>
+
+        <!-- callouts -->
+        <circle class="mark" cx="46.9" cy="18.4" r="2.0"/><text class="num" x="46.9" y="18.4">1</text>
+        <circle class="mark" cx="2.2" cy="48.4" r="2.0"/><text class="num" x="2.2" y="48.4">2</text>
+        <circle class="mark" cx="45.2" cy="28.4" r="2.0"/><text class="num" x="45.2" y="28.4">3</text>
+        <circle class="mark" cx="46.2" cy="56.0" r="2.0"/><text class="num" x="46.2" y="56.0">4</text>
+      </svg>
+
+      <div class="figkey">
+        <span><b>1</b> SCREEN</span>
+        <span><b>2</b> BUTTONS</span>
+        <span><b>3</b> LIGHTS</span>
+        <span><b>4</b> SWITCH</span>
+      </div>
+
+      <div class="pgfoot"><span>THE BOARD</span><span>3</span></div>
+    </div>
+  </div>
+
+  <div class="piece" style="left:5mm; top:100mm;">
+    <div class="tag">C · outside · 8 | 5</div>
+
+    <!-- page 8: play mode -->
+    <div class="page left">
+      <div class="hd"><span class="n">08</span><h2>PLAY MODE</h2></div>
+
+      <p class="tight">Switch the lever to PLAY. You start with
+      <span class="mono">$100</span>, and the bank is kept, so a run carries
+      on next time you switch it on.</p>
+
+      <p class="tight">Before each hand the display shows BET, then the
+      amount. Set it with the action buttons: <b>HIT</b> adds
+      <span class="mono">$5</span>, <b>STAND</b> takes
+      <span class="mono">$5</span> off, <b>DOUBLE</b> doubles it,
+      <b>SPLIT</b> halves it.</p>
+
+      <p class="tight">Tap <b>BANK</b> to deal. The bet runs from
+      <span class="mono">$5</span> to <span class="mono">$100</span> and
+      never above what the bank can lose.</p>
+
+      <p class="tight">Hold <b>BANK</b> for the bankroll; keep holding to
+      flash HIGH over your best bank.</p>
+
+      <p class="tight">A short bank goes on the next hand whole. An empty
+      bank lights LOSE and ends the run: press any button for a fresh
+      <span class="mono">$100</span>.</p>
+
+      <p>Reach <span class="mono">9999</span> and every light starts
+      flashing. That is the jackpot.</p>
+
+      <div class="pgfoot"><span>PLAY MODE</span><span>8</span></div>
+    </div>
+
+    <!-- page 5: the hand played out -->
+    <div class="page right">
+      <div class="hd"><span class="n">05</span><h2>THE HAND</h2></div>
+
+      <div class="step"><span class="sn">1</span>
+        <p><b>You act.</b> Hit, stand, double or split until your turn is
+        over.</p></div>
+
+      <div class="step"><span class="sn">2</span>
+        <p><b>The dealer draws.</b> It turns its hole card over and takes
+        cards until it reaches 17.</p></div>
+
+      <div class="step"><span class="sn">3</span>
+        <p><b>Closest to 21 wins.</b> Equal totals push and the bet comes
+        back.</p></div>
+
+      <div class="screen narrow">
+        <svg viewBox="0 0 248 94" role="img" aria-label="The display showing 18 against the dealer's 17">
+          <g class="ghost">
+            <use href="#segG" x="0"/><use href="#segG" x="64"/>
+            <use href="#segG" x="128"/><use href="#segG" x="192"/>
+            <use href="#dpG" x="0"/><use href="#dpG" x="64"/>
+            <use href="#dpG" x="128"/><use href="#dpG" x="192"/>
+          </g>
+          <use class="lit" href="#d1" x="0"/>
+          <use class="lit" href="#d8" x="64"/>
+          <use class="lit" href="#d1" x="128"/>
+          <use class="lit" href="#d7" x="192"/>
+        </svg>
+      </div>
+      <div class="cap"><span>YOUR TOTAL</span><span>DEALER TOTAL</span></div>
+
+      <p class="tight">The dealer shows a 7 and draws a 10, standing on 17.
+      Your 18 is closer, so the bank pays 1:1: a <span class="mono">$10</span>
+      bet pays <span class="mono">$10</span>.</p>
+
+      <p>A natural pays 3:2. Over 21 is a bust and loses at once.</p>
+
+      <div class="pgfoot"><span>THE HAND</span><span>5</span></div>
     </div>
   </div>
 
   <div class="notes">
-    <div class="kicker">Blackjack keychain · booklet</div>
-    <h1>Print, fold, staple</h1>
+    <div class="kicker">BLACKJACK KEYCHAIN · SIDE 1 OF 2</div>
+    <h1>PRINT, FOLD, STAPLE</h1>
 
-    <p>These two A4 pages are one booklet. Print them double-sided on a
-    single sheet, flipping on the long edge, at 100% with no scaling.
-    Side 1 carries the outside of the booklet and these notes; side 2
-    carries the inside.</p>
+    <p class="stamp">12 PAGES · ONE SHEET · THREE PIECES · NO SCALING</p>
 
     <hr>
 
-    <h2>What is on the sheet</h2>
-    <p>Two pieces, 100 × 70 mm, side by side near the top. Each piece is
-    one sheet of the booklet: fold it in half on its ticks and it is
-    50 × 70 mm, the size of the board. Eight pages in total.</p>
+    <div class="cols">
+      <h2>WHAT TO PRINT</h2>
+      <p>These two A4 pages are one sheet of paper, printed double-sided
+      and flipping on the long edge, at 100% with no scaling. Side 1
+      carries the outside of the booklet and these notes; side 2 carries
+      the inside.</p>
 
-    <h2>Check it before you cut</h2>
-    <div class="warning">
-      <p>Hold the printed sheet up to a light. Page 2 must sit directly
-      behind page 1, the right way up. If page 5 sits there instead, or
-      a page is upside down, the printer flipped the second side on the
-      short edge: print again with long-edge, or book, binding.</p>
+      <h2>WHAT IS ON THE SHEET</h2>
+      <p>Three pieces, 100 × 70 mm. Each piece is one sheet of the booklet:
+      fold it in half on its ticks and it is 50 × 70 mm, the size of the
+      board. The tag beside each piece names its letter and the two pages
+      on that face.</p>
+
+      <h2>CHECK IT BEFORE YOU CUT</h2>
+      <div class="warning">
+        <p>Hold the printed sheet up to a light. Page 2 must sit directly
+        behind page 1, the right way up, and page 11 behind page 10. If the
+        back of a piece shows a different page, or a page is upside down,
+        the printer flipped the second side on the short edge: print again
+        with long-edge, or book, binding.</p>
+      </div>
+
+      <h2>ASSEMBLY</h2>
+      <ol>
+        <li>Cut along the grey lines. A steel rule and a knife give a
+        straighter edge than scissors. Nothing outside the lines is kept.</li>
+        <li>Fold each piece in half along its ticks with the outside faces
+        showing: on the piece with page 1, page 1 stays out. Running a blunt
+        rule along the fold first makes it crisper.</li>
+        <li>Nest the three pieces: the one with page 1 outermost, then the
+        one with page 3 on its outer face, then the one with page 5.</li>
+        <li>Staple twice on the fold, about 10 mm in from each end, through
+        all three layers. Open the booklet and flatten the staple legs with
+        a fingernail or the flat of the rule.</li>
+      </ol>
+
+      <p class="quiet">Page numbers sit at the foot of each page, odd on
+      the right. A booklet that reads 1 to 12 in order, with no page upside
+      down, is bound correctly. Nothing is printed outside these three
+      pieces, so nothing is wasted.</p>
     </div>
-
-    <h2>Assembly</h2>
-    <ol>
-      <li>Cut along the grey lines. A steel rule and a knife give a
-      straighter edge than scissors. Nothing outside the lines is kept.</li>
-      <li>Fold each piece in half along its ticks with the outside faces
-      showing: on the piece with page 1, page 1 stays out. Running a
-      blunt rule along the fold first makes it crisper.</li>
-      <li>Nest the pieces: the one with page 1 outermost, then the one
-      with page 3 on its outer face. The tags name each piece's letter
-      and the two pages on that face.</li>
-      <li>Staple twice on the fold, about 10 mm in from each end, through
-      both layers. Open the booklet and flatten the staple legs with a
-      fingernail or the flat of the rule.</li>
-    </ol>
-
-    <p class="quiet">Page numbers sit at the foot of each page, odd on
-    the right. A booklet that reads 1 to 8 in order, with no page upside
-    down, is bound correctly.</p>
   </div>
 
 </div>
 
 <!-- ============================================================
-     PDF page 2: the inside faces, as read after flipping on the
-     long edge.
-     B inside 4 | 5      A inside 2 | 7
+     PDF page 2: side 2 of the sheet, as read after flipping on the
+     long edge. Every piece sits at the mirrored x of its side 1 home.
+     A inside 2 | 11     B inside 4 | 9     C inside 6 | 7
      ============================================================ -->
 <div class="sheet">
 
-  <div class="piece" style="left:5mm; top:24mm;">
-    <div class="tag">B · inside · 4 | 5</div>
+  <div class="piece" style="left:105mm; top:20mm;">
+    <div class="tag">A · inside · 2 | 11</div>
 
+    <!-- page 2: the rules -->
     <div class="page left">
-      <h2>The lights</h2>
-      <table>
-        <tr><td class="l">WIN</td><td>the hand paid</td></tr>
-        <tr><td class="l">PUSH</td><td>it tied, bet returned</td></tr>
-        <tr><td class="l">LOSE</td><td>the bet was lost</td></tr>
-        <tr><td class="l">SOFT</td><td>an ace counts as eleven</td></tr>
-        <tr><td class="l">PAIR</td><td>your first two cards match</td></tr>
-        <tr><td class="l">CORRECT</td><td>a right answer</td></tr>
-        <tr><td class="l">WRONG</td><td>a wrong one</td></tr>
-      </table>
-      <p style="margin-top:1.2mm;">They go out at the next hand.</p>
-      <div class="num">4</div>
+      <div class="hd"><span class="n">02</span><h2>THE RULES</h2></div>
+
+      <p class="lede">Get closer to 21 than the dealer, without going
+      over.</p>
+
+      <p class="tight">You are dealt two cards. The dealer gets one, face
+      up.</p>
+
+      <div class="screen" style="width:35mm;margin-left:auto;margin-right:auto;">
+        <svg viewBox="0 0 248 94" role="img" aria-label="The display showing a player total of 18 against a dealer up card of 7">
+          <g class="ghost">
+            <use href="#segG" x="0"/><use href="#segG" x="64"/>
+            <use href="#segG" x="128"/><use href="#segG" x="192"/>
+            <use href="#dpG" x="0"/><use href="#dpG" x="64"/>
+            <use href="#dpG" x="128"/><use href="#dpG" x="192"/>
+          </g>
+          <use class="lit" href="#d1" x="0"/>
+          <use class="lit" href="#d8" x="64"/>
+          <use class="lit" href="#d7" x="192"/>
+        </svg>
+      </div>
+      <div class="cap"><span>YOUR TOTAL</span><span>DEALER UP-CARD</span></div>
+
+      <p class="tight">Pictures count ten. An ace counts 1 or 11, whichever
+      helps.</p>
+
+      <p class="tight">Two cards making 21 is <b>BLACKJACK</b>, and it beats
+      any other 21.</p>
+
+      <p>The dealer stands on 17.</p>
+
+      <div class="pgfoot"><span>THE RULES</span><span>2</span></div>
     </div>
 
+    <!-- page 11: the lights -->
     <div class="page right">
-      <h2>Train mode</h2>
-      <p class="loose">Nothing is at stake. A right answer lights
-      CORRECT and the hand carries on.</p>
-      <p class="loose">A wrong one lights WRONG, and the book's play
-      shows for a moment: HIT, STND, DOUB or SPLT.</p>
-      <p class="loose">Each hand ends with your accuracy blinking in
-      place of the bankroll. 87.50 is 87.5 per cent.</p>
-      <p class="loose">Hold BANK to see it. It starts at zero each
-      session.</p>
-      <p>Doubles and splits are always offered here.</p>
-      <div class="num">5</div>
+      <div class="hd"><span class="n">11</span><h2>THE LIGHTS</h2></div>
+
+      <div class="ledrow">
+        <div class="dot blue"></div>
+        <div>
+          <span class="name">PAIR · BLUE</span>
+          <p>Your two cards match, so the hand may be split.</p>
+        </div>
+      </div>
+
+      <div class="ledrow">
+        <div class="dot amber glow"></div>
+        <div>
+          <span class="name">SOFT · AMBER</span>
+          <p>An ace is counting as 11.</p>
+        </div>
+      </div>
+
+      <div class="ledrow wide">
+        <div class="dots">
+          <i class="dot green"></i><i class="dot amber"></i><i class="dot"></i>
+        </div>
+        <div>
+          <span class="name">WIN · PUSH · LOSE</span>
+          <p>The hand paid, tied, or went: green, amber, red, one of the
+          three every time a hand ends.</p>
+        </div>
+      </div>
+
+      <div class="ledrow wide">
+        <div class="dots">
+          <i class="dot green"></i><i class="dot"></i>
+        </div>
+        <div>
+          <span class="name">RIGHT · WRONG</span>
+          <p>Train mode only. Every decision is marked as it is made.</p>
+        </div>
+      </div>
+
+      <p>A decision the hand cannot make is not graded: it blinks the
+      display instead. A double after a hit, say, or a hand the bank cannot
+      cover.</p>
+
+      <div class="pgfoot"><span>THE LIGHTS</span><span>11</span></div>
     </div>
   </div>
 
-  <div class="piece" style="left:105mm; top:24mm;">
-    <div class="tag">A · inside · 2 | 7</div>
+  <div class="piece" style="left:5mm; top:20mm;">
+    <div class="tag">B · inside · 4 | 9</div>
 
+    <!-- page 4: your move -->
     <div class="page left">
-      <h2>Blackjack</h2>
-      <p>Get closer to 21 than the dealer without going over.</p>
-      <ul class="tight">
-        <li>Pictures count ten, an ace one or eleven.</li>
-        <li>Two cards making 21 is blackjack and beats any other 21.</li>
-        <li>The dealer stands on 17, soft or hard.</li>
-        <li>Double any first two cards, split or not.</li>
-        <li>A pair splits into up to four hands; split aces take one
-        card.</li>
-        <li>No surrender. Equal totals push.</li>
-      </ul>
-      <div class="num">2</div>
+      <div class="hd"><span class="n">04</span><h2>YOUR MOVE</h2></div>
+
+      <p class="tight">On your turn, press one of the five buttons.</p>
+
+      <div class="btnrow"><span class="k">HIT</span>
+        <p>Deal yourself one more card.</p></div>
+
+      <div class="btnrow"><span class="k">STAND</span>
+        <p>Keep the total you have.</p></div>
+
+      <div class="btnrow"><span class="k">DOUBLE</span>
+        <p>Double the bet, take one card only, then stand.</p></div>
+
+      <div class="btnrow"><span class="k">SPLIT</span>
+        <p>Turn a pair into two hands, played out in turn.</p></div>
+
+      <div class="btnrow"><span class="k">BANK</span>
+        <p>Show the bankroll. At the bet prompt it deals.</p></div>
+
+      <p class="tight">Up to four hands by splitting. Split aces take one
+      card each and no more.</p>
+
+      <p><b>One button at a time.</b> Two on the same ladder read as
+      neither.</p>
+
+      <div class="pgfoot"><span>YOUR MOVE</span><span>4</span></div>
     </div>
 
+    <!-- page 9: the first hand -->
     <div class="page right">
-      <h2>The end of a run</h2>
-      <p class="loose">A win pays the bet, a push returns it, a loss
-      takes it. A natural pays three to two.</p>
-      <p class="loose">Keep holding BANK and it flashes HIGH over the
-      best bank you have had.</p>
-      <p class="loose">With less than $10 left, the whole balance goes on
-      the next hand.</p>
-      <p class="loose">An empty bank lights LOSE and ends the run. Press
-      any button to start again from $100.</p>
-      <p>Reach the top of the display and every light starts flashing.
-      That is the jackpot.</p>
-      <div class="num">7</div>
+      <div class="hd"><span class="n">09</span><h2>THE FIRST HAND</h2></div>
+
+      <div class="step"><span class="sn">1</span>
+        <p><b>Plug in.</b> Any USB-C charger, either sort of cable. There
+        is no switch for power; the board wakes when it is fed.</p></div>
+
+      <div class="step"><span class="sn">2</span>
+        <p><b>Pick a mode.</b> The lever on the right edge: down for TRAIN,
+        up for PLAY. The display shows the mode as the lever lands.</p></div>
+
+      <div class="step"><span class="sn">3</span>
+        <p><b>Deal.</b> In train mode, tap <b>BANK</b> and the hand comes
+        out. In play mode, set the bet first, then tap <b>BANK</b>.</p></div>
+
+      <div class="step"><span class="sn">4</span>
+        <p><b>Answer.</b> One button, then the hand plays out and the
+        result lights.</p></div>
+
+      <p class="tight">Start in TRAIN. Ten hands there teach the chart on
+      page 10 better than ten in PLAY.</p>
+
+      <p>Unplug it whenever you like: the bankroll is written to memory
+      after every hand and is there again next time.</p>
+
+      <div class="pgfoot"><span>THE FIRST HAND</span><span>9</span></div>
     </div>
+  </div>
+
+  <div class="piece" style="left:105mm; top:100mm;">
+    <div class="tag">C · inside · 6 | 7</div>
+
+    <!-- page 6: the display -->
+    <div class="page left">
+      <div class="hd"><span class="n">06</span><h2>THE DISPLAY</h2></div>
+
+      <p class="tight">Blackjack is usually played with cards, but the
+      display is only four digits. Your total takes the left pair, the
+      dealer's the right.</p>
+
+      <p class="tight">Two lights say what those digits are made of.</p>
+
+      <div class="ledrow">
+        <div class="dot blue"></div>
+        <div>
+          <span class="name">PAIR</span>
+          <p>The two cards match, so the hand may be split. A total of
+          <span class="mono">18</span> with PAIR lit is two 9s.</p>
+        </div>
+      </div>
+
+      <div class="ledrow">
+        <div class="dot amber glow"></div>
+        <div>
+          <span class="name">SOFT</span>
+          <p>An ace is counting as 11. The light goes out the moment the
+          ace has to count as 1.</p>
+        </div>
+      </div>
+
+      <p class="tight">A natural 21 shows but is never asked to act.</p>
+
+      <p>Letters stand in for words: <span class="mono">BET</span>,
+      <span class="mono">PLAY</span>, <span class="mono">TRN</span>,
+      <span class="mono">HIGH</span>.</p>
+
+      <div class="pgfoot"><span>THE DISPLAY</span><span>6</span></div>
+    </div>
+
+    <!-- page 7: train mode -->
+    <div class="page right">
+      <div class="hd"><span class="n">07</span><h2>TRAIN MODE</h2></div>
+
+      <p>Switch the lever to TRAIN. Nothing is at stake and every decision
+      is graded.</p>
+
+      <div class="ledrow">
+        <div class="dot green"></div>
+        <div>
+          <span class="name">RIGHT</span>
+          <p>The book agrees. The hand carries on.</p>
+        </div>
+      </div>
+
+      <div class="ledrow">
+        <div class="dot"></div>
+        <div>
+          <span class="name">WRONG</span>
+          <p>Then the display shows what the book wanted: HIT, STND, DOUB
+          or SPLT.</p>
+        </div>
+      </div>
+
+      <p class="tight">Each hand ends with your accuracy blinking in place
+      of the bankroll.</p>
+
+      <div class="screen tiny">
+        <svg viewBox="0 0 248 94" role="img" aria-label="The display showing an accuracy of 87.50 percent">
+          <g class="ghost">
+            <use href="#segG" x="0"/><use href="#segG" x="64"/>
+            <use href="#segG" x="128"/><use href="#segG" x="192"/>
+            <use href="#dpG" x="0"/><use href="#dpG" x="64"/>
+            <use href="#dpG" x="128"/><use href="#dpG" x="192"/>
+          </g>
+          <use class="lit" href="#d8" x="0"/>
+          <use class="lit" href="#d7" x="64"/>
+          <use class="lit" href="#dpG" x="64"/>
+          <use class="lit" href="#d5" x="128"/>
+          <use class="lit" href="#d0" x="192"/>
+        </svg>
+      </div>
+      <div class="cap"><span>87.50 IS 87.5%</span><span>HOLD BANK</span></div>
+
+      <p>Each session starts from zero here, doubles and splits are always
+      offered, and page 10 is the book it grades against.</p>
+
+      <div class="pgfoot"><span>TRAIN MODE</span><span>7</span></div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div class="kicker">BLACKJACK KEYCHAIN · SIDE 2 OF 2</div>
+    <h1>THE INSIDE FACES</h1>
+
+    <p>Side 2 carries the inside of all three pieces: page 2 with 11, page
+    4 with 9, and page 6 with 7. Cut and fold them exactly as side 1 says.
+    The bottom piece reads 6 | 7 on this side and 8 | 5 on the other.</p>
+
+    <p class="quiet">If a piece's inside pages are upside down, the second
+    side was printed short edge first: print it again with long-edge, or
+    book, binding.</p>
   </div>
 
 </div>
