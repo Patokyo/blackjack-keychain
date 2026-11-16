@@ -220,6 +220,8 @@ docs/
   instruction-booklet.txt                  the page-by-page outline the booklet follows
   instruction-booklet.html                 printable booklet, 12 pages at 50 × 70 mm
   instruction-booklet.pdf                  the same, imposed on one A4 sheet for duplex
+  card-pack-box.html                       printable tuck box for the board and booklet
+  card-pack-box.pdf                        the same, one A4 side, cut and glued
 ```
 
 The KiCad project, its netlist and its outputs stay together under
