@@ -17,13 +17,6 @@ Two cards making 21 is blackjack, and beats any other 21.
 The dealer stands on 17, and only draws after the player stands.
 
 PAGE 3
-The board.
-Front of the board as a numbered diagram: display, USB-C, pair and soft
-LEDs, win/push/lose LEDs, right/wrong LEDs, the mode lever, the bank
-button, the four call buttons, and the ATmega328P. A two column key gives
-each part's job in a line.
-
-PAGE 4
 Your move: the five buttons.
 Hit: deal the player another card.
 Stand: stay at the total you have.
@@ -31,51 +24,39 @@ Double: double the bet, and take only one extra card before auto
 standing.
 Split: create two separate hands out of your pair, doubling the bet, each
 hand resolving in turn, up to four hands.
+Bank: show the bankroll, and deal at the bet prompt.
 Press one button at a time.
 
-PAGE 5
+PAGE 4
 Playing the hand out.
 The player acts, then the dealer draws to 17, then the closest to 21
 wins. The bank pays 1:1, a natural pays 3:2, and equal totals push.
 
-PAGE 6
-The 4 digit display.
-Blackjack is usually played with cards, but as the display is only four
-digits there are two LEDs to help show what your hand contains.
+PAGE 5
+The 4 digit display and its lights.
+The display is only four digits: the player's total on the left pair, the
+dealer's on the right, with LEDs to say what the digits cannot.
 Pair: the two cards are each half of the total, eg 18 with pair means two
 9s.
 Soft: an ace is counting as 11, and the LED goes out once the ace must be
 1.
+Win, push, lose: one of the three lights after every hand.
+Right and wrong: train mode only, one of them marking each decision.
 Letters stand in for words: BET, PLAY, TRN, HIGH.
 
-PAGE 7
+PAGE 6
 Train mode.
 Two extra LEDs, wrong and right, grade every decision against basic
 strategy. The game records the percentage of correct decisions in each
 session, showing it after each hand and when the bank button is held.
 
-PAGE 8
+PAGE 7
 Play mode.
 A bankroll to bet from, a bet to set before each hand, and a high score
 to chase. The bank is kept between sessions. A short bank goes on the
 next hand whole; only an empty bank ends the run.
 
-PAGE 9
-The lights.
-Pair, soft, win, push, lose, right, wrong: what each one means, and the
-decisions the game refuses and does not grade.
-
-PAGE 10
-Left blank.
-Three folded pieces make twelve faces and the booklet needs eleven, so
-this face goes unprinted.
-
-PAGE 11
-The sign-off.
-The title again on solid ink, a line on what the book is, and the
-credits: USB-C, 5 V.
-
-PAGE 12
+PAGE 8
 Basic strategy, the back page.
 The reference sheet, as a grid: your hand down the side, the dealer's
 up-card across the top, hit, stand, double or split in every cell. Hard
