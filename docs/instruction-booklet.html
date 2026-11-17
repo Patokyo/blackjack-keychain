@@ -171,6 +171,15 @@
   .page.left  { left: 0; }
   .page.right { left: 50mm; }
 
+  /* A page that hands its spare height to one figure, so the figure sits
+     midway between the copy above it and the lights below: the neighbours'
+     margins go, the figure keeps a 2 mm shoulder of its own, and anything
+     left over is split evenly above and below it. */
+  .page.vcenter { display: flex; flex-direction: column; }
+  .page.vcenter > .tight { margin-bottom: 0; }
+  .page.vcenter > .cover-row { flex: none; margin: auto 0; padding: 2mm 0; }
+  .page.vcenter > .cover-row + .ledrow { margin-top: 0; }
+
   /* Page head: number block, pixel title, rule */
   .hd {
     display: flex;
@@ -850,7 +859,7 @@
     </div>
 
     <!-- page 3: the display -->
-    <div class="page right">
+    <div class="page right vcenter">
       <div class="hd"><span class="n">03</span><h2>THE DISPLAY</h2></div>
 
       <p class="tight">Four digits: your total on the left pair, the
@@ -858,17 +867,17 @@
 
       <div class="cover-row">
         <div class="screen">
-          <svg viewBox="0 0 248 94" role="img" aria-label="The display showing 2121">
+          <svg viewBox="0 0 248 94" role="img" aria-label="The display showing 1106: your 11, the dealer's 6">
             <g class="ghost">
               <use href="#segG" x="0"/><use href="#segG" x="64"/>
               <use href="#segG" x="128"/><use href="#segG" x="192"/>
               <use href="#dpG" x="0"/><use href="#dpG" x="64"/>
               <use href="#dpG" x="128"/><use href="#dpG" x="192"/>
             </g>
-            <use class="lit" href="#d2" x="0"/>
+            <use class="lit" href="#d1" x="0"/>
             <use class="lit" href="#d1" x="64"/>
-            <use class="lit" href="#d2" x="128"/>
-            <use class="lit" href="#d1" x="192"/>
+            <use class="lit" href="#d0" x="128"/>
+            <use class="lit" href="#d6" x="192"/>
           </svg>
         </div>
       </div>
