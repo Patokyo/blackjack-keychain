@@ -2,28 +2,22 @@
 <!--
   Blackjack Keychain - instruction booklet.
 
-  Booklet page is 50 x 70 mm, the size of the board. Three folded pieces
-  (12 pages) are imposed on ONE A4 sheet, printed double-sided flipping on
+  Booklet page is 50 x 70 mm, the size of the board. Two folded pieces
+  (8 pages) are imposed on ONE A4 sheet, printed double-sided flipping on
   the long edge, and cut apart.
 
-  Pages 1 to 12 follow docs/instruction-book.txt:
+  Pages 1 to 8 follow docs/instruction-book.txt:
 
-    1 cover            2 the rules        3 the board
-    4 your move        5 the hand         6 the display
-    7 train mode       8 play mode        9 the lights
-   10 (blank)         11 the sign-off   12 basic strategy
+    1 cover            2 the rules        3 the display
+    4 train mode       5 play mode        6 quick buttons
+    7 quick LEDs       8 basic strategy
 
-  Three folded pieces make twelve faces and the booklet needs eleven, so
-  page 10 is left unprinted rather than filled with a page nobody asked
-  for.
+    side 1:  A 8 | 1    B 6 | 3
+    side 2:  A 2 | 7    B 4 | 5
 
-    side 1:  A 12 | 1    B 10 | 3    C  8 | 5
-    side 2:  A  2 | 11   B  4 | 9    C  6 | 7
-
-  The two pieces on the top row of side 1 sit at x 5 and 105; their
-  reverse sides are printed at the mirrored x, which is where a long-edge
-  flip puts them. Piece C sits below them, so all six faces share the one
-  sheet and nothing is thrown away.
+  The two pieces sit at x 5 and 105; their reverse sides are printed at the
+  mirrored x, which is where a long-edge flip puts them. All four faces of
+  each piece share the one sheet and nothing is thrown away.
 
   Ink: one dark ink, one red, plus colour only where the board itself
   uses it - blue, amber, green and red for the lights, and the four
@@ -464,10 +458,10 @@
   .cover-row {
     display: flex;
     align-items: center;
-    gap: 3.2mm;
-    margin-top: 2.2mm;
+    justify-content: center;
+    margin-top: 2.6mm;
   }
-  .cover-row .screen { width: 24mm; flex: none; margin: 0; }
+  .cover-row .screen { width: 34mm; flex: none; margin: 0; }
   .cover .cover-foot {
     position: absolute;
     left: 4.2mm;
@@ -476,24 +470,6 @@
     font: 600 4pt/1.7 "Josefin Sans";
     letter-spacing: 0.09em;
     color: var(--paper-soft);
-  }
-  .badge span { font: 400 8.6pt/1 "Bungee"; }
-  .badge {
-    flex: none;
-    width: 13.6mm;
-    height: 13.6mm;
-    background: var(--red);
-    color: var(--paper);
-    font: 600 3.4pt/1.45 "Josefin Sans";
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    transform: rotate(-11deg);
-    clip-path: polygon(50% 0,61% 18%,82% 18%,73% 37%,91% 50%,73% 63%,
-                       82% 82%,61% 82%,50% 100%,39% 82%,18% 82%,27% 63%,
-                       9% 50%,27% 37%,18% 18%,39% 18%);
   }
 
   /* ---------------------------------------------------------------
@@ -719,16 +695,16 @@
 
 <!-- ============================================================
      PDF page 1: side 1 of the sheet
-     A outside 12 | 1     B outside 10 | 3     C outside 8 | 5
+     A outside 8 | 1     B outside 6 | 3
      ============================================================ -->
 <div class="sheet">
 
   <div class="piece" style="left:5mm; top:20mm;">
-    <div class="tag">A · outside · 12 | 1</div>
+    <div class="tag">A · outside · 8 | 1</div>
 
-    <!-- page 12: the basic strategy chart, the back page -->
+    <!-- page 8: basic strategy, the back page -->
     <div class="page left">
-      <div class="hd"><span class="n">12</span><h2>BASIC STRATEGY</h2></div>
+      <div class="hd"><span class="n">08</span><h2>BASIC STRATEGY</h2></div>
 
       <div class="chartkey">
         <span><em class="c-h"></em>HIT</span>
@@ -792,7 +768,7 @@
         </tbody>
       </table>
 
-      <div class="pgfoot bare"><span>BASIC STRATEGY</span><span>12</span></div>
+      <div class="pgfoot bare"><span>BASIC STRATEGY</span><span>8</span></div>
     </div>
 
     <!-- page 1: the cover -->
@@ -822,7 +798,6 @@
             <use class="lit" href="#d1" x="192"/>
           </svg>
         </div>
-        <div class="badge"><span>21</span></div>
       </div>
 
       <div class="cover-foot">A POCKET TRAINER<br>BY PATRICK SCHOLEFIELD</div>
@@ -831,211 +806,63 @@
   </div>
 
   <div class="piece" style="left:105mm; top:20mm;">
-    <div class="tag">B · outside · 10 | 3</div>
+    <div class="tag">B · outside · 6 | 3</div>
 
-    <!-- page 10: a spare face, left unprinted -->
-
-    <!-- page 3: the board -->
-    <div class="page right">
-      <div class="hd"><span class="n">03</span><h2>THE BOARD</h2></div>
-
-      <svg class="boardfig" viewBox="0 0 50 70" role="img"
-           aria-label="Front of the board, with its silkscreen">
-        <!-- solder mask and keyring hole -->
-        <rect x="0.4" y="0.4" width="49.2" height="69.2" rx="3.4"
-              fill="#35568c" stroke="#16181f" stroke-width="0.5"/>
-        <circle cx="46.3" cy="5.4" r="2.6" fill="#f5eeda"
-                stroke="#16181f" stroke-width="0.45"/>
-
-        <!-- silkscreen: the A and spade -->
-        <text class="silk" x="3.2" y="12.4" font-size="5.8">A</text>
-        <path fill="#f5eeda" d="M3.2 13.9c-.7 1.3-1.5 2-1.5 3 0 .7.5 1.2 1.1 1.2.2 0 .4 0 .5-.1.1.1.3.1.5.1.6 0 1.1-.5 1.1-1.2 0-1-.8-1.7-1.7-3z"/>
-        <rect x="3.05" y="18.1" width="0.35" height="0.9" fill="#f5eeda"/>
-        <rect x="2.6" y="18.9" width="1.25" height="0.35" fill="#f5eeda"/>
-
-        <!-- USB-C, straddling the top edge -->
-        <rect x="16.6" y="-0.7" width="13.6" height="3.4" rx="0.7"
-              fill="#f5eeda" stroke="#16181f" stroke-width="0.45"/>
-        <rect x="19.2" y="0.3" width="8.4" height="1.7" rx="0.3"
-              fill="#16181f"/>
-
-        <!-- four digit display, all segments lit -->
-        <rect x="6.6" y="4.5" width="36.8" height="12.2" rx="0.7"
-              fill="#16181f"/>
-        <g transform="translate(12.1,5.55) scale(.105)" fill="#cf2b1c">
-          <use href="#segG" x="0"/><use href="#dpG" x="0"/>
-          <use href="#segG" x="64"/><use href="#dpG" x="64"/>
-          <use href="#segG" x="128"/><use href="#dpG" x="128"/>
-          <use href="#segG" x="192"/><use href="#dpG" x="192"/>
-        </g>
-
-        <!-- silkscreen: player | dealer -->
-        <g stroke="#f5eeda" stroke-width="0.3" fill="none">
-          <rect x="6.0" y="17.7" width="38.0" height="4.7" rx="0.9"/>
-          <line x1="25.0" y1="18.0" x2="25.0" y2="22.1"/>
-        </g>
-        <text class="silk" x="15.4" y="21.2" font-size="2.6">PLAYER</text>
-        <text class="silk" x="34.6" y="21.2" font-size="2.6">DEALER</text>
-
-        <!-- silkscreen: light boxes -->
-        <g stroke="#f5eeda" stroke-width="0.28" fill="none">
-          <rect x="5.4" y="24.0" width="13.4" height="8.4" rx="0.9"/>
-          <rect x="21.6" y="24.0" width="19.0" height="8.4" rx="0.9"/>
-          <rect x="23.6" y="33.4" width="14.8" height="8.0" rx="0.9"/>
-        </g>
-
-        <!-- the seven lights -->
-        <circle cx="8.8" cy="26.6" r="1.3" fill="#2f6fb5" stroke="#16181f" stroke-width="0.3"/>
-        <circle cx="15.4" cy="26.6" r="1.3" fill="#eda51d" stroke="#16181f" stroke-width="0.3"/>
-        <circle cx="25.2" cy="26.6" r="1.3" fill="#3f9b52" stroke="#16181f" stroke-width="0.3"/>
-        <circle cx="31.4" cy="26.6" r="1.3" fill="#eda51d" stroke="#16181f" stroke-width="0.3"/>
-        <circle cx="37.6" cy="26.6" r="1.3" fill="#cf2b1c" stroke="#16181f" stroke-width="0.3"/>
-        <circle cx="27.4" cy="36.2" r="1.3" fill="#3f9b52" stroke="#16181f" stroke-width="0.3"/>
-        <circle cx="34.8" cy="36.2" r="1.3" fill="#cf2b1c" stroke="#16181f" stroke-width="0.3"/>
-
-        <text class="silk" x="8.8" y="31.0" font-size="1.3">PAIR</text>
-        <text class="silk" x="15.4" y="31.0" font-size="1.3">SOFT</text>
-        <text class="silk" x="25.2" y="31.0" font-size="1.3">WIN</text>
-        <text class="silk" x="31.4" y="31.0" font-size="1.3">PUSH</text>
-        <text class="silk" x="37.6" y="31.0" font-size="1.3">LOSE</text>
-        <text class="silk" x="27.4" y="40.2" font-size="1.3">RIGHT</text>
-        <text class="silk" x="34.8" y="40.2" font-size="1.3">WRONG</text>
-
-        <!-- ATmega328P, pin fingers as a dashed ring -->
-        <rect x="7.2" y="34.0" width="11.4" height="11.4" rx="0.6" fill="none"
-              stroke="#16181f" stroke-width="1.2" stroke-dasharray="0.5 0.75"/>
-        <rect x="8.2" y="35.0" width="9.4" height="9.4" rx="0.4" fill="#16181f"/>
-
-        <!-- passives -->
-        <g fill="url(#p25)" stroke="#16181f" stroke-width="0.2">
-          <rect x="20.2" y="33.2" width="2.4" height="1.0"/>
-          <rect x="20.2" y="35.8" width="2.4" height="1.0"/>
-          <rect x="4.4" y="28.4" width="1.0" height="2.4"/>
-          <rect x="20.2" y="46.6" width="2.4" height="1.0"/>
-        </g>
-
-        <!-- bank button -->
-        <rect x="23.7" y="43.1" width="6.6" height="6.6" rx="0.85"
-              fill="#f5eeda" stroke="#16181f" stroke-width="0.5"/>
-        <rect x="25.3" y="44.7" width="3.4" height="3.4" rx="0.35" fill="url(#p25)"/>
-        <text class="silk" x="27.0" y="53.0" font-size="2.0">BANK</text>
-
-        <!-- mode lever -->
-        <rect x="43.2" y="42.4" width="5.4" height="10.4" rx="0.7"
-              fill="#f5eeda" stroke="#16181f" stroke-width="0.45"/>
-        <rect x="44.5" y="43.6" width="2.8" height="3.6" rx="0.3" fill="#16181f"/>
-        <text class="silk end" x="42.6" y="46.0" font-size="1.7">TRAIN</text>
-        <text class="silk end" x="42.6" y="50.6" font-size="1.7">PLAY</text>
-
-        <!-- the four call buttons -->
-        <g fill="#f5eeda" stroke="#16181f" stroke-width="0.5">
-          <rect x="3.8" y="57.0" width="6.6" height="6.6" rx="0.85"/>
-          <rect x="14.4" y="57.0" width="6.6" height="6.6" rx="0.85"/>
-          <rect x="25.0" y="57.0" width="6.6" height="6.6" rx="0.85"/>
-          <rect x="35.6" y="57.0" width="6.6" height="6.6" rx="0.85"/>
-        </g>
-        <g fill="url(#p25)">
-          <rect x="5.4" y="58.6" width="3.4" height="3.4" rx="0.35"/>
-          <rect x="16.0" y="58.6" width="3.4" height="3.4" rx="0.35"/>
-          <rect x="26.6" y="58.6" width="3.4" height="3.4" rx="0.35"/>
-          <rect x="37.2" y="58.6" width="3.4" height="3.4" rx="0.35"/>
-        </g>
-        <text class="silk" x="7.1" y="66.4" font-size="2.0">HIT</text>
-        <text class="silk" x="17.7" y="66.4" font-size="2.0">STAND</text>
-        <text class="silk" x="28.3" y="66.4" font-size="2.0">DOUBLE</text>
-        <text class="silk" x="38.9" y="66.4" font-size="2.0">SPLIT</text>
-
-        <!-- callouts -->
-        <circle class="mark" cx="46.9" cy="18.4" r="2.0"/><text class="num" x="46.9" y="18.4">1</text>
-        <circle class="mark" cx="2.2" cy="48.4" r="2.0"/><text class="num" x="2.2" y="48.4">2</text>
-        <circle class="mark" cx="45.2" cy="28.4" r="2.0"/><text class="num" x="45.2" y="28.4">3</text>
-        <circle class="mark" cx="46.2" cy="56.0" r="2.0"/><text class="num" x="46.2" y="56.0">4</text>
-      </svg>
-
-      <div class="figkey">
-        <span><b>1</b> SCREEN</span>
-        <span><b>2</b> BUTTONS</span>
-        <span><b>3</b> LIGHTS</span>
-        <span><b>4</b> SWITCH</span>
-      </div>
-
-      <div class="pgfoot"><span>THE BOARD</span><span>3</span></div>
-    </div>
-  </div>
-
-  <div class="piece" style="left:5mm; top:100mm;">
-    <div class="tag">C · outside · 8 | 5</div>
-
-    <!-- page 8: play mode -->
+    <!-- page 6: quick button guide -->
     <div class="page left">
-      <div class="hd"><span class="n">08</span><h2>PLAY MODE</h2></div>
+      <div class="hd"><span class="n">06</span><h2>QUICK BUTTONS</h2></div>
 
-      <p class="tight">Switch the lever to PLAY. You start with
-      <span class="mono">$100</span>, and the bank is kept, so a run carries
-      on next time you switch it on.</p>
+      <div class="btnrow"><span class="k">HIT</span>
+        <p>One more card.</p></div>
 
-      <p class="tight">Before each hand the display shows BET, then the
-      amount. Set it with the action buttons: <b>HIT</b> adds
-      <span class="mono">$5</span>, <b>STAND</b> takes
-      <span class="mono">$5</span> off, <b>DOUBLE</b> doubles it,
-      <b>SPLIT</b> halves it.</p>
+      <div class="btnrow"><span class="k">STAND</span>
+        <p>Keep the total you have.</p></div>
 
-      <p class="tight">Tap <b>BANK</b> to deal. The bet runs from
-      <span class="mono">$5</span> to <span class="mono">$100</span> and
-      never above what the bank can lose.</p>
+      <div class="btnrow"><span class="k">DOUBLE</span>
+        <p>Double the bet, take one card, then stand.</p></div>
 
-      <p class="tight">Hold <b>BANK</b> for the bankroll; keep holding to
-      flash HIGH over your best bank.</p>
+      <div class="btnrow"><span class="k">SPLIT</span>
+        <p>A pair becomes two hands, played one after the other.</p></div>
 
-      <p class="tight">A short bank goes on the next hand whole. An empty
-      bank lights LOSE and ends the run: press any button for a fresh
-      <span class="mono">$100</span>.</p>
+      <div class="btnrow"><span class="k">BANK</span>
+        <p>The bankroll; at the bet prompt it deals. The four action
+        buttons set the bet there.</p></div>
 
-      <p>Reach <span class="mono">9999</span> and every light starts
-      flashing. That is the jackpot.</p>
+      <p class="tight">Up to four hands by splitting. Split aces take one
+      card each and no more.</p>
 
-      <div class="pgfoot"><span>PLAY MODE</span><span>8</span></div>
+      <p><b>One at a time.</b> Two on the same ladder read as neither.</p>
+
+      <div class="pgfoot"><span>QUICK BUTTONS</span><span>6</span></div>
     </div>
 
-    <!-- page 5: the hand played out -->
+    <!-- page 3: the display -->
     <div class="page right">
-      <div class="hd"><span class="n">05</span><h2>THE HAND</h2></div>
+      <div class="hd"><span class="n">03</span><h2>THE DISPLAY</h2></div>
 
-      <div class="step"><span class="sn">1</span>
-        <p><b>You act.</b> Hit, stand, double or split until your turn is
-        over.</p></div>
+      <p class="tight">Four digits: your total on the left pair, the
+      dealer's on the right. 1807 is you on 18, the dealer on 7.</p>
 
-      <div class="step"><span class="sn">2</span>
-        <p><b>The dealer draws.</b> It turns its hole card over and takes
-        cards until it reaches 17.</p></div>
-
-      <div class="step"><span class="sn">3</span>
-        <p><b>Closest to 21 wins.</b> Equal totals push and the bet comes
-        back.</p></div>
-
-      <div class="screen narrow">
-        <svg viewBox="0 0 248 94" role="img" aria-label="The display showing 18 against the dealer's 17">
-          <g class="ghost">
-            <use href="#segG" x="0"/><use href="#segG" x="64"/>
-            <use href="#segG" x="128"/><use href="#segG" x="192"/>
-            <use href="#dpG" x="0"/><use href="#dpG" x="64"/>
-            <use href="#dpG" x="128"/><use href="#dpG" x="192"/>
-          </g>
-          <use class="lit" href="#d1" x="0"/>
-          <use class="lit" href="#d8" x="64"/>
-          <use class="lit" href="#d1" x="128"/>
-          <use class="lit" href="#d7" x="192"/>
-        </svg>
+      <div class="ledrow">
+        <div class="dot blue"></div>
+        <p><b>PAIR.</b> Your two cards match, so the hand may be split. 18
+        with PAIR lit is two 9s.</p>
       </div>
-      <div class="cap"><span>YOUR TOTAL</span><span>DEALER TOTAL</span></div>
 
-      <p class="tight">The dealer shows a 7 and draws a 10, standing on 17.
-      Your 18 is closer, so the bank pays 1:1: a <span class="mono">$10</span>
-      bet pays <span class="mono">$10</span>.</p>
+      <div class="ledrow">
+        <div class="dot amber glow"></div>
+        <p><b>SOFT.</b> An ace is counting as 11; the light goes out once
+        the ace must count as 1.</p>
+      </div>
 
-      <p>A natural pays 3:2. Over 21 is a bust and loses at once.</p>
+      <p class="tight">The digits are the whole hand: no cards are shown,
+      so the lights matter as much as the numbers.</p>
 
-      <div class="pgfoot"><span>THE HAND</span><span>5</span></div>
+      <p class="tight">A natural 21 shows but is never asked to act.</p>
+
+      <p>Letters stand in for words: BET, PLAY, TRN, HIGH.</p>
+
+      <div class="pgfoot"><span>THE DISPLAY</span><span>3</span></div>
     </div>
   </div>
 
@@ -1043,7 +870,7 @@
     <div class="kicker">BLACKJACK KEYCHAIN · SIDE 1 OF 2</div>
     <h1>PRINT, FOLD, STAPLE</h1>
 
-    <p class="stamp">12 PAGES · ONE SHEET · THREE PIECES · NO SCALING</p>
+    <p class="stamp">8 PAGES · ONE SHEET · TWO PIECES · NO SCALING</p>
 
     <hr>
 
@@ -1055,7 +882,7 @@
       the inside.</p>
 
       <h2>WHAT IS ON THE SHEET</h2>
-      <p>Three pieces, 100 × 70 mm. Each piece is one sheet of the booklet:
+      <p>Two pieces, 100 × 70 mm. Each piece is one sheet of the booklet:
       fold it in half on its ticks and it is 50 × 70 mm, the size of the
       board. The tag beside each piece names its letter and the two pages
       on that face.</p>
@@ -1063,7 +890,7 @@
       <h2>CHECK IT BEFORE YOU CUT</h2>
       <div class="warning">
         <p>Hold the printed sheet up to a light. Page 2 must sit directly
-        behind page 1, the right way up, and page 11 behind page 12. If the
+        behind page 1, the right way up, and page 7 behind page 8. If the
         back of a piece shows a different page, or a page is upside down,
         the printer flipped the second side on the short edge: print again
         with long-edge, or book, binding.</p>
@@ -1076,16 +903,16 @@
         <li>Fold each piece in half along its ticks with the outside faces
         showing: on the piece with page 1, page 1 stays out. Running a blunt
         rule along the fold first makes it crisper.</li>
-        <li>Nest the three pieces: the one with page 1 outermost, then the
-        one with page 3 on its outer face, then the one with page 5.</li>
+        <li>Nest the two pieces: the one with page 1 outermost, then the
+        one with page 3 on its outer face.</li>
         <li>Staple twice on the fold, about 10 mm in from each end, through
-        all three layers. Open the booklet and flatten the staple legs with
-        a fingernail or the flat of the rule.</li>
+        both layers. Open the booklet and flatten the staple legs with a
+        fingernail or the flat of the rule.</li>
       </ol>
 
       <p class="quiet">Page numbers sit at the foot of each page, odd on
-      the right. A booklet that reads 1 to 12 in order, with no page upside
-      down, is bound correctly. Nothing is printed outside these three
+      the right. A booklet that reads 1 to 8 in order, with no page upside
+      down, is bound correctly. Nothing is printed outside these two
       pieces, so nothing is wasted.</p>
     </div>
   </div>
@@ -1095,12 +922,12 @@
 <!-- ============================================================
      PDF page 2: side 2 of the sheet, as read after flipping on the
      long edge. Every piece sits at the mirrored x of its side 1 home.
-     A inside 2 | 11     B inside 4 | 9     C inside 6 | 7
+     A inside 2 | 7     B inside 4 | 5
      ============================================================ -->
 <div class="sheet">
 
   <div class="piece" style="left:105mm; top:20mm;">
-    <div class="tag">A · inside · 2 | 11</div>
+    <div class="tag">A · inside · 2 | 7</div>
 
     <!-- page 2: the rules -->
     <div class="page left">
@@ -1109,85 +936,28 @@
       <p class="lede">Get closer to 21 than the dealer, without going
       over.</p>
 
-      <p class="tight">You are dealt two cards. The dealer gets one, face
-      up.</p>
+      <p class="tight">You are dealt two cards; the dealer takes one, face
+      up. Pictures count ten, and an ace counts 1 or 11.</p>
 
-      <div class="screen" style="width:35mm;margin-left:auto;margin-right:auto;">
-        <svg viewBox="0 0 248 94" role="img" aria-label="The display showing a player total of 18 against a dealer up card of 7">
-          <g class="ghost">
-            <use href="#segG" x="0"/><use href="#segG" x="64"/>
-            <use href="#segG" x="128"/><use href="#segG" x="192"/>
-            <use href="#dpG" x="0"/><use href="#dpG" x="64"/>
-            <use href="#dpG" x="128"/><use href="#dpG" x="192"/>
-          </g>
-          <use class="lit" href="#d1" x="0"/>
-          <use class="lit" href="#d8" x="64"/>
-          <use class="lit" href="#d7" x="192"/>
-        </svg>
-      </div>
-      <div class="cap"><span>YOUR TOTAL</span><span>DEALER UP-CARD</span></div>
+      <p class="tight">Hit to take another card, or stand and keep your
+      total. Over 21 is a bust, and the hand is gone.</p>
 
-      <p class="tight">Pictures count ten. An ace counts 1 or 11, whichever
-      helps.</p>
+      <p class="tight">You may also double, one card for twice the bet, or
+      split a matching pair into two hands.</p>
 
-      <p class="tight">Two cards making 21 is <b>BLACKJACK</b>, and it beats
-      any other 21.</p>
+      <p class="tight">The dealer then draws to 17 and stops. Closest to 21
+      wins, and a win pays 1:1. Equal totals push and the bet comes
+      back.</p>
 
-      <p>The dealer stands on 17.</p>
+      <p>Two cards making 21 is <b>BLACKJACK</b>, paid 3:2. It beats any
+      other 21.</p>
 
       <div class="pgfoot"><span>THE RULES</span><span>2</span></div>
     </div>
 
-    <!-- page 11: the sign-off, the last inside page -->
-    <div class="page left back">
-      <div class="sub">INSTRUCTION BOOKLET</div>
-      <h2 class="big">BLACKJACK<br>KEYCHAIN</h2>
-
-      <div class="backrule"></div>
-      <p class="tagline">A pocket trainer for blackjack basic strategy.<br>
-      Twelve pages on one sheet of paper.</p>
-
-      <div class="credit">USB-C · 5 V<br>DESIGNED BY PATRICK SCHOLEFIELD</div>
-      <div class="pgfoot"><span>50 × 70 MM</span><span>11</span></div>
-    </div>
-  </div>
-
-  <div class="piece" style="left:5mm; top:20mm;">
-    <div class="tag">B · inside · 4 | 9</div>
-
-    <!-- page 4: your move -->
-    <div class="page left">
-      <div class="hd"><span class="n">04</span><h2>YOUR MOVE</h2></div>
-
-      <p class="tight">On your turn, press one of the five buttons.</p>
-
-      <div class="btnrow"><span class="k">HIT</span>
-        <p>Deal yourself one more card.</p></div>
-
-      <div class="btnrow"><span class="k">STAND</span>
-        <p>Keep the total you have.</p></div>
-
-      <div class="btnrow"><span class="k">DOUBLE</span>
-        <p>Double the bet, take one card only, then stand.</p></div>
-
-      <div class="btnrow"><span class="k">SPLIT</span>
-        <p>Turn a pair into two hands, played out in turn.</p></div>
-
-      <div class="btnrow"><span class="k">BANK</span>
-        <p>Show the bankroll. At the bet prompt it deals.</p></div>
-
-      <p class="tight">Up to four hands by splitting. Split aces take one
-      card each and no more.</p>
-
-      <p><b>One button at a time.</b> Two on the same ladder read as
-      neither.</p>
-
-      <div class="pgfoot"><span>YOUR MOVE</span><span>4</span></div>
-    </div>
-
-    <!-- page 9: the lights -->
+    <!-- page 7: quick LED guide -->
     <div class="page right">
-      <div class="hd"><span class="n">09</span><h2>THE LIGHTS</h2></div>
+      <div class="hd"><span class="n">07</span><h2>QUICK LEDS</h2></div>
 
       <div class="ledrow">
         <div class="dot blue"></div>
@@ -1230,53 +1000,16 @@
       display instead. A double after a hit, say, or a hand the bank cannot
       cover.</p>
 
-      <div class="pgfoot"><span>THE LIGHTS</span><span>9</span></div>
+      <div class="pgfoot"><span>QUICK LEDS</span><span>7</span></div>
     </div>
   </div>
 
-  <div class="piece" style="left:105mm; top:100mm;">
-    <div class="tag">C · inside · 6 | 7</div>
+  <div class="piece" style="left:5mm; top:20mm;">
+    <div class="tag">B · inside · 4 | 5</div>
 
-    <!-- page 6: the display -->
-    <div class="page left">
-      <div class="hd"><span class="n">06</span><h2>THE DISPLAY</h2></div>
-
-      <p class="tight">Blackjack is usually played with cards, but the
-      display is only four digits. Your total takes the left pair, the
-      dealer's the right.</p>
-
-      <p class="tight">Two lights say what those digits are made of.</p>
-
-      <div class="ledrow">
-        <div class="dot blue"></div>
-        <div>
-          <span class="name">PAIR</span>
-          <p>The two cards match, so the hand may be split. A total of
-          <span class="mono">18</span> with PAIR lit is two 9s.</p>
-        </div>
-      </div>
-
-      <div class="ledrow">
-        <div class="dot amber glow"></div>
-        <div>
-          <span class="name">SOFT</span>
-          <p>An ace is counting as 11. The light goes out the moment the
-          ace has to count as 1.</p>
-        </div>
-      </div>
-
-      <p class="tight">A natural 21 shows but is never asked to act.</p>
-
-      <p>Letters stand in for words: <span class="mono">BET</span>,
-      <span class="mono">PLAY</span>, <span class="mono">TRN</span>,
-      <span class="mono">HIGH</span>.</p>
-
-      <div class="pgfoot"><span>THE DISPLAY</span><span>6</span></div>
-    </div>
-
-    <!-- page 7: train mode -->
+    <!-- page 4: train mode -->
     <div class="page right">
-      <div class="hd"><span class="n">07</span><h2>TRAIN MODE</h2></div>
+      <div class="hd"><span class="n">04</span><h2>TRAIN MODE</h2></div>
 
       <p>Switch the lever to TRAIN. Nothing is at stake and every decision
       is graded.</p>
@@ -1319,9 +1052,40 @@
       <div class="cap"><span>87.50 IS 87.5%</span><span>HOLD BANK</span></div>
 
       <p>Each session starts from zero here, doubles and splits are always
-      offered, and page 12 is the book it grades against.</p>
+      offered, and page 8 is the book it grades against.</p>
 
-      <div class="pgfoot"><span>TRAIN MODE</span><span>7</span></div>
+      <div class="pgfoot"><span>TRAIN MODE</span><span>4</span></div>
+    </div>
+
+    <!-- page 5: play mode -->
+    <div class="page left">
+      <div class="hd"><span class="n">05</span><h2>PLAY MODE</h2></div>
+
+      <p class="tight">Switch the lever to PLAY. You start with
+      <span class="mono">$100</span>, and the bank is kept, so a run carries
+      on next time you switch it on.</p>
+
+      <p class="tight">Before each hand the display shows BET, then the
+      amount. Set it with the action buttons: <b>HIT</b> adds
+      <span class="mono">$5</span>, <b>STAND</b> takes
+      <span class="mono">$5</span> off, <b>DOUBLE</b> doubles it,
+      <b>SPLIT</b> halves it.</p>
+
+      <p class="tight">Tap <b>BANK</b> to deal. The bet runs from
+      <span class="mono">$5</span> to <span class="mono">$100</span> and
+      never above what the bank can lose.</p>
+
+      <p class="tight">Hold <b>BANK</b> for the bankroll; keep holding to
+      flash HIGH over your best bank.</p>
+
+      <p class="tight">A short bank goes on the next hand whole. An empty
+      bank lights LOSE and ends the run: press any button for a fresh
+      <span class="mono">$100</span>.</p>
+
+      <p>Reach <span class="mono">9999</span> and every light starts
+      flashing. That is the jackpot.</p>
+
+      <div class="pgfoot"><span>PLAY MODE</span><span>5</span></div>
     </div>
   </div>
 
@@ -1329,9 +1093,8 @@
     <div class="kicker">BLACKJACK KEYCHAIN · SIDE 2 OF 2</div>
     <h1>THE INSIDE FACES</h1>
 
-    <p>Side 2 carries the inside of all three pieces: page 2 with 11, page
-    4 with 9, and page 6 with 7. Cut and fold them exactly as side 1 says.
-    The bottom piece reads 6 | 7 on this side and 8 | 5 on the other.</p>
+    <p>Side 2 carries the inside of both pieces: page 2 with 7, and page 4
+    with 5. Cut and fold them exactly as side 1 says.</p>
 
     <p class="quiet">If a piece's inside pages are upside down, the second
     side was printed short edge first: print it again with long-edge, or

@@ -2,80 +2,59 @@ Blackjack keychain - by Patrick Scholefield
 
 PAGE 1
 Cover.
-Blackjack keychain.
+Blackjack keychain, with the display and the keyring hole. No badge.
 Test your blackjack skills with this compact keychain device.
 Hone your basic strategy knowledge in train mode, then compete for a
 highscore in play mode.
 
 PAGE 2
-Rules of Blackjack.
-Get closer to 21 than the dealer without going over.
-Each round starts with the player receiving two cards and the dealer
-receiving one. These totals are shown on the display.
-Pictures count ten, an ace one or eleven.
-Two cards making 21 is blackjack, and beats any other 21.
-The dealer stands on 17, and only draws after the player stands.
+Rules of blackjack, written for someone who has never played.
+The goal: get closer to 21 than the dealer without going over.
+You are dealt two cards, the dealer takes one face up.
+Pictures count ten, an ace counts 1 or 11.
+Hit for another card, or stand and keep your total. Over 21 is a bust.
+You may also double, one card for twice the bet, or split a matching pair
+into two hands.
+The dealer draws to 17 and stops. Closest to 21 wins and pays 1:1; equal
+totals push and the bet comes back.
+Two cards making 21 is blackjack, paid 3:2, and beats any other 21.
 
 PAGE 3
-The board.
-Front of the board as a numbered diagram: display, USB-C, pair and soft
-LEDs, win/push/lose LEDs, right/wrong LEDs, the mode lever, the bank
-button, the four call buttons, and the ATmega328P. A two column key gives
-each part's job in a line.
-
-PAGE 4
-Your move: the five buttons.
-Hit: deal the player another card.
-Stand: stay at the total you have.
-Double: double the bet, and take only one extra card before auto
-standing.
-Split: create two separate hands out of your pair, doubling the bet, each
-hand resolving in turn, up to four hands.
-Press one button at a time.
-
-PAGE 5
-Playing the hand out.
-The player acts, then the dealer draws to 17, then the closest to 21
-wins. The bank pays 1:1, a natural pays 3:2, and equal totals push.
-
-PAGE 6
 The 4 digit display.
-Blackjack is usually played with cards, but as the display is only four
-digits there are two LEDs to help show what your hand contains.
-Pair: the two cards are each half of the total, eg 18 with pair means two
-9s.
-Soft: an ace is counting as 11, and the LED goes out once the ace must be
-1.
+Your total on the left pair, the dealer's on the right: 1807 is you on 18,
+the dealer on 7. Those digits are the whole hand, so the lights matter as
+much as the numbers.
+Pair LED, blue: the two cards match, so the hand may be split. 18 with
+pair means two 9s.
+Soft LED, amber: an ace is counting as 11, and the LED goes out once the
+ace must be 1.
+A natural 21 shows but is never asked to act.
 Letters stand in for words: BET, PLAY, TRN, HIGH.
 
-PAGE 7
+PAGE 4
 Train mode.
-Two extra LEDs, wrong and right, grade every decision against basic
-strategy. The game records the percentage of correct decisions in each
+Nothing is at stake and every decision is graded against basic strategy.
+Right agrees, wrong shows what the book wanted: hit, stand, double or
+split. The game records the percentage of correct decisions in each
 session, showing it after each hand and when the bank button is held.
 
-PAGE 8
+PAGE 5
 Play mode.
 A bankroll to bet from, a bet to set before each hand, and a high score
 to chase. The bank is kept between sessions. A short bank goes on the
 next hand whole; only an empty bank ends the run.
 
-PAGE 9
-The lights.
+PAGE 6
+Quick button guide.
+Hit, stand, double, split, bank, one line each, plus up to four hands,
+split aces taking one card, and one button at a time.
+
+PAGE 7
+Quick LED guide.
 Pair, soft, win, push, lose, right, wrong: what each one means, and the
 decisions the game refuses and does not grade.
 
-PAGE 10
-Left blank.
-Three folded pieces make twelve faces and the booklet needs eleven, so
-this face goes unprinted.
-
-PAGE 11
-The sign-off.
-The title again on solid ink, a line on what the book is, and the
-credits: USB-C, 5 V.
-
-PAGE 12
+PAGE 8
 Basic strategy, the back page.
 The reference sheet, as a grid: your hand down the side, the dealer's
 up-card across the top, hit, stand, double or split in every cell. Hard
