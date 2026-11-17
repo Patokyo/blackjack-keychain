@@ -829,10 +829,10 @@
 
     <!-- page 6: quick button guide -->
     <div class="page left">
-      <div class="hd"><span class="n">06</span><h2>QUICK BUTTONS</h2></div>
+      <div class="hd"><span class="n">06</span><h2>BUTTONS</h2></div>
 
       <div class="btnrow"><span class="k">HIT</span>
-        <p>One more card.</p></div>
+        <p>Take another card.</p></div>
 
       <div class="btnrow"><span class="k">STAND</span>
         <p>Keep the total you have.</p></div>
@@ -841,18 +841,12 @@
         <p>Double the bet, take one card, then stand.</p></div>
 
       <div class="btnrow"><span class="k">SPLIT</span>
-        <p>A pair becomes two hands, played one after the other.</p></div>
+        <p>A pair becomes two hands, doubling your bet.</p></div>
 
       <div class="btnrow"><span class="k">BANK</span>
-        <p>The bankroll; at the bet prompt it deals. The four action
-        buttons set the bet there.</p></div>
+        <p>Hold to show your current bankroll/accuracy depending on the mode.</p></div>
 
-      <p class="tight">Up to four hands by splitting. Split aces take one
-      card each and no more.</p>
-
-      <p><b>One at a time.</b> Two on the same ladder read as neither.</p>
-
-      <div class="pgfoot"><span>QUICK BUTTONS</span><span>6</span></div>
+      <div class="pgfoot"><span>BUTTONS</span><span>6</span></div>
     </div>
 
     <!-- page 3: the display -->
@@ -860,12 +854,28 @@
       <div class="hd"><span class="n">03</span><h2>THE DISPLAY</h2></div>
 
       <p class="tight">Four digits: your total on the left pair, the
-      dealer's on the right. 1807 is you on 18, the dealer on 7.</p>
+      dealer's on the right.</p>
+
+      <div class="cover-row">
+        <div class="screen">
+          <svg viewBox="0 0 248 94" role="img" aria-label="The display showing 2121">
+            <g class="ghost">
+              <use href="#segG" x="0"/><use href="#segG" x="64"/>
+              <use href="#segG" x="128"/><use href="#segG" x="192"/>
+              <use href="#dpG" x="0"/><use href="#dpG" x="64"/>
+              <use href="#dpG" x="128"/><use href="#dpG" x="192"/>
+            </g>
+            <use class="lit" href="#d2" x="0"/>
+            <use class="lit" href="#d1" x="64"/>
+            <use class="lit" href="#d2" x="128"/>
+            <use class="lit" href="#d1" x="192"/>
+          </svg>
+        </div>
+      </div>
 
       <div class="ledrow">
         <div class="dot blue"></div>
-        <p><b>PAIR.</b> Your two cards match, so the hand may be split. 18
-        with PAIR lit is two 9s.</p>
+        <p><b>PAIR.</b> You have a pair, so the hand may be split. The display shows the total of your pair (18 with the pair LED means two 9s)</p>
       </div>
 
       <div class="ledrow">
@@ -876,10 +886,6 @@
 
       <p class="tight">The digits are the whole hand: no cards are shown,
       so the lights matter as much as the numbers.</p>
-
-      <p class="tight">A natural 21 shows but is never asked to act.</p>
-
-      <p>Letters stand in for words: BET, PLAY, TRN, HIGH.</p>
 
       <div class="pgfoot"><span>THE DISPLAY</span><span>3</span></div>
     </div>
@@ -960,19 +966,17 @@
       over.</p>
 
       <p class="tight">You are dealt two cards; the dealer takes one, face
-      up. Pictures count ten, and an ace counts 1 or 11.</p>
+      up.</p>
 
-      <p class="tight">Hit to take another card, or stand and keep your
-      total. Over 21 is a bust, and the hand is gone.</p>
+      <p class="tight">Hit to take another card, then stand to keep your
+      total. If you go over 21 you bust, and the hand is lost.</p>
 
-      <p class="tight">You may also double, one card for twice the bet, or
-      split a matching pair into two hands.</p>
+      <p class="tight">Double to get one more card and no more, whilst doubling your bet. Risky but rewarding.</p>
 
-      <p class="tight">The dealer then draws to 17 and stops. Closest to 21
-      wins, and a win pays 1:1. Equal totals push and the bet comes
-      back.</p>
+      <p class="tight">The dealer then draws until they are at 17 or above. Closest to 21 without going over
+      wins.</p>
 
-      <p>Two cards making 21 is <b>BLACKJACK</b>, paid 3:2. It beats any
+      <p>21 off the deal is called <b>BLACKJACK</b>, paid 3:2. It beats any
       other 21.</p>
 
       <div class="pgfoot"><span>THE RULES</span><span>2</span></div>
@@ -980,7 +984,7 @@
 
     <!-- page 7: quick LED guide -->
     <div class="page right">
-      <div class="hd"><span class="n">07</span><h2>QUICK LEDS</h2></div>
+      <div class="hd"><span class="n">07</span><h2>LEDS</h2></div>
 
       <div class="ledrow">
         <div class="dot blue"></div>
@@ -1023,7 +1027,7 @@
       display instead. A double after a hit, say, or a hand the bank cannot
       cover.</p>
 
-      <div class="pgfoot"><span>QUICK LEDS</span><span>7</span></div>
+      <div class="pgfoot"><span>LEDS</span><span>7</span></div>
     </div>
   </div>
 
@@ -1034,14 +1038,13 @@
     <div class="page right">
       <div class="hd"><span class="n">04</span><h2>TRAIN MODE</h2></div>
 
-      <p>Switch the lever to TRAIN. Nothing is at stake and every decision
-      is graded.</p>
+      <p>In Train mode every decision you make is checked against the basic strategy chart on the back cover.</p>
 
       <div class="ledrow">
         <div class="dot green"></div>
         <div>
           <span class="name">RIGHT</span>
-          <p>The book agrees. The hand carries on.</p>
+          <p>You made the correct decision.</p>
         </div>
       </div>
 
@@ -1049,13 +1052,12 @@
         <div class="dot"></div>
         <div>
           <span class="name">WRONG</span>
-          <p>Then the display shows what the book wanted: HIT, STND, DOUB
-          or SPLT.</p>
+          <p>You made the incorrect decision.</p>
+          <p>The display then shows the correct move: <b>HIT, STND, DOUB or SPLT</b></p>
         </div>
       </div>
 
-      <p class="tight">Each hand ends with your accuracy blinking in place
-      of the bankroll.</p>
+      <p class="tight">After each hand the display shows your current accuracy as a percentage of the decisions you have made.</p>
 
       <div class="screen tiny">
         <svg viewBox="0 0 248 94" role="img" aria-label="The display showing an accuracy of 87.50 percent">
@@ -1072,10 +1074,7 @@
           <use class="lit" href="#d0" x="192"/>
         </svg>
       </div>
-      <div class="cap"><span>87.50 IS 87.5%</span><span>HOLD BANK</span></div>
-
-      <p>Each session starts from zero here, doubles and splits are always
-      offered, and page 8 is the book it grades against.</p>
+      <div class="cap"><span>percentage of correct decisions | </span><span>hold BANK to see accuracy</span></div>
 
       <div class="pgfoot"><span>TRAIN MODE</span><span>4</span></div>
     </div>
