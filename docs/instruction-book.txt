@@ -79,4 +79,4 @@ decisions the game refuses and does not grade.
 PAGE 12
 Back cover.
 The title again on solid ink, a line on what the book is, and the
-credits: USB-C, 5 V, no batteries.
+credits: USB-C, 5 V.
