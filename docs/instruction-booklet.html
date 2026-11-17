@@ -174,8 +174,10 @@
   /* A page that hands its spare height to one figure, so the figure sits
      midway between the copy above it and the lights below: the neighbours'
      margins go, the figure keeps a 2 mm shoulder of its own, and anything
-     left over is split evenly above and below it. */
-  .page.vcenter { display: flex; flex-direction: column; }
+     left over is split evenly above and below it. The deeper foot keeps a
+     few millimetres of air under the last line, which the split would
+     otherwise spend on the figure. */
+  .page.vcenter { display: flex; flex-direction: column; padding-bottom: 7mm; }
   .page.vcenter > .tight { margin-bottom: 0; }
   .page.vcenter > .cover-row { flex: none; margin: auto 0; padding: 2mm 0; }
   .page.vcenter > .cover-row + .ledrow { margin-top: 0; }
@@ -892,8 +894,7 @@
         the ace must count as 1.</p>
       </div>
 
-      <p class="tight">The digits are the whole hand: no cards are shown,
-      so the lights matter as much as the numbers.</p>
+      <p class="tight">No cards are shown so the LEDS matter.</p>
 
       <div class="pgfoot"><span>THE DISPLAY</span><span>3</span></div>
     </div>
