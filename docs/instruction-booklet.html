@@ -319,17 +319,18 @@
   .dot.amber { background: var(--amber); }
   .dot.green { background: var(--green); }
   .dot.out   { background: transparent; }
-  /* A halftone halo, the way a comic prints a glow */
-  .dot.glow { position: relative; }
-  .dot.glow::after {
-    content: "";
+  /* A halftone halo, the way a comic prints a glow. The dots are drawn
+     shapes, not a patterned box with a rounded mask: a mask survives the
+     trip into the PDF but its rounded clip does not, so a masked halo
+     prints as a square block of dots. */
+  .dot.glow { position: relative; color: var(--amber); }
+  .dot.glow > .halo {
     position: absolute;
-    inset: -1.6mm;
-    border-radius: 50%;
-    background-image: var(--dtA25);
-    background-size: 0.55mm 0.55mm;
-    -webkit-mask-image: radial-gradient(circle, transparent 42%, #000 43%);
-    mask-image: radial-gradient(circle, transparent 42%, #000 43%);
+    left: -1.6mm;
+    top: -1.6mm;
+    width: 5.7mm;
+    height: 5.7mm;
+    display: block;
   }
   .ledrow .name {
     font: 600 5.1pt/1 "Josefin Sans";
@@ -721,7 +722,195 @@
       <rect x="9" y="82" width="38" height="9" rx="1.4"/>
     </g>
   </defs>
-</svg>
+<defs>
+    <g id="halo" fill="currentColor">
+      <rect x="4.8" y="29.3" width="2.0" height="2.0"/>
+      <rect x="4.6" y="34.1" width="2.3" height="2.3"/>
+      <rect x="4.5" y="38.9" width="2.5" height="2.5"/>
+      <rect x="4.5" y="43.8" width="2.6" height="2.6"/>
+      <rect x="4.5" y="48.7" width="2.7" height="2.7"/>
+      <rect x="4.5" y="53.6" width="2.6" height="2.6"/>
+      <rect x="4.5" y="58.6" width="2.5" height="2.5"/>
+      <rect x="4.6" y="63.6" width="2.3" height="2.3"/>
+      <rect x="4.8" y="68.6" width="2.0" height="2.0"/>
+      <rect x="9.5" y="24.3" width="2.4" height="2.4"/>
+      <rect x="9.3" y="29.0" width="2.7" height="2.7"/>
+      <rect x="9.2" y="33.8" width="3.0" height="3.0"/>
+      <rect x="9.1" y="38.6" width="3.2" height="3.2"/>
+      <rect x="9.0" y="43.4" width="3.4" height="3.4"/>
+      <rect x="9.0" y="48.3" width="3.4" height="3.4"/>
+      <rect x="9.0" y="53.2" width="3.4" height="3.4"/>
+      <rect x="9.1" y="58.2" width="3.2" height="3.2"/>
+      <rect x="9.2" y="63.2" width="3.0" height="3.0"/>
+      <rect x="9.3" y="68.3" width="2.7" height="2.7"/>
+      <rect x="9.5" y="73.4" width="2.4" height="2.4"/>
+      <rect x="14.6" y="14.6" width="2.0" height="2.0"/>
+      <rect x="14.4" y="19.3" width="2.5" height="2.5"/>
+      <rect x="14.1" y="24.0" width="3.0" height="3.0"/>
+      <rect x="13.9" y="28.7" width="3.4" height="3.4"/>
+      <rect x="13.8" y="33.4" width="3.7" height="3.7"/>
+      <rect x="13.6" y="38.2" width="4.0" height="4.0"/>
+      <rect x="13.6" y="43.0" width="4.1" height="4.1"/>
+      <rect x="13.5" y="47.9" width="4.2" height="4.2"/>
+      <rect x="13.6" y="52.9" width="4.1" height="4.1"/>
+      <rect x="13.6" y="57.8" width="4.0" height="4.0"/>
+      <rect x="13.8" y="62.9" width="3.7" height="3.7"/>
+      <rect x="13.9" y="68.0" width="3.4" height="3.4"/>
+      <rect x="14.1" y="73.1" width="3.0" height="3.0"/>
+      <rect x="14.4" y="78.2" width="2.5" height="2.5"/>
+      <rect x="14.6" y="83.4" width="2.0" height="2.0"/>
+      <rect x="19.3" y="14.4" width="2.5" height="2.5"/>
+      <rect x="19.0" y="19.0" width="3.1" height="3.1"/>
+      <rect x="18.7" y="23.7" width="3.6" height="3.6"/>
+      <rect x="18.5" y="28.3" width="4.0" height="4.0"/>
+      <rect x="18.3" y="33.1" width="4.4" height="4.4"/>
+      <rect x="18.2" y="37.8" width="4.7" height="4.7"/>
+      <rect x="18.2" y="57.5" width="4.7" height="4.7"/>
+      <rect x="18.3" y="62.5" width="4.4" height="4.4"/>
+      <rect x="18.5" y="67.6" width="4.0" height="4.0"/>
+      <rect x="18.7" y="72.8" width="3.6" height="3.6"/>
+      <rect x="19.0" y="77.9" width="3.1" height="3.1"/>
+      <rect x="19.3" y="83.1" width="2.5" height="2.5"/>
+      <rect x="24.3" y="9.5" width="2.4" height="2.4"/>
+      <rect x="24.0" y="14.1" width="3.0" height="3.0"/>
+      <rect x="23.7" y="18.7" width="3.6" height="3.6"/>
+      <rect x="23.4" y="23.4" width="4.1" height="4.1"/>
+      <rect x="23.1" y="28.0" width="4.6" height="4.6"/>
+      <rect x="23.1" y="67.3" width="4.6" height="4.6"/>
+      <rect x="23.4" y="72.5" width="4.1" height="4.1"/>
+      <rect x="23.7" y="77.7" width="3.6" height="3.6"/>
+      <rect x="24.0" y="82.9" width="3.0" height="3.0"/>
+      <rect x="24.3" y="88.1" width="2.4" height="2.4"/>
+      <rect x="29.3" y="4.8" width="2.0" height="2.0"/>
+      <rect x="29.0" y="9.3" width="2.7" height="2.7"/>
+      <rect x="28.7" y="13.9" width="3.4" height="3.4"/>
+      <rect x="28.3" y="18.5" width="4.0" height="4.0"/>
+      <rect x="28.0" y="23.1" width="4.6" height="4.6"/>
+      <rect x="28.0" y="72.3" width="4.6" height="4.6"/>
+      <rect x="28.3" y="77.5" width="4.0" height="4.0"/>
+      <rect x="28.7" y="82.7" width="3.4" height="3.4"/>
+      <rect x="29.0" y="87.9" width="2.7" height="2.7"/>
+      <rect x="29.3" y="93.2" width="2.0" height="2.0"/>
+      <rect x="34.1" y="4.6" width="2.3" height="2.3"/>
+      <rect x="33.8" y="9.2" width="3.0" height="3.0"/>
+      <rect x="33.4" y="13.8" width="3.7" height="3.7"/>
+      <rect x="33.1" y="18.3" width="4.4" height="4.4"/>
+      <rect x="33.1" y="77.3" width="4.4" height="4.4"/>
+      <rect x="33.4" y="82.5" width="3.7" height="3.7"/>
+      <rect x="33.8" y="87.8" width="3.0" height="3.0"/>
+      <rect x="34.1" y="93.1" width="2.3" height="2.3"/>
+      <rect x="38.9" y="4.5" width="2.5" height="2.5"/>
+      <rect x="38.6" y="9.1" width="3.2" height="3.2"/>
+      <rect x="38.2" y="13.6" width="4.0" height="4.0"/>
+      <rect x="37.8" y="18.2" width="4.7" height="4.7"/>
+      <rect x="37.8" y="77.1" width="4.7" height="4.7"/>
+      <rect x="38.2" y="82.4" width="4.0" height="4.0"/>
+      <rect x="38.6" y="87.7" width="3.2" height="3.2"/>
+      <rect x="38.9" y="93.0" width="2.5" height="2.5"/>
+      <rect x="43.8" y="4.5" width="2.6" height="2.6"/>
+      <rect x="43.4" y="9.0" width="3.4" height="3.4"/>
+      <rect x="43.0" y="13.6" width="4.1" height="4.1"/>
+      <rect x="43.0" y="82.3" width="4.1" height="4.1"/>
+      <rect x="43.4" y="87.6" width="3.4" height="3.4"/>
+      <rect x="43.8" y="92.9" width="2.6" height="2.6"/>
+      <rect x="48.7" y="4.5" width="2.7" height="2.7"/>
+      <rect x="48.3" y="9.0" width="3.4" height="3.4"/>
+      <rect x="47.9" y="13.5" width="4.2" height="4.2"/>
+      <rect x="47.9" y="82.3" width="4.2" height="4.2"/>
+      <rect x="48.3" y="87.6" width="3.4" height="3.4"/>
+      <rect x="48.7" y="92.9" width="2.7" height="2.7"/>
+      <rect x="53.6" y="4.5" width="2.6" height="2.6"/>
+      <rect x="53.2" y="9.0" width="3.4" height="3.4"/>
+      <rect x="52.9" y="13.6" width="4.1" height="4.1"/>
+      <rect x="52.9" y="82.3" width="4.1" height="4.1"/>
+      <rect x="53.2" y="87.6" width="3.4" height="3.4"/>
+      <rect x="53.6" y="92.9" width="2.6" height="2.6"/>
+      <rect x="58.6" y="4.5" width="2.5" height="2.5"/>
+      <rect x="58.2" y="9.1" width="3.2" height="3.2"/>
+      <rect x="57.8" y="13.6" width="4.0" height="4.0"/>
+      <rect x="57.5" y="18.2" width="4.7" height="4.7"/>
+      <rect x="57.5" y="77.1" width="4.7" height="4.7"/>
+      <rect x="57.8" y="82.4" width="4.0" height="4.0"/>
+      <rect x="58.2" y="87.7" width="3.2" height="3.2"/>
+      <rect x="58.6" y="93.0" width="2.5" height="2.5"/>
+      <rect x="63.6" y="4.6" width="2.3" height="2.3"/>
+      <rect x="63.2" y="9.2" width="3.0" height="3.0"/>
+      <rect x="62.9" y="13.8" width="3.7" height="3.7"/>
+      <rect x="62.5" y="18.3" width="4.4" height="4.4"/>
+      <rect x="62.5" y="77.3" width="4.4" height="4.4"/>
+      <rect x="62.9" y="82.5" width="3.7" height="3.7"/>
+      <rect x="63.2" y="87.8" width="3.0" height="3.0"/>
+      <rect x="63.6" y="93.1" width="2.3" height="2.3"/>
+      <rect x="68.6" y="4.8" width="2.0" height="2.0"/>
+      <rect x="68.3" y="9.3" width="2.7" height="2.7"/>
+      <rect x="68.0" y="13.9" width="3.4" height="3.4"/>
+      <rect x="67.6" y="18.5" width="4.0" height="4.0"/>
+      <rect x="67.3" y="23.1" width="4.6" height="4.6"/>
+      <rect x="67.3" y="72.3" width="4.6" height="4.6"/>
+      <rect x="67.6" y="77.5" width="4.0" height="4.0"/>
+      <rect x="68.0" y="82.7" width="3.4" height="3.4"/>
+      <rect x="68.3" y="87.9" width="2.7" height="2.7"/>
+      <rect x="68.6" y="93.2" width="2.0" height="2.0"/>
+      <rect x="73.4" y="9.5" width="2.4" height="2.4"/>
+      <rect x="73.1" y="14.1" width="3.0" height="3.0"/>
+      <rect x="72.8" y="18.7" width="3.6" height="3.6"/>
+      <rect x="72.5" y="23.4" width="4.1" height="4.1"/>
+      <rect x="72.3" y="28.0" width="4.6" height="4.6"/>
+      <rect x="72.3" y="67.3" width="4.6" height="4.6"/>
+      <rect x="72.5" y="72.5" width="4.1" height="4.1"/>
+      <rect x="72.8" y="77.7" width="3.6" height="3.6"/>
+      <rect x="73.1" y="82.9" width="3.0" height="3.0"/>
+      <rect x="73.4" y="88.1" width="2.4" height="2.4"/>
+      <rect x="78.2" y="14.4" width="2.5" height="2.5"/>
+      <rect x="77.9" y="19.0" width="3.1" height="3.1"/>
+      <rect x="77.7" y="23.7" width="3.6" height="3.6"/>
+      <rect x="77.5" y="28.3" width="4.0" height="4.0"/>
+      <rect x="77.3" y="33.1" width="4.4" height="4.4"/>
+      <rect x="77.1" y="37.8" width="4.7" height="4.7"/>
+      <rect x="77.1" y="57.5" width="4.7" height="4.7"/>
+      <rect x="77.3" y="62.5" width="4.4" height="4.4"/>
+      <rect x="77.5" y="67.6" width="4.0" height="4.0"/>
+      <rect x="77.7" y="72.8" width="3.6" height="3.6"/>
+      <rect x="77.9" y="77.9" width="3.1" height="3.1"/>
+      <rect x="78.2" y="83.1" width="2.5" height="2.5"/>
+      <rect x="83.4" y="14.6" width="2.0" height="2.0"/>
+      <rect x="83.1" y="19.3" width="2.5" height="2.5"/>
+      <rect x="82.9" y="24.0" width="3.0" height="3.0"/>
+      <rect x="82.7" y="28.7" width="3.4" height="3.4"/>
+      <rect x="82.5" y="33.4" width="3.7" height="3.7"/>
+      <rect x="82.4" y="38.2" width="4.0" height="4.0"/>
+      <rect x="82.3" y="43.0" width="4.1" height="4.1"/>
+      <rect x="82.3" y="47.9" width="4.2" height="4.2"/>
+      <rect x="82.3" y="52.9" width="4.1" height="4.1"/>
+      <rect x="82.4" y="57.8" width="4.0" height="4.0"/>
+      <rect x="82.5" y="62.9" width="3.7" height="3.7"/>
+      <rect x="82.7" y="68.0" width="3.4" height="3.4"/>
+      <rect x="82.9" y="73.1" width="3.0" height="3.0"/>
+      <rect x="83.1" y="78.2" width="2.5" height="2.5"/>
+      <rect x="83.4" y="83.4" width="2.0" height="2.0"/>
+      <rect x="88.1" y="24.3" width="2.4" height="2.4"/>
+      <rect x="87.9" y="29.0" width="2.7" height="2.7"/>
+      <rect x="87.8" y="33.8" width="3.0" height="3.0"/>
+      <rect x="87.7" y="38.6" width="3.2" height="3.2"/>
+      <rect x="87.6" y="43.4" width="3.4" height="3.4"/>
+      <rect x="87.6" y="48.3" width="3.4" height="3.4"/>
+      <rect x="87.6" y="53.2" width="3.4" height="3.4"/>
+      <rect x="87.7" y="58.2" width="3.2" height="3.2"/>
+      <rect x="87.8" y="63.2" width="3.0" height="3.0"/>
+      <rect x="87.9" y="68.3" width="2.7" height="2.7"/>
+      <rect x="88.1" y="73.4" width="2.4" height="2.4"/>
+      <rect x="93.2" y="29.3" width="2.0" height="2.0"/>
+      <rect x="93.1" y="34.1" width="2.3" height="2.3"/>
+      <rect x="93.0" y="38.9" width="2.5" height="2.5"/>
+      <rect x="92.9" y="43.8" width="2.6" height="2.6"/>
+      <rect x="92.9" y="48.7" width="2.7" height="2.7"/>
+      <rect x="92.9" y="53.6" width="2.6" height="2.6"/>
+      <rect x="93.0" y="58.6" width="2.5" height="2.5"/>
+      <rect x="93.1" y="63.6" width="2.3" height="2.3"/>
+      <rect x="93.2" y="68.6" width="2.0" height="2.0"/>
+    </g>
+  </defs>
+  </svg>
 
 <!-- ============================================================
      PDF page 1: side 1 of the sheet
@@ -889,7 +1078,7 @@
       </div>
 
       <div class="ledrow">
-        <div class="dot amber glow"></div>
+        <div class="dot amber glow"><svg class="halo" viewBox="0 0 100 100" aria-hidden="true"><use href="#halo"/></svg></div>
         <p><b>SOFT.</b> An ace is counting as 11; the light goes out once
         the ace must count as 1.</p>
       </div>
@@ -1004,7 +1193,7 @@
       </div>
 
       <div class="ledrow">
-        <div class="dot amber glow"></div>
+        <div class="dot amber glow"><svg class="halo" viewBox="0 0 100 100" aria-hidden="true"><use href="#halo"/></svg></div>
         <div>
           <span class="name">SOFT · AMBER</span>
           <p>An ace is counting as 11.</p>
