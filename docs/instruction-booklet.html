@@ -10,8 +10,12 @@
 
     1 cover            2 the rules        3 the board
     4 your move        5 the hand         6 the display
-    7 train mode       8 play mode        9 first hand
-   10 basic strategy  11 the lights      12 back cover
+    7 train mode       8 play mode        9 the lights
+   10 (blank)         11 the sign-off   12 basic strategy
+
+  Three folded pieces make twelve faces and the booklet needs eleven, so
+  page 10 is left unprinted rather than filled with a page nobody asked
+  for.
 
     side 1:  A 12 | 1    B 10 | 3    C  8 | 5
     side 2:  A  2 | 11   B  4 | 9    C  6 | 7
@@ -722,58 +726,9 @@
   <div class="piece" style="left:5mm; top:20mm;">
     <div class="tag">A · outside · 12 | 1</div>
 
-    <!-- page 12: the back cover -->
-    <div class="page left back">
-      <div class="sub">INSTRUCTION BOOKLET</div>
-      <h2 class="big">BLACKJACK<br>KEYCHAIN</h2>
-
-      <div class="backrule"></div>
-      <p class="tagline">A pocket trainer for blackjack basic strategy.<br>
-      Twelve pages on one sheet of paper.</p>
-
-      <div class="credit">USB-C · 5 V<br>DESIGNED BY PATRICK SCHOLEFIELD</div>
-      <div class="pgfoot"><span>50 × 70 MM</span><span>12</span></div>
-    </div>
-
-    <!-- page 1: the cover -->
-    <div class="page right cover">
-      <div class="band"><span>compact</span><span>single player</span></div>
-
-      <h1>BLACKJACK<br>KEYCHAIN</h1>
-      <div class="rule"></div>
-
-      <p class="lede">Test your blackjack skills with this compact keychain
-      device.</p>
-      <p class="cta">Hone your basic strategy knowledge in <b>TRAIN</b>
-      mode, then compete for a highscore in <b>PLAY</b> mode.</p>
-
-      <div class="cover-row">
-        <div class="screen">
-          <svg viewBox="0 0 248 94" role="img" aria-label="The display showing 21">
-            <g class="ghost">
-              <use href="#segG" x="0"/><use href="#segG" x="64"/>
-              <use href="#segG" x="128"/><use href="#segG" x="192"/>
-              <use href="#dpG" x="0"/><use href="#dpG" x="64"/>
-              <use href="#dpG" x="128"/><use href="#dpG" x="192"/>
-            </g>
-            <use class="lit" href="#d2" x="0"/>
-            <use class="lit" href="#d1" x="64"/>
-          </svg>
-        </div>
-        <div class="badge"><span>21</span></div>
-      </div>
-
-      <div class="cover-foot">A POCKET TRAINER<br>BY PATRICK SCHOLEFIELD</div>
-      <div class="pgfoot"><span>INSTRUCTION BOOKLET</span><span>1</span></div>
-    </div>
-  </div>
-
-  <div class="piece" style="left:105mm; top:20mm;">
-    <div class="tag">B · outside · 10 | 3</div>
-
-    <!-- page 10: the basic strategy chart -->
+    <!-- page 12: the basic strategy chart, the back page -->
     <div class="page left">
-      <div class="hd"><span class="n">10</span><h2>BASIC STRATEGY</h2></div>
+      <div class="hd"><span class="n">12</span><h2>BASIC STRATEGY</h2></div>
 
       <div class="chartkey">
         <span><em class="c-h"></em>HIT</span>
@@ -837,8 +792,48 @@
         </tbody>
       </table>
 
-      <div class="pgfoot bare"><span>BASIC STRATEGY</span><span>10</span></div>
+      <div class="pgfoot bare"><span>BASIC STRATEGY</span><span>12</span></div>
     </div>
+
+    <!-- page 1: the cover -->
+    <div class="page right cover">
+      <div class="band"><span>compact</span><span>single player</span></div>
+
+      <h1>BLACKJACK<br>KEYCHAIN</h1>
+      <div class="rule"></div>
+
+      <p class="lede">Test your blackjack skills with this compact keychain
+      device.</p>
+      <p class="cta">Hone your basic strategy knowledge in <b>TRAIN</b>
+      mode, then compete for a highscore in <b>PLAY</b> mode.</p>
+
+      <div class="cover-row">
+        <div class="screen">
+          <svg viewBox="0 0 248 94" role="img" aria-label="The display showing 2121">
+            <g class="ghost">
+              <use href="#segG" x="0"/><use href="#segG" x="64"/>
+              <use href="#segG" x="128"/><use href="#segG" x="192"/>
+              <use href="#dpG" x="0"/><use href="#dpG" x="64"/>
+              <use href="#dpG" x="128"/><use href="#dpG" x="192"/>
+            </g>
+            <use class="lit" href="#d2" x="0"/>
+            <use class="lit" href="#d1" x="64"/>
+            <use class="lit" href="#d2" x="128"/>
+            <use class="lit" href="#d1" x="192"/>
+          </svg>
+        </div>
+        <div class="badge"><span>21</span></div>
+      </div>
+
+      <div class="cover-foot">A POCKET TRAINER<br>BY PATRICK SCHOLEFIELD</div>
+      <div class="pgfoot"><span>INSTRUCTION BOOKLET</span><span>1</span></div>
+    </div>
+  </div>
+
+  <div class="piece" style="left:105mm; top:20mm;">
+    <div class="tag">B · outside · 10 | 3</div>
+
+    <!-- page 10: a spare face, left unprinted -->
 
     <!-- page 3: the board -->
     <div class="page right">
@@ -1068,7 +1063,7 @@
       <h2>CHECK IT BEFORE YOU CUT</h2>
       <div class="warning">
         <p>Hold the printed sheet up to a light. Page 2 must sit directly
-        behind page 1, the right way up, and page 11 behind page 10. If the
+        behind page 1, the right way up, and page 11 behind page 12. If the
         back of a piece shows a different page, or a page is upside down,
         the printer flipped the second side on the short edge: print again
         with long-edge, or book, binding.</p>
@@ -1143,9 +1138,56 @@
       <div class="pgfoot"><span>THE RULES</span><span>2</span></div>
     </div>
 
-    <!-- page 11: the lights -->
+    <!-- page 11: the sign-off, the last inside page -->
+    <div class="page left back">
+      <div class="sub">INSTRUCTION BOOKLET</div>
+      <h2 class="big">BLACKJACK<br>KEYCHAIN</h2>
+
+      <div class="backrule"></div>
+      <p class="tagline">A pocket trainer for blackjack basic strategy.<br>
+      Twelve pages on one sheet of paper.</p>
+
+      <div class="credit">USB-C · 5 V<br>DESIGNED BY PATRICK SCHOLEFIELD</div>
+      <div class="pgfoot"><span>50 × 70 MM</span><span>11</span></div>
+    </div>
+  </div>
+
+  <div class="piece" style="left:5mm; top:20mm;">
+    <div class="tag">B · inside · 4 | 9</div>
+
+    <!-- page 4: your move -->
+    <div class="page left">
+      <div class="hd"><span class="n">04</span><h2>YOUR MOVE</h2></div>
+
+      <p class="tight">On your turn, press one of the five buttons.</p>
+
+      <div class="btnrow"><span class="k">HIT</span>
+        <p>Deal yourself one more card.</p></div>
+
+      <div class="btnrow"><span class="k">STAND</span>
+        <p>Keep the total you have.</p></div>
+
+      <div class="btnrow"><span class="k">DOUBLE</span>
+        <p>Double the bet, take one card only, then stand.</p></div>
+
+      <div class="btnrow"><span class="k">SPLIT</span>
+        <p>Turn a pair into two hands, played out in turn.</p></div>
+
+      <div class="btnrow"><span class="k">BANK</span>
+        <p>Show the bankroll. At the bet prompt it deals.</p></div>
+
+      <p class="tight">Up to four hands by splitting. Split aces take one
+      card each and no more.</p>
+
+      <p><b>One button at a time.</b> Two on the same ladder read as
+      neither.</p>
+
+      <div class="pgfoot"><span>YOUR MOVE</span><span>4</span></div>
+    </div>
+
+    <!-- page 9: the lights -->
     <div class="page right">
-      <div class="hd"><span class="n">11</span><h2>THE LIGHTS</h2></div>
+      <div class="hd"><span class="n">09</span><h2>THE LIGHTS</h2></div>
 
       <div class="ledrow">
         <div class="dot blue"></div>
@@ -1188,70 +1230,7 @@
       display instead. A double after a hit, say, or a hand the bank cannot
       cover.</p>
 
-      <div class="pgfoot"><span>THE LIGHTS</span><span>11</span></div>
-    </div>
-  </div>
-
-  <div class="piece" style="left:5mm; top:20mm;">
-    <div class="tag">B · inside · 4 | 9</div>
-
-    <!-- page 4: your move -->
-    <div class="page left">
-      <div class="hd"><span class="n">04</span><h2>YOUR MOVE</h2></div>
-
-      <p class="tight">On your turn, press one of the five buttons.</p>
-
-      <div class="btnrow"><span class="k">HIT</span>
-        <p>Deal yourself one more card.</p></div>
-
-      <div class="btnrow"><span class="k">STAND</span>
-        <p>Keep the total you have.</p></div>
-
-      <div class="btnrow"><span class="k">DOUBLE</span>
-        <p>Double the bet, take one card only, then stand.</p></div>
-
-      <div class="btnrow"><span class="k">SPLIT</span>
-        <p>Turn a pair into two hands, played out in turn.</p></div>
-
-      <div class="btnrow"><span class="k">BANK</span>
-        <p>Show the bankroll. At the bet prompt it deals.</p></div>
-
-      <p class="tight">Up to four hands by splitting. Split aces take one
-      card each and no more.</p>
-
-      <p><b>One button at a time.</b> Two on the same ladder read as
-      neither.</p>
-
-      <div class="pgfoot"><span>YOUR MOVE</span><span>4</span></div>
-    </div>
-
-    <!-- page 9: the first hand -->
-    <div class="page right">
-      <div class="hd"><span class="n">09</span><h2>THE FIRST HAND</h2></div>
-
-      <div class="step"><span class="sn">1</span>
-        <p><b>Plug in.</b> Any USB-C charger, either sort of cable. There
-        is no switch for power; the board wakes when it is fed.</p></div>
-
-      <div class="step"><span class="sn">2</span>
-        <p><b>Pick a mode.</b> The lever on the right edge: down for TRAIN,
-        up for PLAY. The display shows the mode as the lever lands.</p></div>
-
-      <div class="step"><span class="sn">3</span>
-        <p><b>Deal.</b> In train mode, tap <b>BANK</b> and the hand comes
-        out. In play mode, set the bet first, then tap <b>BANK</b>.</p></div>
-
-      <div class="step"><span class="sn">4</span>
-        <p><b>Answer.</b> One button, then the hand plays out and the
-        result lights.</p></div>
-
-      <p class="tight">Start in TRAIN. Ten hands there teach the chart on
-      page 10 better than ten in PLAY.</p>
-
-      <p>Unplug it whenever you like: the bankroll is written to memory
-      after every hand and is there again next time.</p>
-
-      <div class="pgfoot"><span>THE FIRST HAND</span><span>9</span></div>
+      <div class="pgfoot"><span>THE LIGHTS</span><span>9</span></div>
     </div>
   </div>
 
@@ -1340,7 +1319,7 @@
       <div class="cap"><span>87.50 IS 87.5%</span><span>HOLD BANK</span></div>
 
       <p>Each session starts from zero here, doubles and splits are always
-      offered, and page 10 is the book it grades against.</p>
+      offered, and page 12 is the book it grades against.</p>
 
       <div class="pgfoot"><span>TRAIN MODE</span><span>7</span></div>
     </div>

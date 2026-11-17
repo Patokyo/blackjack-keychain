@@ -61,22 +61,22 @@ to chase. The bank is kept between sessions. A short bank goes on the
 next hand whole; only an empty bank ends the run.
 
 PAGE 9
-The first hand.
-Plug in, pick a mode with the lever, deal with the bank button, answer
-with one button. Start in train mode. The bankroll survives unplugging.
-
-PAGE 10
-Basic strategy.
-The reference sheet, as a grid: your hand down the side, the dealer's
-up-card across the top, hit, stand, double or split in every cell. Hard
-totals, then soft, then pairs by total.
-
-PAGE 11
 The lights.
 Pair, soft, win, push, lose, right, wrong: what each one means, and the
 decisions the game refuses and does not grade.
 
-PAGE 12
-Back cover.
+PAGE 10
+Left blank.
+Three folded pieces make twelve faces and the booklet needs eleven, so
+this face goes unprinted.
+
+PAGE 11
+The sign-off.
 The title again on solid ink, a line on what the book is, and the
 credits: USB-C, 5 V.
+
+PAGE 12
+Basic strategy, the back page.
+The reference sheet, as a grid: your hand down the side, the dealer's
+up-card across the top, hit, stand, double or split in every cell. Hard
+totals, then soft, then pairs by total.
