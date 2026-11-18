@@ -1252,6 +1252,11 @@ unsigned long bankHeldSince = 0;
 // shorter than this confirms the bet instead of only showing the bank.
 const unsigned long BANK_HOLD_MS = 1000;
 
+// How long each half of a long hold stays on the display, in both
+// modes. Slower than a flicker on purpose: a word and the figure that
+// goes with it need time to be read.
+const unsigned long HOLD_FLASH_MS = 400;
+
 
 void writeSegments(byte pattern) {
 
@@ -1348,14 +1353,14 @@ bool holdPastFirstSecond() {
 
 
 // Train mode: past that second the accuracy and the mastery take
-// turns, 200 ms each, with DONE in front of the second one
+// turns, 400 ms each, with DONE in front of the second one
 bool holdWantsMasteryWord() {
 
   if (!trainingMode || !holdPastFirstSecond()) {
     return false;
   }
 
-  return (((millis() - bankHeldSince - BANK_HOLD_MS) / 200) % 2) == 0;
+  return (((millis() - bankHeldSince - BANK_HOLD_MS) / HOLD_FLASH_MS) % 2) == 0;
 }
 
 
@@ -1380,7 +1385,7 @@ void fillHoldView(byte *out) {
 
 
 // A long hold on the bank button moves on from the bankroll to the
-// best bank: HIGH for 200 ms, the score for 200 ms, round again, for
+// best bank: HIGH for 400 ms, the score for 400 ms, round again, for
 // as long as the button is down. Train mode has no high score, so
 // there the hold stays on the accuracy.
 bool holdWantsHighWord() {
@@ -1395,7 +1400,7 @@ bool holdWantsHighWord() {
     return false;
   }
 
-  return (((held - BANK_HOLD_MS) / 200) % 2) == 0;
+  return (((held - BANK_HOLD_MS) / HOLD_FLASH_MS) % 2) == 0;
 }
 
 
@@ -1414,7 +1419,7 @@ bool holdWantsHighScore() {
     return false;
   }
 
-  return (((held - BANK_HOLD_MS) / 200) % 2) != 0;
+  return (((held - BANK_HOLD_MS) / HOLD_FLASH_MS) % 2) != 0;
 }
 
 

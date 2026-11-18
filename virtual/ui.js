@@ -66,9 +66,13 @@
   // The label shown when the best bank is on the display
   const HIGH_WORD = [LETTER_H, LETTER_I, LETTER_G, LETTER_H];
 
-  // The label that goes in front of the share of the chart mastered.
   // The label that goes in front of the count of hands mastered
   const DONE_WORD = [LETTER_D, LETTER_O, LETTER_N, LETTER_E];
+
+  // How long each half of a long hold stays up, in both modes. Slower than
+  // a flicker on purpose: a word and the figure that goes with it need time
+  // to be read.
+  const HOLD_FLASH_MS = 400;
 
   // The word for the mode the switch has just been put in
   const MODE_WORDS = {
@@ -265,12 +269,12 @@
 
 
   // Train mode: past that second the accuracy and the mastery take turns,
-  // 200 ms each, with DONE in front of the second one
+  // 400 ms each, with DONE in front of the second one
   function holdWantsMasteryWord() {
 
     if (!trainingMode || !holdPastFirstSecond()) return false;
 
-    return (Math.floor((performance.now() - bankHeldSince - 1000) / 200) % 2) === 0;
+    return (Math.floor((performance.now() - bankHeldSince - 1000) / HOLD_FLASH_MS) % 2) === 0;
   }
 
 
@@ -295,7 +299,7 @@
 
 
   // A long hold on the bank button moves on from the bankroll to the best
-  // bank: HIGH for 200 ms, the score for 200 ms, round again, for as long
+  // bank: HIGH for 400 ms, the score for 400 ms, round again, for as long
   // as the button is down. Train mode has no best bank, so there the hold
   // stays on the accuracy.
   function holdWantsHighWord() {
@@ -306,7 +310,7 @@
 
     if (held < 1000) return false;
 
-    return (Math.floor((held - 1000) / 200) % 2) === 0;
+    return (Math.floor((held - 1000) / HOLD_FLASH_MS) % 2) === 0;
   }
 
 
