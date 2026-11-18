@@ -66,6 +66,10 @@
   // The label shown when the best bank is on the display
   const HIGH_WORD = [LETTER_H, LETTER_I, LETTER_G, LETTER_H];
 
+  // The label that goes in front of the share of the chart mastered.
+  // M has no seven segment shape, so this reads RATE
+  const RATE_WORD = [LETTER_R, LETTER_A, LETTER_T, LETTER_E];
+
   // The word for the mode the switch has just been put in
   const MODE_WORDS = {
     play: [LETTER_P, LETTER_L, LETTER_A, LETTER_Y],
@@ -219,9 +223,7 @@
   // Accuracy as a percentage with two decimals, 00.00 to 99.99. A
   // flawless run would need five digits plus the point, so 100 is shown
   // as 100. with the last digit blank.
-  function accuracyToDigits(out) {
-
-    const hundredths = game.accuracyHundredths();
+  function percentageToDigits(out, hundredths) {
 
     if (hundredths >= 10000) {
 
@@ -240,16 +242,55 @@
   }
 
 
+  // How many of this train session's decisions were right
+  function accuracyToDigits(out) {
+
+    percentageToDigits(out, game.accuracyHundredths());
+  }
+
+
+  // How much of the chart is mastered, in the same shape
+  function masteryToDigits(out) {
+
+    percentageToDigits(out, game.masteryHundredths());
+  }
+
+
+  // True once the bank button has been down for a full second, which is
+  // where both modes move on to what the long hold shows
+  function holdPastFirstSecond() {
+
+    return (performance.now() - bankHeldSince) >= 1000;
+  }
+
+
+  // Train mode: past that second the accuracy and the mastery take turns,
+  // 200 ms each, with RATE in front of the second one
+  function holdWantsMasteryWord() {
+
+    if (!trainingMode || !holdPastFirstSecond()) return false;
+
+    return (Math.floor((performance.now() - bankHeldSince - 1000) / 200) % 2) === 0;
+  }
+
+
   // What holding the bank button shows: the money in play mode, the
-  // accuracy in train mode
+  // accuracy and then the mastery in train mode
   function fillHoldView(out) {
 
     if (trainingMode) {
-      accuracyToDigits(out);
-    } else {
-      // Cents in, dollars out: the half dollar is kept, not shown
-      numberToDigits(out, 0, 4, game.displayBankroll());
+
+      if (holdPastFirstSecond() && !holdWantsMasteryWord()) {
+        masteryToDigits(out);
+      } else {
+        accuracyToDigits(out);
+      }
+
+      return;
     }
+
+    // Cents in, dollars out: the half dollar is kept, not shown
+    numberToDigits(out, 0, 4, game.displayBankroll());
   }
 
 
@@ -273,6 +314,10 @@
 
     if (holdWantsHighWord()) {
       return HIGH_WORD;
+    }
+
+    if (holdWantsMasteryWord()) {
+      return RATE_WORD;
     }
 
     fillHoldView(holdDigits);
@@ -350,6 +395,17 @@
 
 
   // On the way into play mode: the label, then the best bank so far
+  async function showLevel(level) {
+
+    clearDisplay();
+
+    displayBuffer[0] = LETTER_L;
+    displayBuffer[1] = FONT[level % 10];
+
+    await pause(700);
+  }
+
+
   async function showHighScore() {
 
     clearDisplay();
@@ -827,6 +883,13 @@
 
           if (!correctChoice) {
             await showActionWord(correct);
+          }
+
+          // A band finished on that answer: say which one is next
+          const finished = game.takeLevelUp();
+
+          if (finished && finished < 5) {
+            await showLevel(finished + 1);
           }
         }
 

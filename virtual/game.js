@@ -66,6 +66,17 @@
   // The one thing kept between sessions: the best bank
   const HIGH_KEY = 'blackjack-keychain.highscore';
 
+  // The drill's memory: one byte per hand of the chart, counting right
+  // answers in a row, and the key it is kept under. The chart has 300
+  // hands, which is exactly the size of the sketch's EEPROM table.
+  const CELL_COUNT = 300;
+  const CELL_SOFT = 100;
+  const CELL_HARD = 180;
+  const MASTERY_MAX = 3;
+  const REVIEW_EVERY = 6;
+  const MASTERY_KEY = 'blackjack-keychain.mastery';
+  const UP_CARDS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 1];
+
 
   // --------------------------------------------------
   // HAND CALCULATIONS
@@ -250,7 +261,10 @@
       // no longer on the table
       if (total === 11) {
 
-        action = 'D';
+        // An ace up is the one exception: this device never peeks at the
+        // hole card, and an S17 dealer stands on 17, so 11 against an ace
+        // is a hit rather than a double
+        action = (up === 11) ? 'H' : 'D';
 
       } else if (total === 10) {
 
@@ -272,6 +286,87 @@
     }
 
     return action;
+  }
+
+
+  // --------------------------------------------------
+  // THE DRILL
+  // The chart is 300 hands: ten pair rows, eight soft rows and the twelve
+  // hard totals that still have a decision in them, each against the ten
+  // dealer up cards. The bands and the weighting are the sketch's.
+  // --------------------------------------------------
+
+  // A cell is a pair (0), a soft hand (1) or a hard total (2)
+  function cellKind(index) {
+
+    if (index < CELL_SOFT) return 0;
+    if (index < CELL_HARD) return 1;
+
+    return 2;
+  }
+
+
+  function cellUp(index) { return UP_CARDS[index % 10]; }
+
+
+  // The value of the pair, 1 for a pair of aces
+  function cellPair(index) { return Math.floor(index / 10) + 1; }
+
+
+  // The low card of a soft hand, so 2 is A,2 and 9 is A,9
+  function cellSoftLow(index) { return Math.floor((index - CELL_SOFT) / 10) + 2; }
+
+
+  function cellHardTotal(index) { return Math.floor((index - CELL_HARD) / 10) + 5; }
+
+
+  // The hands that catch people out: the soft 18s that stand, the 16s that
+  // do not, 15 against a ten, 11 against an ace and a pair of 9s against a 7
+  function cellIsTricky(index) {
+
+    const up = cellUp(index);
+    const kind = cellKind(index);
+
+    if (kind === 1 && cellSoftLow(index) === 7) {
+      return up === 2 || up === 1 || up >= 7;
+    }
+
+    if (kind === 2) {
+
+      const total = cellHardTotal(index);
+
+      if (total === 16) return up === 1 || up >= 9;
+      if (total === 15) return up === 10;
+      if (total === 11) return up === 1;
+    }
+
+    if (kind === 0 && cellPair(index) === 9) {
+      return up === 7;
+    }
+
+    return false;
+  }
+
+
+  // Which band a hand belongs to, from the hands that come up most to the
+  // ones that need the most thought
+  function cellLevel(index) {
+
+    if (cellIsTricky(index)) return 5;
+
+    const kind = cellKind(index);
+
+    if (kind === 0) return 4;   // pairs
+    if (kind === 1) return 3;   // soft hands
+
+    const total = cellHardTotal(index);
+
+    if (total <= 8) return 1;   // nothing to get wrong
+    if (total <= 11) return 2;  // the doubles
+
+    const up = cellUp(index);
+
+    return (up === 1 || up >= 7) ? 2 : 1;
   }
 
 
@@ -338,6 +433,14 @@
     // reset every time a train session starts.
     let correctDecisions = 0;
     let totalDecisions = 0;
+
+    // The drill: one byte per chart hand, kept in the store, plus the hand
+    // asked about this round and the band it may have just finished
+    const mastery = new Uint8Array(CELL_COUNT);
+    let masteredCells = 0;
+    let drillCell = 0;
+    let drillGraded = false;
+    let levelUp = 0;
 
     // The four hands of a round, as in the sketch: slots, not a growing
     // list, so a split shifts the later hands along
@@ -557,6 +660,38 @@
     }
 
 
+    function saveMastery() {
+
+      writeStore(MASTERY_KEY, Array.prototype.join.call(mastery, ','));
+    }
+
+
+    function loadMastery() {
+
+      const raw = readStore(MASTERY_KEY);
+
+      masteredCells = 0;
+
+      if (!raw) return;
+
+      const parts = raw.split(',');
+
+      for (let i = 0; i < CELL_COUNT; i++) {
+
+        const value = Number(parts[i]);
+        const kept = (Number.isFinite(value) && value >= 0 && value <= MASTERY_MAX)
+          ? Math.floor(value)
+          : 0;
+
+        mastery[i] = kept;
+
+        if (kept >= MASTERY_MAX) {
+          masteredCells++;
+        }
+      }
+    }
+
+
     // A blank store reads back as -1
     function loadHighscore() {
 
@@ -708,6 +843,13 @@
         correctDecisions++;
       }
 
+      // The hand the drill dealt is counted once, on its first answer
+      if (!drillGraded) {
+
+        drillGraded = true;
+        recordDrill(correct);
+      }
+
       return correct;
     }
 
@@ -722,6 +864,180 @@
 
 
     // ------------------------------------------------
+    // THE DRILL
+    // ------------------------------------------------
+
+    // The first band with anything left to master, or 0 when the whole
+    // chart is mastered
+    function firstUnmasteredLevel() {
+
+      for (let level = 1; level <= 5; level++) {
+
+        for (let i = 0; i < CELL_COUNT; i++) {
+
+          if (cellLevel(i) === level && mastery[i] < MASTERY_MAX) {
+            return level;
+          }
+        }
+      }
+
+      return 0;
+    }
+
+
+    // Four for a hand never answered, down to one for a hand a single right
+    // answer from mastered
+    function cellWeight(index) {
+
+      const value = mastery[index];
+
+      return (value >= MASTERY_MAX) ? 0 : MASTERY_MAX - value + 1;
+    }
+
+
+    // The hand to deal: from the first band not yet mastered, weighted
+    // towards the hands answered wrong most often, with the odd hand from
+    // a band below so the easy ones stay learned
+    function chooseDrillCell() {
+
+      const level = firstUnmasteredLevel();
+
+      // Everything is mastered: the drill carries on evenly
+      if (level === 0) return Math.floor(rng() * CELL_COUNT);
+
+      const review = (level > 1) && (Math.floor(rng() * REVIEW_EVERY) === 0);
+      let total = 0;
+
+      for (let i = 0; i < CELL_COUNT; i++) {
+
+        if (review) {
+
+          if (cellLevel(i) < level && mastery[i] >= MASTERY_MAX) total++;
+
+        } else if (cellLevel(i) === level) {
+
+          total += cellWeight(i);
+        }
+      }
+
+      if (total === 0) return Math.floor(rng() * CELL_COUNT);
+
+      let pick = Math.floor(rng() * total);
+
+      for (let i = 0; i < CELL_COUNT; i++) {
+
+        if (review) {
+
+          if (cellLevel(i) < level && mastery[i] >= MASTERY_MAX) {
+
+            if (pick === 0) return i;
+
+            pick--;
+          }
+
+        } else if (cellLevel(i) === level) {
+
+          const weight = cellWeight(i);
+
+          if (pick < weight) return i;
+
+          pick -= weight;
+        }
+      }
+
+      return Math.floor(rng() * CELL_COUNT);
+    }
+
+
+    // The two cards that make the chosen hand, and the dealer's up card.
+    // Hard totals are built from two different values, so that no pair
+    // stands in for a total the chart prints on a row of its own.
+    function cellCards(index) {
+
+      const kind = cellKind(index);
+      let first;
+      let second;
+
+      if (kind === 0) {
+
+        first = cellPair(index);
+        second = first;
+
+      } else if (kind === 1) {
+
+        first = 1;
+        second = cellSoftLow(index);
+
+      } else {
+
+        const total = cellHardTotal(index);
+        const options = [];
+
+        for (let a = 2; a <= 9; a++) {
+
+          const b = total - a;
+
+          if (b >= 2 && b <= 10 && b !== a) options.push([a, b]);
+        }
+
+        const pick = options[Math.floor(rng() * options.length)] || [2, total - 2];
+
+        first = pick[0];
+        second = pick[1];
+      }
+
+      return { first: first, second: second, up: cellUp(index) };
+    }
+
+
+    // One answer, stored against the hand it was asked about. Returns the
+    // band number when that answer was the last one the band needed.
+    function recordDrill(correct) {
+
+      const before = mastery[drillCell];
+      let after;
+
+      if (correct) {
+
+        after = (before < MASTERY_MAX) ? before + 1 : before;
+
+      } else {
+
+        // Three in a row, so a miss starts the count again. A hand that was
+        // already mastered only drops one step.
+        after = (before >= MASTERY_MAX) ? 1 : 0;
+      }
+
+      if (after === before) return 0;
+
+      mastery[drillCell] = after;
+
+      if (before < MASTERY_MAX && after >= MASTERY_MAX) masteredCells++;
+      if (before >= MASTERY_MAX && after < MASTERY_MAX) masteredCells--;
+
+      saveMastery();
+
+      const level = cellLevel(drillCell);
+
+      for (let i = 0; i < CELL_COUNT; i++) {
+
+        if (cellLevel(i) === level && mastery[i] < MASTERY_MAX) return 0;
+      }
+
+      levelUp = level;
+
+      return level;
+    }
+
+
+    // How much of the chart is mastered, in hundredths of a percent
+    function masteryHundredths() {
+
+      return Math.floor((masteredCells * 10000) / CELL_COUNT);
+    }
+
+
+    // ------------------------------------------------
     // ROUND
     // ------------------------------------------------
 
@@ -731,11 +1047,31 @@
 
       clearHand(hands[0]);
 
-      dealerUp = drawCard();
-      dealerHole = drawCard();
+      drillGraded = false;
 
-      addCard(hands[0], drawCard());
-      addCard(hands[0], drawCard());
+      if (mode === 'train') {
+
+        // The drill deals the hand it wants to ask about: the chart cell
+        // decides the player's two cards and the dealer's up card, and
+        // only the hole card and the hits come off the shoe
+        drillCell = chooseDrillCell();
+
+        const dealt = cellCards(drillCell);
+
+        dealerUp = dealt.up;
+        dealerHole = drawCard();
+
+        addCard(hands[0], dealt.first);
+        addCard(hands[0], dealt.second);
+
+      } else {
+
+        dealerUp = drawCard();
+        dealerHole = drawCard();
+
+        addCard(hands[0], drawCard());
+        addCard(hands[0], drawCard());
+      }
 
       hands[0].wager = betSize();
 
@@ -747,6 +1083,7 @@
 
     // Boot, as setup() does it
     loadHighscore();
+    loadMastery();
     initialiseShoe();
 
 
@@ -796,6 +1133,14 @@
       resetAccuracy: resetAccuracy,
       grade: grade,
       accuracyHundredths: accuracyHundredths,
+
+      // drill
+      masteryHundredths: masteryHundredths,
+      cellLevel: cellLevel,
+      cellCards: cellCards,
+      drillCell: function () { return drillCell; },
+      drillLevel: function () { return firstUnmasteredLevel() || 5; },
+      takeLevelUp: function () { const level = levelUp; levelUp = 0; return level; },
       decisions: function () {
         return { correct: correctDecisions, total: totalDecisions };
       }

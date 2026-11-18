@@ -32,9 +32,14 @@ running `kicad-cli pcb render` to reproduce these.*
   ends the run, and so does a power cut, since a fresh $100 is waiting on
   the other side. The best bank is the one thing kept in EEPROM. Reach
   $9999 and the board throws a party.
-- **Train mode** — the same hands with no money. Every decision is graded,
-  a wrong answer shows the play the book wanted, and the bank button
-  reports your running accuracy.
+- **Train mode** — the same rules with no money, dealt as a drill rather
+  than from a shoe. Hands come from the first difficulty band you have not
+  mastered, weighted towards the ones you get wrong, with the odd hand from
+  an easier band to keep it fresh. Three right in a row masters a hand, a
+  miss starts that hand again, and finishing a band promotes you. Every
+  decision is graded, a wrong answer shows the play the book wanted, and the
+  bank button reports your running accuracy; a long hold swaps between the
+  accuracy and how much of the chart you have mastered.
 
 Both modes share the same rules: six decks, dealer stands on soft 17,
 double on any first two cards, double after split, up to four hands by

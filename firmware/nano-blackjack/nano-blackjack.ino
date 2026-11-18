@@ -294,6 +294,16 @@ const long MAX_BANK = 999900;
 // stored, so every power up starts a fresh run at 100.
 const int HIGHSCORE_ADDRESS = 0;   // 0 to 3
 
+// The drill's memory: one byte per hand of the strategy chart. A byte
+// counts right answers in a row, so three in a row masters a hand and
+// a miss starts it again. Three hundred bytes sit above the high score.
+const int MASTERY_TAG_ADDRESS = 4;   // 1 byte, the table's format
+const int MASTERY_ADDRESS = 5;       // 300 bytes, one per chart hand
+const byte MASTERY_VERSION = 1;
+const byte MASTERY_MAX = 3;          // right answers in a row to master
+const byte DRILL_LEVELS = 5;         // difficulty bands in the chart
+const byte REVIEW_EVERY = 6;         // one hand in six looks further back
+
 long bankroll = STARTING_BANKROLL;
 long highscore = 0;
 
@@ -688,7 +698,10 @@ Action bestAction(const Hand &hand, byte dealerUp, int handCount) {
     // no longer on the table
     if (total == 11) {
 
-      action = DOUBLE;
+      // An ace up is the one exception: this device never peeks at the
+      // hole card, and an S17 dealer stands on 17, so 11 against an ace
+      // is a hit rather than a double
+      action = (up == 11) ? HIT : DOUBLE;
 
     } else if (total == 10) {
 
@@ -710,6 +723,335 @@ Action bestAction(const Hand &hand, byte dealerUp, int handCount) {
   }
 
   return action;
+}
+
+
+// --------------------------------------------------
+// THE DRILL
+// The chart is 300 hands: ten pair rows, eight soft rows and the
+// twelve hard totals that still have a decision in them, each
+// against the ten dealer up cards. A byte of EEPROM per hand keeps
+// the counting, so nothing here needs a table in RAM.
+// --------------------------------------------------
+
+// The cell space, laid out the way the chart prints it: pairs first,
+// then soft hands, then hard totals, each row running through the ten
+// up cards from 2 to ace
+const int CELL_COUNT = 300;
+const int CELL_SOFT = 100;
+const int CELL_HARD = 180;
+
+const byte UP_CARDS[10] = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 1 };
+
+// The hand the drill is asking about this round, and whether its
+// first answer has already been counted
+byte drillCell = 0;
+bool drillGraded = false;
+
+// How many hands of the chart are mastered, counted at boot and kept
+// up to date as answers come in
+int masteredCells = 0;
+
+
+// A cell is a pair (0), a soft hand (1) or a hard total (2)
+byte cellKind(byte index) {
+
+  if (index < CELL_SOFT) return 0;
+  if (index < CELL_HARD) return 1;
+
+  return 2;
+}
+
+
+byte cellUp(byte index) {
+
+  return UP_CARDS[index % 10];
+}
+
+
+// The value of the pair, 1 for a pair of aces
+byte cellPair(byte index) {
+
+  return (byte)(index / 10) + 1;
+}
+
+
+// The low card of a soft hand, so 2 is A,2 and 9 is A,9
+byte cellSoftLow(byte index) {
+
+  return (byte)((index - CELL_SOFT) / 10) + 2;
+}
+
+
+byte cellHardTotal(byte index) {
+
+  return (byte)((index - CELL_HARD) / 10) + 5;
+}
+
+
+// The hands that catch people out: the soft 18s that stand, the 16s
+// that do not, 15 against a ten, 11 against an ace and a pair of 9s
+// against a 7. They make up the last band on their own.
+bool cellIsTricky(byte index) {
+
+  byte up = cellUp(index);
+  byte kind = cellKind(index);
+
+  if (kind == 1 && cellSoftLow(index) == 7) {
+    return up == 2 || up == 1 || up >= 7;
+  }
+
+  if (kind == 2) {
+
+    byte total = cellHardTotal(index);
+
+    if (total == 16) return up == 1 || up >= 9;
+    if (total == 15) return up == 10;
+    if (total == 11) return up == 1;
+  }
+
+  if (kind == 0 && cellPair(index) == 9) {
+    return up == 7;
+  }
+
+  return false;
+}
+
+
+// Which band a hand belongs to. The bands run from the hands that
+// come up most to the ones that need the most thought.
+byte cellLevel(byte index) {
+
+  if (cellIsTricky(index)) return 5;
+
+  byte kind = cellKind(index);
+
+  if (kind == 0) return 4;   // pairs
+  if (kind == 1) return 3;   // soft hands
+
+  byte total = cellHardTotal(index);
+
+  if (total <= 8) return 1;  // nothing to get wrong
+  if (total <= 11) return 2; // the doubles
+
+  // 12 to 16: a bust card in front of the dealer or not
+  byte up = cellUp(index);
+
+  return (up == 1 || up >= 7) ? 2 : 1;
+}
+
+
+// What is stored against a hand. A byte nothing has written to yet
+// reads back as 255, which counts as unseen like a zero does.
+byte masteryOf(byte index) {
+
+  byte value = EEPROM.read(MASTERY_ADDRESS + index);
+
+  return (value > MASTERY_MAX) ? 0 : value;
+}
+
+
+void writeMastery(byte index, byte value) {
+
+  if (masteryOf(index) == value) {
+    return;
+  }
+
+  EEPROM.update(MASTERY_ADDRESS + index, value);
+}
+
+
+// The first band with anything left to master, or 0 when the whole
+// chart is mastered
+byte firstUnmasteredLevel() {
+
+  for (byte level = 1; level <= DRILL_LEVELS; level++) {
+
+    for (int i = 0; i < CELL_COUNT; i++) {
+
+      byte cell = (byte)i;
+
+      if (cellLevel(cell) == level && masteryOf(cell) < MASTERY_MAX) {
+        return level;
+      }
+    }
+  }
+
+  return 0;
+}
+
+
+// How much a hand still needs work: four for one never answered, down
+// to one for a hand a single right answer from mastered
+byte cellWeight(byte index) {
+
+  byte mastery = masteryOf(index);
+
+  if (mastery >= MASTERY_MAX) {
+    return 0;
+  }
+
+  return (byte)(MASTERY_MAX - mastery + 1);
+}
+
+
+// Pick the hand to deal: from the first band not yet mastered,
+// weighted towards the hands answered wrong most often, with the odd
+// hand from the bands below so the easy ones stay learned
+byte chooseDrillCell() {
+
+  byte level = firstUnmasteredLevel();
+
+  // Everything is mastered: the drill carries on evenly
+  if (level == 0) {
+    return (byte)random(CELL_COUNT);
+  }
+
+  bool review = (level > 1) && (random(REVIEW_EVERY) == 0);
+  int total = 0;
+
+  for (int i = 0; i < CELL_COUNT; i++) {
+
+    byte cell = (byte)i;
+
+    if (review) {
+
+      if (cellLevel(cell) < level && masteryOf(cell) >= MASTERY_MAX) {
+        total++;
+      }
+
+    } else if (cellLevel(cell) == level) {
+
+      total += cellWeight(cell);
+    }
+  }
+
+  if (total == 0) {
+    return (byte)random(CELL_COUNT);
+  }
+
+  int pick = random(total);
+
+  for (int i = 0; i < CELL_COUNT; i++) {
+
+    byte cell = (byte)i;
+
+    if (review) {
+
+      if (cellLevel(cell) < level && masteryOf(cell) >= MASTERY_MAX && pick-- == 0) {
+        return cell;
+      }
+
+    } else if (cellLevel(cell) == level) {
+
+      int weight = cellWeight(cell);
+
+      if (pick < weight) {
+        return cell;
+      }
+
+      pick -= weight;
+    }
+  }
+
+  return (byte)random(CELL_COUNT);
+}
+
+
+// The two cards that make the chosen hand, and the dealer's up card.
+// Hard totals are built from two different values, so that no pair
+// stands in for a total the chart prints on a row of its own.
+void cellCards(byte index, byte &first, byte &second, byte &up) {
+
+  byte kind = cellKind(index);
+
+  if (kind == 0) {
+
+    first = cellPair(index);
+    second = first;
+
+  } else if (kind == 1) {
+
+    first = 1;
+    second = cellSoftLow(index);
+
+  } else {
+
+    byte total = cellHardTotal(index);
+
+    // Every combination of two different values that adds up, with
+    // one of them kept as the cards go by
+    byte low = 2;
+    byte high = total - 2;
+    byte count = 0;
+
+    for (byte a = 2; a <= 9; a++) {
+
+      byte b = total - a;
+
+      if (b < 2 || b > 10 || b == a) {
+        continue;
+      }
+
+      if (random(++count) == 0) {
+        low = a;
+        high = b;
+      }
+    }
+
+    first = low;
+    second = high;
+  }
+
+  up = cellUp(index);
+}
+
+
+// One answer, stored against the hand it was asked about. Returns the
+// band number when that answer was the last one the band needed, so
+// the caller can say so between hands, and 0 otherwise.
+byte recordDrill(bool correct) {
+
+  byte before = masteryOf(drillCell);
+  byte after;
+
+  if (correct) {
+
+    after = (before < MASTERY_MAX) ? before + 1 : before;
+
+  } else {
+
+    // Three in a row, so a miss starts the count again. A hand that
+    // was already mastered only drops one step, which keeps an odd
+    // slip from wiping out a whole band.
+    after = (before >= MASTERY_MAX) ? 1 : 0;
+  }
+
+  if (after == before) {
+    return 0;
+  }
+
+  writeMastery(drillCell, after);
+
+  if (before < MASTERY_MAX && after >= MASTERY_MAX) {
+    masteredCells++;
+  } else if (before >= MASTERY_MAX && after < MASTERY_MAX) {
+    masteredCells--;
+  }
+
+  // Did that finish the band?
+  byte level = cellLevel(drillCell);
+
+  for (int i = 0; i < CELL_COUNT; i++) {
+
+    byte cell = (byte)i;
+
+    if (cellLevel(cell) == level && masteryOf(cell) < MASTERY_MAX) {
+      return 0;
+    }
+  }
+
+  return level;
 }
 
 
@@ -834,6 +1176,10 @@ const byte LETTER_Y = 0x6E;   // b c d f g
 // The label shown when the high score is on the display
 const byte HIGH_WORD[4] = { LETTER_H, LETTER_I, LETTER_G, LETTER_H };
 
+// The label that goes in front of the share of the chart mastered.
+// M has no seven segment shape, so this reads RATE
+const byte RATE_WORD[4] = { LETTER_R, LETTER_A, LETTER_T, LETTER_E };
+
 // What the game wants shown, one segment pattern per digit
 byte displayBuffer[4] = { SEGMENT_BLANK, SEGMENT_BLANK, SEGMENT_BLANK, SEGMENT_BLANK };
 
@@ -903,15 +1249,15 @@ void numberToDigits(byte *out, byte offset, byte width, long value) {
 }
 
 
-// Accuracy as a percentage with two decimals, 00.00 to 99.99.
-// A flawless run would need five digits plus the point, so 100
-// is shown as 100. with the last digit blank.
-void accuracyToDigits(byte *out) {
+// A share as a percentage with two decimals, 00.00 to 99.99. A
+// flawless run would need five digits plus the point, so 100 is
+// shown as 100. with the last digit blank.
+void percentageToDigits(byte *out, long part, long whole) {
 
   int hundredths = 0;
 
-  if (totalDecisions > 0) {
-    hundredths = ((long)correctDecisions * 10000) / totalDecisions;
+  if (whole > 0) {
+    hundredths = (part * 10000) / whole;
   }
 
   if (hundredths >= 10000) {
@@ -931,16 +1277,57 @@ void accuracyToDigits(byte *out) {
 }
 
 
+// How many of this train session's decisions were right
+void accuracyToDigits(byte *out) {
+
+  percentageToDigits(out, correctDecisions, totalDecisions);
+}
+
+
+// How much of the chart is mastered, in the same shape
+void masteryToDigits(byte *out) {
+
+  percentageToDigits(out, masteredCells, CELL_COUNT);
+}
+
+
+// True once the bank button has been down for a full second, which is
+// where both modes move on to what the long hold shows
+bool holdPastFirstSecond() {
+
+  return (millis() - bankHeldSince) >= BANK_HOLD_MS;
+}
+
+
+// Train mode: past that second the accuracy and the mastery take
+// turns, 200 ms each, with RATE in front of the second one
+bool holdWantsMasteryWord() {
+
+  if (!trainingMode || !holdPastFirstSecond()) {
+    return false;
+  }
+
+  return (((millis() - bankHeldSince - BANK_HOLD_MS) / 200) % 2) == 0;
+}
+
+
 // What holding the bank button shows: the money in play mode, the
-// accuracy in train mode
+// accuracy and then the mastery in train mode
 void fillHoldView(byte *out) {
 
   if (trainingMode) {
-    accuracyToDigits(out);
-  } else {
-    // Cents in, dollars out: the half dollar is kept, not shown
-    numberToDigits(out, 0, 4, bankroll / 100);
+
+    if (holdPastFirstSecond() && !holdWantsMasteryWord()) {
+      masteryToDigits(out);
+    } else {
+      accuracyToDigits(out);
+    }
+
+    return;
   }
+
+  // Cents in, dollars out: the half dollar is kept, not shown
+  numberToDigits(out, 0, 4, bankroll / 100);
 }
 
 
@@ -1056,6 +1443,10 @@ void refreshDisplay() {
     } else if (holdWantsHighScore()) {
 
       writeSegments(highScoreDigits[refreshIndex]);
+
+    } else if (holdWantsMasteryWord()) {
+
+      writeSegments(RATE_WORD[refreshIndex]);
 
     } else {
 
@@ -1175,6 +1566,18 @@ void showHighScore() {
   numberToDigits(displayBuffer, 0, 4, highscore / 100);
 
   pause(200);
+}
+
+
+// A band finished: L and the number of the band now being worked on
+void showLevelUp(byte level) {
+
+  clearDisplay();
+
+  displayBuffer[0] = LETTER_L;
+  displayBuffer[1] = FONT[level % 10];
+
+  pause(700);
 }
 
 
@@ -1665,11 +2068,34 @@ void playRound() {
 
   clearHand(hands[0]);
 
-  byte dealerUp = drawCard();
-  byte dealerHole = drawCard();
+  byte dealerUp;
+  byte dealerHole;
+  byte first;
+  byte second;
 
-  addCard(hands[0], drawCard());
-  addCard(hands[0], drawCard());
+  if (trainingMode) {
+
+    // The drill deals the hand it wants to ask about. The chart cell
+    // decides both player cards and the dealer's up card; only the
+    // hole card and the hits come off the shoe, so no search of the
+    // shoe is needed and a hand the chart has but a shoe rarely
+    // deals can still come up
+    drillCell = chooseDrillCell();
+    cellCards(drillCell, first, second, dealerUp);
+
+    dealerHole = drawCard();
+
+  } else {
+
+    dealerUp = drawCard();
+    dealerHole = drawCard();
+
+    first = drawCard();
+    second = drawCard();
+  }
+
+  addCard(hands[0], first);
+  addCard(hands[0], second);
 
   hands[0].wager = betSize();
 
@@ -1677,6 +2103,12 @@ void playRound() {
   Hand dealer;
   clearHand(dealer);
   addCard(dealer, dealerUp);
+
+  // The band this hand has just finished, if it finished one, and
+  // whether the drill's own hand has been counted yet
+  byte finishedLevel = 0;
+
+  drillGraded = false;
 
   int current = 0;
 
@@ -1769,11 +2201,29 @@ void playRound() {
         setCorrectLed(correctChoice);
         setWrongLed(!correctChoice);
 
+        // The hand the drill dealt is the one being learned, so only
+        // its first answer counts against the chart. It is stored
+        // right here rather than at the end of the hand, so a power
+        // cut or a flick of the switch cannot lose it; the rest of a
+        // split's decisions still count for the accuracy.
+        if (!drillGraded) {
+
+          drillGraded = true;
+          finishedLevel = recordDrill(correctChoice);
+        }
+
         if (!correctChoice) {
 
           showActionWord(correct);
           pause(500);
         }
+
+        if (finishedLevel && finishedLevel < DRILL_LEVELS) {
+
+          showLevelUp((byte)(finishedLevel + 1));
+        }
+
+        finishedLevel = 0;
       }
 
       if (chosen == STAND) {
@@ -2020,6 +2470,29 @@ void setup() {
 
   // Every power up starts a fresh run at 100
   bankroll = STARTING_BANKROLL;
+
+  // The drill table has a format byte of its own. A table left by an
+  // older build, or a blank EEPROM, is cleared once: every hand then
+  // starts unseen, which is what a zero byte already means.
+  if (EEPROM.read(MASTERY_TAG_ADDRESS) != MASTERY_VERSION) {
+
+    for (int i = 0; i < CELL_COUNT; i++) {
+      EEPROM.update(MASTERY_ADDRESS + i, 0);
+    }
+
+    EEPROM.update(MASTERY_TAG_ADDRESS, MASTERY_VERSION);
+  }
+
+  // Counted once here and kept up to date as answers come in, so the
+  // display never has to run through 300 bytes to show a percentage
+  masteredCells = 0;
+
+  for (int i = 0; i < CELL_COUNT; i++) {
+
+    if (masteryOf((byte)i) >= MASTERY_MAX) {
+      masteredCells++;
+    }
+  }
 
   // Seed the random generator. Every pin is in use here, so there
   // is no floating input to sample noise from: the clock is the
