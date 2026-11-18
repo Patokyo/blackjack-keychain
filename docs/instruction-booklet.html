@@ -414,9 +414,9 @@
     border: 0.12mm solid var(--rule-soft);
     font-style: normal;
   }
-  .c-h  { background: #f2a495; }
+  .c-h  { background: #a9d5a7; }
   .c-d  { background: #f7dd93; }
-  .c-s  { background: #a9d5a7; }
+  .c-s  { background: #f2a495; }
   .c-sp { background: #a9c6ea; }
 
   table.chart {
@@ -434,9 +434,9 @@
     /* the cell letters print dark, whatever stock the page is on */
     color: var(--ink);
   }
-  table.chart td { background: #f2a495; }
+  table.chart td { background: #a9d5a7; }
   table.chart td.d  { background: #f7dd93; }
-  table.chart td.s  { background: #a9d5a7; }
+  table.chart td.s  { background: #f2a495; }
   table.chart td.sp { background: #a9c6ea; }
   /* headers and hand labels print dark on stock, so the grid reads as a card */
   table.chart thead th {
@@ -1233,7 +1233,7 @@
     <div class="tag">B · inside · 4 | 5</div>
 
     <!-- page 4: train mode -->
-    <div class="page right">
+    <div class="page left">
       <div class="hd"><span class="n">04</span><h2>TRAIN MODE</h2></div>
 
       <p>In Train mode every decision you make is checked against the basic strategy chart on the back cover.</p>
@@ -1278,32 +1278,23 @@
     </div>
 
     <!-- page 5: play mode -->
-    <div class="page left">
+    <div class="page right">
       <div class="hd"><span class="n">05</span><h2>PLAY MODE</h2></div>
 
-      <p class="tight">Switch the lever to PLAY. You start with
-      <span class="mono">$100</span>, and the bank is kept, so a run carries
-      on next time you switch it on.</p>
+      <p class="tight">In Play mode you start with
+      <span class="mono">$100</span>, make bets and receive payouts.</p>
 
-      <p class="tight">Before each hand the display shows BET, then the
-      amount. Set it with the action buttons: <b>HIT</b> adds
-      <span class="mono">$5</span>, <b>STAND</b> takes
-      <span class="mono">$5</span> off, <b>DOUBLE</b> doubles it,
+      <p class="tight">Before each hand the display shows BET. Set your bet amount with the action buttons: <b>HIT</b> +$5, <b>STAND</b>
+      -$5, <b>DOUBLE</b> doubles your bet,
       <b>SPLIT</b> halves it.</p>
 
-      <p class="tight">Tap <b>BANK</b> to deal. The bet runs from
-      <span class="mono">$5</span> to <span class="mono">$100</span> and
-      never above what the bank can lose.</p>
+      <p class="tight">Max bet is $100, min is $5, and you can never bet more than you have. </p>
 
-      <p class="tight">Hold <b>BANK</b> for the bankroll; keep holding to
-      flash HIGH over your best bank.</p>
+      <p class="tight">Once you have set your bet, press bank to start the hand.</p>
 
-      <p class="tight">A short bank goes on the next hand whole. An empty
-      bank lights LOSE and ends the run: press any button for a fresh
-      <span class="mono">$100</span>.</p>
-
-      <p>Reach <span class="mono">9999</span> and every light starts
-      flashing. That is the jackpot.</p>
+      <p class="tight">A <b>win</b> doubles your bet, a <b>push</b> (tie) gives your money back, and a <b>loss</b> gives it to the dealer.</p>
+      
+      <p class="tight">Your high score is stored in memory, try to see how high you can get! Your current bankroll is reset every time you play, so a highscore is always a single session.</p>
 
       <div class="pgfoot"><span>PLAY MODE</span><span>5</span></div>
     </div>
