@@ -244,22 +244,13 @@ const long BET_STEP = 500;  // $5.00, one press of hit or stand
 // $9999.00: the most four digits can show, and where the egg is
 const long MAX_BANK = 999900;
 
-// Four byte high score, little endian, at the bottom of the EEPROM,
-// then the bankroll, its complement and a format tag right after it
+// The one thing kept across a power cut: a four byte high score,
+// little endian, at the bottom of the EEPROM. The bankroll is not
+// stored, so every power up starts a fresh run at 100.
 const int HIGHSCORE_ADDRESS = 0;   // 0 to 3
-const int BANKROLL_ADDRESS = 4;    // tag at 4, balance 5 to 8, complement 9 to 12
-
-// Bumped whenever the stored meaning changes. This one counts cents
-// in a long and pays 3:2, so a balance left by an older build is
-// ignored and the run starts over.
-const byte BANKROLL_VERSION = 3;
 
 long bankroll = STARTING_BANKROLL;
 long highscore = 0;
-
-// What is already in EEPROM, so a hand that changed nothing costs
-// no write at all
-long savedBankroll = STARTING_BANKROLL;
 
 // The bet set for the next hand, kept from hand to hand until it is
 // changed again. Not stored, so a run starts on $10.
@@ -1239,11 +1230,8 @@ void initialiseLeds() {
 // interval. The game never picks up again: only a reset ends it.
 void easterEgg() {
 
-  // The light show never ends, so the run is banked as finished
-  // here: a reset then comes back playable at 100 instead of
-  // dropping straight into the egg all over again
-  bankroll = STARTING_BANKROLL;
-  saveBankroll();
+  // The light show never ends. Only a reset leaves it, and a reset
+  // starts a fresh run at 100 because nothing of this one is stored
 
   // Nothing above 9999 could be displayed anyway
   clearDisplay();
@@ -1469,47 +1457,6 @@ void splitHand(Hand hands[], int index, int &handCount) {
 
 
 // --------------------------------------------------
-// EEPROM
-// --------------------------------------------------
-
-// The bankroll is stored with its complement behind a format tag. A
-// write cut short by a power loss can only damage one byte, so a
-// damaged save reads back as a mismatch instead of a wrong balance.
-void saveBankroll() {
-
-  EEPROM.put(BANKROLL_ADDRESS, BANKROLL_VERSION);
-  EEPROM.put(BANKROLL_ADDRESS + 1, bankroll);
-  EEPROM.put(BANKROLL_ADDRESS + 5, (long)~bankroll);
-
-  savedBankroll = bankroll;
-}
-
-
-// -1 when nothing trustworthy is stored, which is what a blank chip,
-// a half written pair and an older build's balance all look like
-long loadBankroll() {
-
-  byte version = 0;
-  long value = 0;
-  long checkValue = 0;
-
-  EEPROM.get(BANKROLL_ADDRESS, version);
-  EEPROM.get(BANKROLL_ADDRESS + 1, value);
-  EEPROM.get(BANKROLL_ADDRESS + 5, checkValue);
-
-  if (version != BANKROLL_VERSION) {
-    return -1;
-  }
-
-  if (checkValue != (long)~value) {
-    return -1;
-  }
-
-  return value;
-}
-
-
-// --------------------------------------------------
 // PLAY ONE ROUND
 // --------------------------------------------------
 
@@ -1548,7 +1495,6 @@ void waitForRestart() {
 
   bankroll = STARTING_BANKROLL;
   betAmount = BET;
-  saveBankroll();
 
   setOutcomeLed(OUTCOME_NONE);
 }
@@ -1990,17 +1936,12 @@ void playRound() {
       bankroll = MAX_BANK;
     }
 
-    // A better bankroll than ever before is kept for good
+    // A better bankroll than ever before is kept for good. It is the
+    // only thing about a run that a power cut leaves behind
     if (bankroll > highscore) {
 
       highscore = bankroll;
       EEPROM.put(HIGHSCORE_ADDRESS, highscore);
-    }
-
-    // Carry the balance over to the next session, unless a push
-    // left it exactly where it was
-    if (bankroll != savedBankroll) {
-      saveBankroll();
     }
   }
 
@@ -2036,37 +1977,17 @@ void setup() {
   // has something to compare against
   switchWasPlay = switchSaysPlay();
 
-  long storedBank = loadBankroll();
-
+  // The high score is the only thing left by an earlier run. A blank
+  // EEPROM reads back as -1.
   highscore = 0;
   EEPROM.get(HIGHSCORE_ADDRESS, highscore);
 
-  // A blank chip, a damaged save or a balance from an older build
-  // means whatever high score is left behind is in the old units
-  // too, so it goes with it
-  if (storedBank < 0) {
-
-    highscore = 0;
-    EEPROM.put(HIGHSCORE_ADDRESS, highscore);
-  }
-
-  // A blank EEPROM reads back as -1
   if (highscore < 0) {
     highscore = 0;
   }
 
-  // Pick up the run where it was left. A run that finished wiped out
-  // or on the 9999 jackpot starts over at 100.
-  if (storedBank < 0 || storedBank == 0 || storedBank >= MAX_BANK) {
-
-    bankroll = STARTING_BANKROLL;
-    saveBankroll();
-
-  } else {
-
-    bankroll = storedBank;
-    savedBankroll = bankroll;
-  }
+  // Every power up starts a fresh run at 100
+  bankroll = STARTING_BANKROLL;
 
   // Seed the random generator. A6 and A7 are the two ADC inputs that
   // exist only on the 32 pin part, and the board leaves both of them

@@ -25,7 +25,8 @@
     - a bank under $10 goes on the next hand whole, and only an empty
       bank stops the game
     - the bank stops at $9999, which is the jackpot
-    - the bankroll and the best bank are kept between sessions
+    - a run starts at $100 every load, and only the best bank is kept
+      between sessions
 
   Everything here is state without a clock: ui.js runs the round, because
   the sketch's pauses and its display refresh are the same thing.
@@ -62,11 +63,7 @@
 
   const MAX_BANK = 999900;                // $9999.00, the most four digits show
 
-  // Bumped whenever the stored meaning changes. This one counts cents and
-  // pays 3:2, so a balance left by an older build is ignored.
-  const BANKROLL_VERSION = 2;
-
-  const BANK_KEY = 'blackjack-keychain.bankroll';
+  // The one thing kept between sessions: the best bank
   const HIGH_KEY = 'blackjack-keychain.highscore';
 
 
@@ -280,10 +277,9 @@
 
   // --------------------------------------------------
   // STORAGE
-  // The bankroll is stored with its complement behind a format tag, the
-  // way the sketch keeps it in EEPROM. A write cut short can only damage
-  // one value, so a damaged save reads back as a mismatch instead of a
-  // wrong balance.
+  // The high score is the only thing that survives a reload, the way the
+  // sketch keeps it in EEPROM. The bankroll starts again at $100 on every
+  // load.
   // --------------------------------------------------
 
   function readStore(key) {
@@ -303,37 +299,6 @@
     } catch (error) {
       // Private mode or a full store: the run just does not survive a reload
     }
-  }
-
-
-  function loadStoredBank() {
-
-    const raw = readStore(BANK_KEY);
-
-    if (!raw) return -1;
-
-    let saved;
-
-    try {
-      saved = JSON.parse(raw);
-    } catch (error) {
-      return -1;
-    }
-
-    if (!saved || saved.version !== BANKROLL_VERSION) return -1;
-    if (saved.check !== ~saved.bankroll) return -1;
-
-    return saved.bankroll;
-  }
-
-
-  function saveStoredBank(bankroll) {
-
-    writeStore(BANK_KEY, JSON.stringify({
-      version: BANKROLL_VERSION,
-      bankroll: bankroll,
-      check: ~bankroll
-    }));
   }
 
 
@@ -361,10 +326,6 @@
 
     let bankroll = STARTING_BANKROLL;
     let highscore = 0;
-
-    // What is already stored, so a hand that changed nothing costs no
-    // write at all
-    let savedBankroll = STARTING_BANKROLL;
 
     // Latched by ui.js the instant the switch moves
     let mode = 'train';
@@ -590,51 +551,23 @@
     }
 
 
-    function saveBankroll() {
-
-      saveStoredBank(bankroll);
-      savedBankroll = bankroll;
-    }
-
-
     function saveHighscore() {
 
       writeStore(HIGH_KEY, String(highscore));
     }
 
 
-    // -1 when nothing trustworthy is stored, which is what a blank store,
-    // a half written pair and an older build's balance all look like
-    function loadBankroll() {
-
-      const stored = loadStoredBank();
+    // A blank store reads back as -1
+    function loadHighscore() {
 
       highscore = loadStoredHighscore();
-
-      // A blank store, a damaged save or a balance from an older build
-      // means whatever high score is left behind is in the old units too,
-      // so it goes with it
-      if (stored < 0) {
-        highscore = 0;
-        saveHighscore();
-      }
 
       if (highscore < 0) {
         highscore = 0;
       }
 
-      // Pick up the run where it was left. A run that finished wiped out,
-      // or on the 9999 jackpot, starts over at 100.
-      if (stored < 0 || stored === 0 || stored >= MAX_BANK) {
-
-        bankroll = STARTING_BANKROLL;
-        saveBankroll();
-
-      } else {
-
-        bankroll = stored;
-        savedBankroll = bankroll;
-      }
+      // Every load starts a fresh run at $100
+      bankroll = STARTING_BANKROLL;
     }
 
 
@@ -721,12 +654,6 @@
         highscore = bankroll;
         saveHighscore();
       }
-
-      // Carry the balance over to the next session, unless a push left it
-      // exactly where it was
-      if (bankroll !== savedBankroll) {
-        saveBankroll();
-      }
     }
 
 
@@ -748,16 +675,14 @@
 
       bankroll = STARTING_BANKROLL;
       betAmount = BET;
-      saveBankroll();
     }
 
 
-    // The jackpot is a finished run: it comes back playable at 100 next
-    // time instead of dropping straight into the egg again
+    // The jackpot is a finished run: it comes back playable at 100, because
+    // nothing of the run is stored
     function finishEgg() {
 
       bankroll = STARTING_BANKROLL;
-      saveBankroll();
     }
 
 
@@ -821,7 +746,7 @@
 
 
     // Boot, as setup() does it
-    loadBankroll();
+    loadHighscore();
     initialiseShoe();
 
 

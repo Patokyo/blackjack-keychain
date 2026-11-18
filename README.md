@@ -16,8 +16,9 @@
 A pocket-sized trainer for blackjack basic strategy. An ATmega328P deals
 from a six-deck shoe, you answer each decision with the five on-board
 buttons, and the firmware marks the answer against basic strategy before
-playing the hand out. In train mode it keeps score; in play mode it keeps
-a bankroll in EEPROM between sessions.
+playing the hand out. In train mode it keeps score; in play mode it runs a
+bankroll that starts at $100 on every power up, with only the best bank
+kept in EEPROM.
 
 *Both sides rendered from the board file in `hardware/` with KiCad's 3D
 renderer. The board carries no stackup colours of its own, so set the top
@@ -27,9 +28,10 @@ running `kicad-cli pcb render` to reproduce these.*
 ## What it does
 
 - **Play mode** — a $100 bankroll, a bet you set before every hand from $5
-  to $100, and the bank carried over in EEPROM after every hand. A bank
-  under $5 goes on the next hand whole; only an empty bank ends the run.
-  Reach $9999 and the board throws a party.
+  to $100. A bank under $5 goes on the next hand whole; only an empty bank
+  ends the run, and so does a power cut, since a fresh $100 is waiting on
+  the other side. The best bank is the one thing kept in EEPROM. Reach
+  $9999 and the board throws a party.
 - **Train mode** — the same hands with no money. Every decision is graded,
   a wrong answer shows the play the book wanted, and the bank button
   reports your running accuracy.
