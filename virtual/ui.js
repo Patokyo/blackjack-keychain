@@ -380,12 +380,20 @@
   }
 
 
-  // Blinks the bankroll, or the accuracy in train mode, for half a second
+  // Blinks what the hand left behind: the bankroll in play mode, and in
+  // train mode the accuracy. The mastery is only ever shown behind a hold
+  // on the bank button, so the figure that just changed is the one that
+  // blinks here.
   async function flashSummary() {
 
     for (let i = 0; i < 2; i++) {
 
-      fillHoldView(displayBuffer);
+      if (trainingMode) {
+        accuracyToDigits(displayBuffer);
+      } else {
+        numberToDigits(displayBuffer, 0, 4, game.displayBankroll());
+      }
+
       await pause(125);
 
       clearDisplay();
