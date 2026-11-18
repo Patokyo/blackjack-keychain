@@ -72,6 +72,7 @@
   const CELL_COUNT = 300;
   const CELL_SOFT = 100;
   const CELL_HARD = 180;
+  const NO_CELL = 255;   // a hand the chart has no row for
   const MASTERY_MAX = 3;
   const REVIEW_EVERY = 6;
   const MASTERY_KEY = 'blackjack-keychain.mastery';
@@ -439,7 +440,6 @@
     const mastery = new Uint8Array(CELL_COUNT);
     let masteredCells = 0;
     let drillCell = 0;
-    let drillGraded = false;
     let levelUp = 0;
 
     // The four hands of a round, as in the sketch: slots, not a growing
@@ -832,8 +832,11 @@
     }
 
 
-    // Marks one decision against the book and returns whether it was right
-    function grade(chosen, best) {
+    // Marks one decision against the book and returns whether it was right.
+    // The hand and the number of hands are passed in because the hand a round
+    // is showing moves as it is played out; without them the drill's own hand
+    // is used, which is what a single decision on the dealt hand is.
+    function grade(chosen, best, hand, handCount) {
 
       const correct = (chosen === best);
 
@@ -843,11 +846,14 @@
         correctDecisions++;
       }
 
-      // The hand the drill dealt is counted once, on its first answer
-      if (!drillGraded) {
+      // Every decision is stored against the row the hand stood on when the
+      // answer was given, so the 12 that a hit makes out of an 8 is learned
+      // as well as the 8 was. A hand the chart has no row for, such as a
+      // bust or a 21, counts for the accuracy only.
+      const cell = cellForHand(hand || hands[0], dealerUp, handCount || 1);
 
-        drillGraded = true;
-        recordDrill(correct);
+      if (cell !== NO_CELL) {
+        recordDrill(cell, correct);
       }
 
       return correct;
@@ -990,11 +996,51 @@
     }
 
 
-    // One answer, stored against the hand it was asked about. Returns the
-    // band number when that answer was the last one the band needed.
-    function recordDrill(correct) {
+    // Where an up card sits in a chart row: the ten columns run 2 to 9,
+    // then 10, then the ace
+    function upIndex(up) {
 
-      const before = mastery[drillCell];
+      if (up === 1 || up === 11) return 9;
+
+      return up - 2;
+    }
+
+
+    // The chart row a hand is standing on, or NO_CELL when the chart has
+    // none for it. A hand that can still be split is asked about on its pair
+    // row, which is the row bestAction grades it against; once it cannot be
+    // split, the total is what the book has to say.
+    function cellForHand(hand, up, handCount) {
+
+      if (hand.count < 2 || handIsBust(hand)) return NO_CELL;
+
+      if (hand.count === 2 && hand.pairValue !== 0 && canSplit(hand, handCount)) {
+        return (hand.pairValue - 1) * 10 + upIndex(up);
+      }
+
+      const total = handTotal(hand);
+
+      if (handIsSoft(hand)) {
+
+        // Soft 13 to 20 have rows of their own; a soft 21 stands
+        if (total < 13 || total > 20) return NO_CELL;
+
+        return CELL_SOFT + (total - 13) * 10 + upIndex(up);
+      }
+
+      // Hard 5 to 16 are the totals with a decision in them; 17 and up
+      // stand, and nothing below 5 can be made of two cards
+      if (total < 5 || total > 16) return NO_CELL;
+
+      return CELL_HARD + (total - 5) * 10 + upIndex(up);
+    }
+
+
+    // One answer, stored against the chart row it was given on. Returns the
+    // band number when that answer was the last one the band needed.
+    function recordDrill(cell, correct) {
+
+      const before = mastery[cell];
       let after;
 
       if (correct) {
@@ -1010,14 +1056,14 @@
 
       if (after === before) return 0;
 
-      mastery[drillCell] = after;
+      mastery[cell] = after;
 
       if (before < MASTERY_MAX && after >= MASTERY_MAX) masteredCells++;
       if (before >= MASTERY_MAX && after < MASTERY_MAX) masteredCells--;
 
       saveMastery();
 
-      const level = cellLevel(drillCell);
+      const level = cellLevel(cell);
 
       for (let i = 0; i < CELL_COUNT; i++) {
 
@@ -1046,8 +1092,6 @@
     function startRound() {
 
       clearHand(hands[0]);
-
-      drillGraded = false;
 
       if (mode === 'train') {
 

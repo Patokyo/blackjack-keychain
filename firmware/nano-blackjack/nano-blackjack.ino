@@ -740,13 +740,14 @@ Action bestAction(const Hand &hand, byte dealerUp, int handCount) {
 const int CELL_COUNT = 300;
 const int CELL_SOFT = 100;
 const int CELL_HARD = 180;
+const byte NO_CELL = 255;   // a hand the chart has no row for
 
 const byte UP_CARDS[10] = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 1 };
 
-// The hand the drill is asking about this round, and whether its
-// first answer has already been counted
+// The hand the drill deals this round. What is stored is not this
+// but the row each answer is given on, which moves as the hand is
+// played out
 byte drillCell = 0;
-bool drillGraded = false;
 
 // How many hands of the chart are mastered, counted at boot and kept
 // up to date as answers come in
@@ -1007,12 +1008,60 @@ void cellCards(byte index, byte &first, byte &second, byte &up) {
 }
 
 
-// One answer, stored against the hand it was asked about. Returns the
-// band number when that answer was the last one the band needed, so
-// the caller can say so between hands, and 0 otherwise.
-byte recordDrill(bool correct) {
+// Where an up card sits in a chart row: the ten columns run 2 to 9,
+// then 10, then the ace
+byte upIndex(byte up) {
 
-  byte before = masteryOf(drillCell);
+  if (up == 1 || up == 11) {
+    return 9;
+  }
+
+  return (byte)(up - 2);
+}
+
+
+// The chart row a hand is standing on, or NO_CELL when the chart has
+// none for it. A hand that can still be split is asked about on its
+// pair row, which is the row bestAction grades it against; once it
+// cannot be split, the total is what the book has to say.
+byte cellForHand(const Hand &hand, byte dealerUp, int handCount) {
+
+  if (hand.count < 2 || handIsBust(hand)) {
+    return NO_CELL;
+  }
+
+  if (hand.count == 2 && hand.pairValue != 0 && canSplit(hand, handCount)) {
+    return (byte)((hand.pairValue - 1) * 10 + upIndex(dealerUp));
+  }
+
+  byte total = handTotal(hand);
+
+  if (handIsSoft(hand)) {
+
+    // Soft 13 to 20 have rows of their own; a soft 21 stands
+    if (total < 13 || total > 20) {
+      return NO_CELL;
+    }
+
+    return (byte)(CELL_SOFT + (total - 13) * 10 + upIndex(dealerUp));
+  }
+
+  // Hard 5 to 16 are the totals with a decision in them; 17 and up
+  // stand, and nothing below 5 can be made of two cards
+  if (total < 5 || total > 16) {
+    return NO_CELL;
+  }
+
+  return (byte)(CELL_HARD + (total - 5) * 10 + upIndex(dealerUp));
+}
+
+
+// One answer, stored against the chart row it was given on. Returns
+// the band number when that answer was the last one the band needed,
+// so the caller can say so, and 0 otherwise.
+byte recordDrill(byte cell, bool correct) {
+
+  byte before = masteryOf(cell);
   byte after;
 
   if (correct) {
@@ -1031,7 +1080,7 @@ byte recordDrill(bool correct) {
     return 0;
   }
 
-  writeMastery(drillCell, after);
+  writeMastery(cell, after);
 
   if (before < MASTERY_MAX && after >= MASTERY_MAX) {
     masteredCells++;
@@ -1040,7 +1089,7 @@ byte recordDrill(bool correct) {
   }
 
   // Did that finish the band?
-  byte level = cellLevel(drillCell);
+  byte level = cellLevel(cell);
 
   for (int i = 0; i < CELL_COUNT; i++) {
 
@@ -2111,11 +2160,8 @@ void playRound() {
   clearHand(dealer);
   addCard(dealer, dealerUp);
 
-  // The band this hand has just finished, if it finished one, and
-  // whether the drill's own hand has been counted yet
+  // The band this hand has just finished, if it finished one
   byte finishedLevel = 0;
-
-  drillGraded = false;
 
   int current = 0;
 
@@ -2208,15 +2254,17 @@ void playRound() {
         setCorrectLed(correctChoice);
         setWrongLed(!correctChoice);
 
-        // The hand the drill dealt is the one being learned, so only
-        // its first answer counts against the chart. It is stored
-        // right here rather than at the end of the hand, so a power
-        // cut or a flick of the switch cannot lose it; the rest of a
-        // split's decisions still count for the accuracy.
-        if (!drillGraded) {
+        // Every decision is stored against the row the hand stood on
+        // when the answer was given, so the 12 that a hit makes out of
+        // an 8 is learned as well as the 8 was. It is stored right
+        // here rather than at the end of the hand, so a power cut or a
+        // flick of the switch cannot lose it. A hand with no row of
+        // its own, such as a bust or a 21, counts for the accuracy
+        // only.
+        byte cell = cellForHand(hands[current], dealerUp, handCount);
 
-          drillGraded = true;
-          finishedLevel = recordDrill(correctChoice);
+        if (cell != NO_CELL) {
+          finishedLevel = recordDrill(cell, correctChoice);
         }
 
         if (!correctChoice) {

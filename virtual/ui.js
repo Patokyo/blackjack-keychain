@@ -884,7 +884,7 @@
         if (trainingMode) {
 
           const correct = game.bestAction(hand, up, handCount);
-          const correctChoice = game.grade(chosen, correct);
+          const correctChoice = game.grade(chosen, correct, hand, handCount);
 
           leds.correct = correctChoice;
           leds.wrong = !correctChoice;
