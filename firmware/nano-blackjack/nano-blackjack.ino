@@ -1337,10 +1337,18 @@ void accuracyToDigits(byte *out) {
 }
 
 
-// How many hands of the chart are mastered, as a plain count
+// How many hands of the chart are mastered. Four digits always, so a
+// figure sitting beside a word does not leave blank digits behind it: a
+// blank digit still ghosts a little on this display.
 void masteryToDigits(byte *out) {
 
-  numberToDigits(out, 0, 4, masteredCells);
+  int value = masteredCells;
+
+  for (byte i = 4; i > 0; i--) {
+
+    out[i - 1] = FONT[value % 10];
+    value /= 10;
+  }
 }
 
 
