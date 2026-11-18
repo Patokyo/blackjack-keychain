@@ -67,8 +67,8 @@
   const HIGH_WORD = [LETTER_H, LETTER_I, LETTER_G, LETTER_H];
 
   // The label that goes in front of the share of the chart mastered.
-  // M has no seven segment shape, so this reads RATE
-  const RATE_WORD = [LETTER_R, LETTER_A, LETTER_T, LETTER_E];
+  // The label that goes in front of the count of hands mastered
+  const DONE_WORD = [LETTER_D, LETTER_O, LETTER_N, LETTER_E];
 
   // The word for the mode the switch has just been put in
   const MODE_WORDS = {
@@ -249,10 +249,10 @@
   }
 
 
-  // How much of the chart is mastered, in the same shape
+  // How many hands of the chart are mastered, as a plain count
   function masteryToDigits(out) {
 
-    percentageToDigits(out, game.masteryHundredths());
+    numberToDigits(out, 0, 4, game.masteredCount());
   }
 
 
@@ -265,7 +265,7 @@
 
 
   // Train mode: past that second the accuracy and the mastery take turns,
-  // 200 ms each, with RATE in front of the second one
+  // 200 ms each, with DONE in front of the second one
   function holdWantsMasteryWord() {
 
     if (!trainingMode || !holdPastFirstSecond()) return false;
@@ -317,7 +317,7 @@
     }
 
     if (holdWantsMasteryWord()) {
-      return RATE_WORD;
+      return DONE_WORD;
     }
 
     fillHoldView(holdDigits);

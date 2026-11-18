@@ -1180,6 +1180,7 @@
 
       // drill
       masteryHundredths: masteryHundredths,
+      masteredCount: function () { return masteredCells; },
       cellLevel: cellLevel,
       cellCards: cellCards,
       drillCell: function () { return drillCell; },

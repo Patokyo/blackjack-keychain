@@ -39,7 +39,7 @@ running `kicad-cli pcb render` to reproduce these.*
   miss starts that hand again, and finishing a band promotes you. Every
   decision is graded, a wrong answer shows the play the book wanted, and the
   bank button reports your running accuracy; a long hold swaps between the
-  accuracy and how much of the chart you have mastered.
+  accuracy and how many hands of the chart you have mastered.
 
 Both modes share the same rules: six decks, dealer stands on soft 17,
 double on any first two cards, double after split, up to four hands by

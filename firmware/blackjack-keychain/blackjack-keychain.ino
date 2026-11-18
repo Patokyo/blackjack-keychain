@@ -1189,9 +1189,8 @@ const byte LETTER_Y = 0x6E;   // b c d f g
 // The label shown when the high score is on the display
 const byte HIGH_WORD[4] = { LETTER_H, LETTER_I, LETTER_G, LETTER_H };
 
-// The label that goes in front of the share of the chart mastered.
-// M has no seven segment shape, so this reads RATE
-const byte RATE_WORD[4] = { LETTER_R, LETTER_A, LETTER_T, LETTER_E };
+// The label that goes in front of the count of hands mastered
+const byte DONE_WORD[4] = { LETTER_D, LETTER_O, LETTER_N, LETTER_E };
 
 // What the game wants shown, one segment pattern per digit
 byte displayBuffer[4] = { SEGMENT_BLANK, SEGMENT_BLANK, SEGMENT_BLANK, SEGMENT_BLANK };
@@ -1302,10 +1301,10 @@ void accuracyToDigits(byte *out) {
 }
 
 
-// How much of the chart is mastered, in the same shape
+// How many hands of the chart are mastered, as a plain count
 void masteryToDigits(byte *out) {
 
-  percentageToDigits(out, masteredCells, CELL_COUNT);
+  numberToDigits(out, 0, 4, masteredCells);
 }
 
 
@@ -1318,7 +1317,7 @@ bool holdPastFirstSecond() {
 
 
 // Train mode: past that second the accuracy and the mastery take
-// turns, 200 ms each, with RATE in front of the second one
+// turns, 200 ms each, with DONE in front of the second one
 bool holdWantsMasteryWord() {
 
   if (!trainingMode || !holdPastFirstSecond()) {
@@ -1464,7 +1463,7 @@ void refreshDisplay() {
 
     } else if (holdWantsMasteryWord()) {
 
-      writeSegments(RATE_WORD[refreshIndex]);
+      writeSegments(DONE_WORD[refreshIndex]);
 
     } else {
 
