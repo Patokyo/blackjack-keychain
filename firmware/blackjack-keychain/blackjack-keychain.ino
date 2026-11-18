@@ -650,14 +650,15 @@ Action bestAction(const Hand &hand, byte dealerUp, int handCount) {
 
     // These fall through to the available-action check below, so a
     // hit that leaves 9, 10 or 11 is graded HIT when doubling is
-    // no longer on the table      if (total == 11) {
+    // no longer on the table
+    if (total == 11) {
 
-        // An ace up is the one exception: this device never peeks at
-        // the hole card, and an S17 dealer stands on 17, so 11 against
-        // an ace is a hit rather than a double
-        action = (up == 11) ? HIT : DOUBLE;
+      // An ace up is the one exception: this device never peeks at
+      // the hole card, and an S17 dealer stands on 17, so 11 against
+      // an ace is a hit rather than a double
+      action = (up == 11) ? HIT : DOUBLE;
 
-      } else if (total == 10) {
+    } else if (total == 10) {
 
       action = (up <= 9) ? DOUBLE : HIT;
 
