@@ -135,13 +135,15 @@
   hand is dealt.
 
   Coming into play mode, at power up or back from train mode, the
-  display shows PLAY, then HIGH and then the best bank so far,
-  before the first hand is dealt.
+  bank starts over at $100 and the display shows PLAY, then HIGH
+  and then the best bank so far, before the first hand is dealt.
 
   Hold the bank button at any time, in any part of the game, to
   take the display over and show the bankroll. Keep holding past
   a second and it starts flashing HIGH over the best bank, over
-  and over, until the button is let go.
+  and over, until the button is let go. At the bet prompt the
+  bankroll only comes up once the press has become a hold, so a
+  tap that deals the hand never flashes it.
 
   Before every hand the display shows BET, then the bet itself.
   The bet is the player's to set right there: HIT puts another $5
@@ -299,7 +301,7 @@ const int HIGHSCORE_ADDRESS = 0;   // 0 to 3
 // a miss starts it again. Three hundred bytes sit above the high score.
 const int MASTERY_TAG_ADDRESS = 4;   // 1 byte, the table's format
 const int MASTERY_ADDRESS = 5;       // 300 bytes, one per chart hand
-const byte MASTERY_VERSION = 1;
+const byte MASTERY_VERSION = 2;   // bumped to clear the table on a reflash
 const byte MASTERY_MAX = 3;          // right answers in a row to master
 const byte DRILL_LEVELS = 5;         // difficulty bands in the chart
 const byte REVIEW_EVERY = 6;         // one hand in six looks further back
@@ -740,14 +742,20 @@ Action bestAction(const Hand &hand, byte dealerUp, int handCount) {
 const int CELL_COUNT = 300;
 const int CELL_SOFT = 100;
 const int CELL_HARD = 180;
-const byte NO_CELL = 255;   // a hand the chart has no row for
+const int NO_CELL = -1;     // a hand the chart has no row for
+
+// A cell index is an int, here and everywhere it is passed around.
+// The chart runs past 256 cells, so a byte index would wrap the hard
+// 13 to 16 rows back onto the pair rows, and 255 would mean both the
+// hard 12 against a 7 and NO_CELL, which made that hand impossible to
+// record and so impossible to master
 
 const byte UP_CARDS[10] = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 1 };
 
 // The hand the drill deals this round. What is stored is not this
 // but the row each answer is given on, which moves as the hand is
 // played out
-byte drillCell = 0;
+int drillCell = 0;
 
 // How many hands of the chart are mastered, counted at boot and kept
 // up to date as answers come in
@@ -755,7 +763,7 @@ int masteredCells = 0;
 
 
 // A cell is a pair (0), a soft hand (1) or a hard total (2)
-byte cellKind(byte index) {
+byte cellKind(int index) {
 
   if (index < CELL_SOFT) return 0;
   if (index < CELL_HARD) return 1;
@@ -764,27 +772,27 @@ byte cellKind(byte index) {
 }
 
 
-byte cellUp(byte index) {
+byte cellUp(int index) {
 
   return UP_CARDS[index % 10];
 }
 
 
 // The value of the pair, 1 for a pair of aces
-byte cellPair(byte index) {
+byte cellPair(int index) {
 
   return (byte)(index / 10) + 1;
 }
 
 
 // The low card of a soft hand, so 2 is A,2 and 9 is A,9
-byte cellSoftLow(byte index) {
+byte cellSoftLow(int index) {
 
   return (byte)((index - CELL_SOFT) / 10) + 2;
 }
 
 
-byte cellHardTotal(byte index) {
+byte cellHardTotal(int index) {
 
   return (byte)((index - CELL_HARD) / 10) + 5;
 }
@@ -793,7 +801,7 @@ byte cellHardTotal(byte index) {
 // The hands that catch people out: the soft 18s that stand, the 16s
 // that do not, 15 against a ten, 11 against an ace and a pair of 9s
 // against a 7. They make up the last band on their own.
-bool cellIsTricky(byte index) {
+bool cellIsTricky(int index) {
 
   byte up = cellUp(index);
   byte kind = cellKind(index);
@@ -821,7 +829,7 @@ bool cellIsTricky(byte index) {
 
 // Which band a hand belongs to. The bands run from the hands that
 // come up most to the ones that need the most thought.
-byte cellLevel(byte index) {
+byte cellLevel(int index) {
 
   if (cellIsTricky(index)) return 5;
 
@@ -844,7 +852,7 @@ byte cellLevel(byte index) {
 
 // What is stored against a hand. A byte nothing has written to yet
 // reads back as 255, which counts as unseen like a zero does.
-byte masteryOf(byte index) {
+byte masteryOf(int index) {
 
   byte value = EEPROM.read(MASTERY_ADDRESS + index);
 
@@ -852,7 +860,7 @@ byte masteryOf(byte index) {
 }
 
 
-void writeMastery(byte index, byte value) {
+void writeMastery(int index, byte value) {
 
   if (masteryOf(index) == value) {
     return;
@@ -870,7 +878,7 @@ byte firstUnmasteredLevel() {
 
     for (int i = 0; i < CELL_COUNT; i++) {
 
-      byte cell = (byte)i;
+      int cell = i;
 
       if (cellLevel(cell) == level && masteryOf(cell) < MASTERY_MAX) {
         return level;
@@ -884,7 +892,7 @@ byte firstUnmasteredLevel() {
 
 // How much a hand still needs work: four for one never answered, down
 // to one for a hand a single right answer from mastered
-byte cellWeight(byte index) {
+byte cellWeight(int index) {
 
   byte mastery = masteryOf(index);
 
@@ -899,13 +907,13 @@ byte cellWeight(byte index) {
 // Pick the hand to deal: from the first band not yet mastered,
 // weighted towards the hands answered wrong most often, with the odd
 // hand from the bands below so the easy ones stay learned
-byte chooseDrillCell() {
+int chooseDrillCell() {
 
   byte level = firstUnmasteredLevel();
 
   // Everything is mastered: the drill carries on evenly
   if (level == 0) {
-    return (byte)random(CELL_COUNT);
+    return random(CELL_COUNT);
   }
 
   bool review = (level > 1) && (random(REVIEW_EVERY) == 0);
@@ -913,7 +921,7 @@ byte chooseDrillCell() {
 
   for (int i = 0; i < CELL_COUNT; i++) {
 
-    byte cell = (byte)i;
+    int cell = i;
 
     if (review) {
 
@@ -928,14 +936,14 @@ byte chooseDrillCell() {
   }
 
   if (total == 0) {
-    return (byte)random(CELL_COUNT);
+    return random(CELL_COUNT);
   }
 
   int pick = random(total);
 
   for (int i = 0; i < CELL_COUNT; i++) {
 
-    byte cell = (byte)i;
+    int cell = i;
 
     if (review) {
 
@@ -955,14 +963,14 @@ byte chooseDrillCell() {
     }
   }
 
-  return (byte)random(CELL_COUNT);
+  return random(CELL_COUNT);
 }
 
 
 // The two cards that make the chosen hand, and the dealer's up card.
 // Hard totals are built from two different values, so that no pair
 // stands in for a total the chart prints on a row of its own.
-void cellCards(byte index, byte &first, byte &second, byte &up) {
+void cellCards(int index, byte &first, byte &second, byte &up) {
 
   byte kind = cellKind(index);
 
@@ -1024,14 +1032,14 @@ byte upIndex(byte up) {
 // none for it. A hand that can still be split is asked about on its
 // pair row, which is the row bestAction grades it against; once it
 // cannot be split, the total is what the book has to say.
-byte cellForHand(const Hand &hand, byte dealerUp, int handCount) {
+int cellForHand(const Hand &hand, byte dealerUp, int handCount) {
 
   if (hand.count < 2 || handIsBust(hand)) {
     return NO_CELL;
   }
 
   if (hand.count == 2 && hand.pairValue != 0 && canSplit(hand, handCount)) {
-    return (byte)((hand.pairValue - 1) * 10 + upIndex(dealerUp));
+    return (hand.pairValue - 1) * 10 + upIndex(dealerUp);
   }
 
   byte total = handTotal(hand);
@@ -1043,7 +1051,7 @@ byte cellForHand(const Hand &hand, byte dealerUp, int handCount) {
       return NO_CELL;
     }
 
-    return (byte)(CELL_SOFT + (total - 13) * 10 + upIndex(dealerUp));
+    return CELL_SOFT + (total - 13) * 10 + upIndex(dealerUp);
   }
 
   // Hard 5 to 16 are the totals with a decision in them; 17 and up
@@ -1052,14 +1060,14 @@ byte cellForHand(const Hand &hand, byte dealerUp, int handCount) {
     return NO_CELL;
   }
 
-  return (byte)(CELL_HARD + (total - 5) * 10 + upIndex(dealerUp));
+  return CELL_HARD + (total - 5) * 10 + upIndex(dealerUp);
 }
 
 
 // One answer, stored against the chart row it was given on. Returns
 // the band number when that answer was the last one the band needed,
 // so the caller can say so, and 0 otherwise.
-byte recordDrill(byte cell, bool correct) {
+byte recordDrill(int cell, bool correct) {
 
   byte before = masteryOf(cell);
   byte after;
@@ -1093,9 +1101,9 @@ byte recordDrill(byte cell, bool correct) {
 
   for (int i = 0; i < CELL_COUNT; i++) {
 
-    byte cell = (byte)i;
+    int other = i;
 
-    if (cellLevel(cell) == level && masteryOf(cell) < MASTERY_MAX) {
+    if (cellLevel(other) == level && masteryOf(other) < MASTERY_MAX) {
       return 0;
     }
   }
@@ -1247,9 +1255,20 @@ bool bankShown = false;
 byte bankSettle = 0;
 unsigned long bankHeldSince = 0;
 
-// How long a press has to last before it is a hold rather than a tap.
-// The high score comes up at this point, and at the bet prompt a press
-// shorter than this confirms the bet instead of only showing the bank.
+// While the bet prompt is up the display stays on the bet even with
+// the bank button down, so a tap that deals never flashes the
+// bankroll. Once the press is too long to be a tap the hold view is
+// let through, and it stays through until the button is let go.
+bool holdViewSuppressed = false;
+
+// How long a press at the bet prompt has to last before it counts as
+// a hold: a tap shorter than this deals the hand, while anything at
+// or past it only brings the bankroll up and never deals.
+const unsigned long BANK_TAP_MS = 200;
+
+// How long a hold has to last before its view moves on from the bank
+// to the high score in play mode, or from the accuracy to the mastery
+// in train mode.
 const unsigned long BANK_HOLD_MS = 1000;
 
 // How long each half of a long hold stays on the display, in both
@@ -1495,7 +1514,7 @@ void refreshDisplay() {
 
   refreshIndex = (refreshIndex + 1) & 3;
 
-  if (bankShown) {
+  if (bankShown && !holdViewSuppressed) {
 
     if (holdWantsHighWord()) {
 
@@ -1637,13 +1656,15 @@ void showHighScore() {
 }
 
 
-// A band finished: L and the number of the band now being worked on
+// A band finished: L and the number of the band now being worked on,
+// centred in the middle two digits so the announcement sits between
+// the hands it separates
 void showLevelUp(byte level) {
 
   clearDisplay();
 
-  displayBuffer[0] = LETTER_L;
-  displayBuffer[1] = FONT[level % 10];
+  displayBuffer[1] = LETTER_L;
+  displayBuffer[2] = FONT[level % 10];
 
   pause(700);
 }
@@ -1976,8 +1997,9 @@ void waitForRestart() {
   setCorrectLed(LOW);
   setWrongLed(LOW);
 
-  // The press and its release both have to finish first, and a mode
-  // change is a way out that leaves the bank where it is
+  // The press and its release both have to finish first. A mode
+  // change is a way out: the bank is only reset when play mode is
+  // entered again, so going to train and back starts a fresh run
   while (!anyButtonDown()) {
 
     if (modeChangePending) {
@@ -2077,19 +2099,39 @@ bool askForBet() {
 
     if (side == LEVEL_6K8) {
 
-      // Down until it is let go, with the display showing the
-      // bankroll and then the high score, as any other hold does
-      waitForRelease(BTN_SIDE_PIN);
+      // A tap deals the hand; a hold only looks at the bank. The
+      // display stays on the bet until the press is too long to be a
+      // tap, so a tap never flashes the bankroll on its way to the
+      // first card, and a hold that has shown the bank never deals.
+      bool held = false;
+
+      while (readLadder(BTN_SIDE_PIN) != LEVEL_NONE) {
+
+        if (modeChangePending) {
+          return false;
+        }
+
+        if (!held && (millis() - pressedAt) >= BANK_TAP_MS) {
+          held = true;
+          holdViewSuppressed = false;
+        }
+
+        pause(5);
+      }
+
+      pause(20);
 
       if (modeChangePending) {
         return false;
       }
 
-      // A hold was a look at the bank, not a confirmation
-      if (millis() - pressedAt < BANK_HOLD_MS) {
+      if (!held) {
         return true;
       }
 
+      // The hold was a look at the bank, not a confirmation: the
+      // bet comes back as soon as the button is let go
+      holdViewSuppressed = true;
       continue;
     }
 
@@ -2126,9 +2168,21 @@ void playRound() {
   setWrongLed(LOW);
 
   // The bet is set here, in play mode only: train mode has no bank
-  // to bet and no reason to ask
-  if (!trainingMode && !askForBet()) {
-    return;
+  // to bet and no reason to ask. The hold view starts off while the
+  // prompt is up, so a tap of the bank button deals without first
+  // putting the bankroll on the display; askForBet() lets it through
+  // only once the press is too long to be a tap.
+  if (!trainingMode) {
+
+    holdViewSuppressed = true;
+
+    bool confirmed = askForBet();
+
+    holdViewSuppressed = false;
+
+    if (!confirmed) {
+      return;
+    }
   }
 
   Hand hands[MAX_HANDS];
@@ -2172,7 +2226,7 @@ void playRound() {
   clearHand(dealer);
   addCard(dealer, dealerUp);
 
-  // The band this hand has just finished, if it finished one
+  // The band this round has finished, if it finished one
   byte finishedLevel = 0;
 
   int current = 0;
@@ -2273,7 +2327,7 @@ void playRound() {
         // flick of the switch cannot lose it. A hand with no row of
         // its own, such as a bust or a 21, counts for the accuracy
         // only.
-        byte cell = cellForHand(hands[current], dealerUp, handCount);
+        int cell = cellForHand(hands[current], dealerUp, handCount);
 
         if (cell != NO_CELL) {
           finishedLevel = recordDrill(cell, correctChoice);
@@ -2284,13 +2338,6 @@ void playRound() {
           showActionWord(correct);
           pause(500);
         }
-
-        if (finishedLevel && finishedLevel < DRILL_LEVELS) {
-
-          showLevelUp((byte)(finishedLevel + 1));
-        }
-
-        finishedLevel = 0;
       }
 
       if (chosen == STAND) {
@@ -2468,9 +2515,14 @@ void playRound() {
       bankroll += change;
     }
 
+    // The result LED flashes for half a second and then goes out,
+    // the same way the correct and wrong LEDs do in train mode, so
+    // it is never still lit while the next hand is being played
     showTable(hands[i], dealerTotal);
     setOutcomeLed(outcome);
-    pause(900);
+    pause(500);
+    setOutcomeLed(OUTCOME_NONE);
+    pause(400);
   }
 
   if (!trainingMode) {
@@ -2492,6 +2544,12 @@ void playRound() {
       highscore = bankroll;
       EEPROM.put(HIGHSCORE_ADDRESS, highscore);
     }
+  }
+
+  // A band finished somewhere in this round: say which one is next now
+  // that the hand is over, never in the middle of it
+  if (finishedLevel && finishedLevel < DRILL_LEVELS) {
+    showLevelUp((byte)(finishedLevel + 1));
   }
 
   // Easter egg: the bank cannot be beaten, and it never comes back
@@ -2556,7 +2614,7 @@ void setup() {
 
   for (int i = 0; i < CELL_COUNT; i++) {
 
-    if (masteryOf((byte)i) >= MASTERY_MAX) {
+    if (masteryOf(i) >= MASTERY_MAX) {
       masteredCells++;
     }
   }
@@ -2630,6 +2688,13 @@ void loop() {
   }
 
   if (enteredPlay) {
+
+    // Play starts from the same place every time it is entered, the
+    // same as a power up: the bank is 100 and the bet is back to its
+    // default. Only the high score carries over, because EEPROM is
+    // the only thing that outlives a run.
+    bankroll = STARTING_BANKROLL;
+    betAmount = BET;
 
     // HIGH, then the best bank, before the first hand
     showHighScore();

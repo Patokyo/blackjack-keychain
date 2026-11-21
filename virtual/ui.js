@@ -414,13 +414,14 @@
   }
 
 
-  // On the way into play mode: the label, then the best bank so far
+  // The band just finished: L and its number, centred in the middle two
+  // digits so the announcement sits between the hands it separates
   async function showLevel(level) {
 
     clearDisplay();
 
-    displayBuffer[0] = LETTER_L;
-    displayBuffer[1] = FONT[level % 10];
+    displayBuffer[1] = LETTER_L;
+    displayBuffer[2] = FONT[level % 10];
 
     await pause(700);
   }
@@ -697,6 +698,9 @@
     game.setMode(trainingMode ? 'train' : 'play');
     pendingModeChange = true;
 
+    // A band announcement belongs to the round being dropped
+    game.takeLevelUp();
+
     // Whatever the round was waiting on gives up on its press
     dropWaiters();
   }
@@ -904,13 +908,6 @@
           if (!correctChoice) {
             await showActionWord(correct);
           }
-
-          // A band finished on that answer: say which one is next
-          const finished = game.takeLevelUp();
-
-          if (finished && finished < 5) {
-            await showLevel(finished + 1);
-          }
         }
 
         if (chosen === 'S') {
@@ -1039,6 +1036,14 @@
     }
 
     game.finishRound();
+
+    // A band finished somewhere in this round: say which one is next now
+    // that the hand is over, never in the middle of it
+    const finished = trainingMode ? game.takeLevelUp() : 0;
+
+    if (finished && finished < 5) {
+      await showLevel(finished + 1);
+    }
 
     // Easter egg: the bank cannot be beaten, and it never comes back
     if (game.jackpot()) {
